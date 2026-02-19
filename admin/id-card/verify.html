@@ -9,8 +9,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/workspace-refinements.css">
+    <link rel="stylesheet" href="/admin/id-card/css/style.css">
+    <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
 </head>
 
 <body>
@@ -18,7 +18,7 @@
 
     <header class="workspace-header">
         <div class="brand-sec">
-            <img src="../../assets/favicon.png" alt="Logo"
+            <img src="/assets/favicon.png" alt="Logo"
                 style="height: 25px; filter: drop-shadow(0 0 5px var(--accent-primary));">
             <span>COFFEECREWS</span>
         </div>
@@ -146,21 +146,21 @@
         </main>
     </div>
 
-    <script src="js/data.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
     <script>
         let activeMember = null;
         let currentTab = 'home';
 
         document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
             // AUTH CHECK
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
             if (!session.timestamp || (Date.now() - session.timestamp > 1000 * 60 * 60 * 24)) {
-                location.href = 'login.html' + (id ? '?return_to=' + id : '');
+                location.href = 'login.html' + (id ? '?id=' + id : '');
                 return;
             }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
 
             // ACL Check
             if (session.role === 'crew' && session.id !== id) {

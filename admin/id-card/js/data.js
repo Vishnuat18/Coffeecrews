@@ -10,7 +10,7 @@ const INITIAL_MEMBERS = [
         name: "Vishnu R",
         role: "Full stack Dev",
         description: "Engineering Student & Developer passionate about crafting robust, scalable web applications. Expert in Java systems and Secure Web Architectures.",
-        image: "../../assets/vishnu.jpeg",
+        image: "/assets/vishnu.jpeg",
         accent: "#00f3ff",
         access: "admin",
         contact: {
@@ -27,7 +27,7 @@ const INITIAL_MEMBERS = [
         name: "Kiran Balaso Patil",
         role: "Full Stack Dev",
         description: "Specialist in Node.js and Java backends. Creator of SmartCart and complex Management Systems. 'Write Once, Run Anywhere.'",
-        image: "../../assets/kiran.jpeg",
+        image: "/assets/kiran.jpeg",
         accent: "#ff003c",
         contact: {
             phone: "+918610641610",
@@ -43,7 +43,7 @@ const INITIAL_MEMBERS = [
         name: "Rohith S",
         role: "Front end Dev",
         description: "Focus on Front-End Design and Interactive Experiences. Creating visually engaging, responsive layouts that wow users.",
-        image: "../../assets/rohith.png",
+        image: "/assets/rohith.png",
         accent: "#0aff0a",
         contact: {
             phone: "+917530019229",
@@ -59,7 +59,7 @@ const INITIAL_MEMBERS = [
         name: "Prasanna Ramana S",
         role: "Founder & CEO",
         description: "Visionary leader driving the strategic direction of CoffeeCrews. Fostering innovation and building the future of tech.",
-        image: "../../assets/prasanna.jpeg",
+        image: "/assets/prasanna.jpeg",
         accent: "#ffd700",
         access: "admin",
         contact: {
@@ -76,7 +76,7 @@ const INITIAL_MEMBERS = [
         name: "Senthilnathan L M",
         role: "UI/UX Designer",
         description: "Creative Web Designer focusing on intuitive user interfaces and modern aesthetics. Crafting digital experiences that inspire.",
-        image: "../../assets/senthil.png",
+        image: "/assets/senthil.png",
         accent: "#ff5722",
         contact: {
             phone: "+919345639455",
@@ -92,7 +92,7 @@ const INITIAL_MEMBERS = [
         name: "Dharanitharan P",
         role: "Founder & CEO",
         description: "Optimizing systems and driving growth. Bridging the gap between engineering excellence and strategic vision.",
-        image: "../../assets/dharani.png",
+        image: "/assets/dharani.png",
         accent: "#ffd700",
         access: "admin",
         contact: {
@@ -109,7 +109,7 @@ const INITIAL_MEMBERS = [
         name: "Gowdhama Chandhran K",
         role: "DB Manager",
         description: "Master of Data management. Ensuring the integrity and availability of our most critical information assets.",
-        image: "../../assets/gk.png",
+        image: "/assets/gk.png",
         accent: "#44efab",
         contact: {
             phone: "+917639013065",
@@ -125,7 +125,7 @@ const INITIAL_MEMBERS = [
         name: "Gokul",
         role: "Video Editor",
         description: "Master of Motion and Visual Storytelling. Bringing static concepts to life through animation and design.",
-        image: "../../assets/gokul.jpeg",
+        image: "/assets/gokul.jpeg",
         accent: "#ff00ff",
         contact: {
             phone: "#",
@@ -141,7 +141,7 @@ const INITIAL_MEMBERS = [
         name: "Santhosh",
         role: "Prompt Engineer",
         description: "Specializing in iterative prompt design and behavior fine-tuning for complex digital assistants.",
-        image: "../../assets/favicon.png",
+        image: "/assets/favicon.png",
         accent: "#b71b4d",
         contact: {
             phone: "#",
@@ -154,7 +154,7 @@ const INITIAL_MEMBERS = [
         name: "Nithish",
         role: "Prompt Engineer",
         description: "Synthesizing data-driven insights with creative linguistic patterns to enhance AI reasoning capabilities.",
-        image: "../../assets/nithish.png",
+        image: "/assets/nithish.png",
         accent: "#8fd222",
         contact: {
             phone: "#",
@@ -167,7 +167,7 @@ const INITIAL_MEMBERS = [
         name: "Akshaya",
         role: "Web Designer",
         description: "UI/UX Designer creating intuitive, human-centric interfaces. Merging pixel perfection with user empathy.",
-        image: "../../assets/akshaya.png",
+        image: "/assets/akshaya.png",
         accent: "#f472b6",
         contact: {
             phone: "#",
@@ -180,17 +180,23 @@ class DataManager {
     static STORAGE_KEY = 'coffeecrews_id_cards';
 
     static getAllMembers() {
-        const stored = localStorage.getItem(this.STORAGE_KEY);
-        if (!stored) {
-            this.saveAllMembers(INITIAL_MEMBERS);
+        try {
+            const stored = localStorage.getItem(this.STORAGE_KEY);
+            if (!stored) {
+                this.saveAllMembers(INITIAL_MEMBERS);
+                return INITIAL_MEMBERS;
+            }
+            return JSON.parse(stored);
+        } catch (e) {
+            console.error("LocalStorage access failed:", e);
             return INITIAL_MEMBERS;
         }
-        return JSON.parse(stored);
     }
 
     static getMemberById(id) {
         const members = this.getAllMembers();
-        return members.find(m => m.id === id);
+        if (!id) return null;
+        return members.find(m => m.id.toLowerCase() === id.toLowerCase());
     }
 
     static saveAllMembers(members) {

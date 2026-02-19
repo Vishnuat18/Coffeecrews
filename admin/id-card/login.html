@@ -9,7 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/admin/id-card/css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         body {
@@ -212,7 +212,7 @@
 
     <div class="login-container">
         <div class="scanner-frame">
-            <img id="scanned-id" src="../../assets/favicon.png" class="scanned-photo" alt="Personnel">
+            <img id="scanned-id" src="/assets/favicon.png" class="scanned-photo" alt="Personnel">
             <div class="detection-overlay">
                 <i class="fas fa-fingerprint fa-2x" style="color: var(--accent-primary); opacity: 0.5;"></i>
                 <div id="status-text" class="status-msg">Scanning Personnel...</div>
@@ -234,7 +234,7 @@
         </div>
     </div>
 
-    <script src="js/data.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
     <script>
         let members = [];
         let currentMember = null;
@@ -246,13 +246,16 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             // Support both 'return_to' and 'id' for auto-detection
-            const targetId = urlParams.get('return_to') || urlParams.get('id');
+            const rawId = urlParams.get('return_to') || urlParams.get('id');
+            const targetId = rawId ? rawId.toLowerCase() : null;
 
             if (targetId) {
-                const target = members.find(m => m.id === targetId);
+                console.log("Attempting to detect personnel ID:", targetId);
+                const target = members.find(m => m.id.toLowerCase() === targetId);
                 if (target) {
                     detectPerson(target);
                 } else {
+                    console.warn("Personnel ID not found in database:", targetId);
                     startScanning();
                 }
             } else {

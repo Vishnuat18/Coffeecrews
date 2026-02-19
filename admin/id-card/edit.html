@@ -5,17 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Member | CoffeeCrews Admin</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/admin/id-card/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
     <nav class="top-nav" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <a href="../../index.html" class="nav-brand">
-            <img src="../../assets/logo/mainlogo.jpeg" alt="CoffeeCrews Logo" class="nav-main-logo">
+        <a href="/index.html" class="nav-brand">
+            <img src="/assets/logo/mainlogo.jpeg" alt="CoffeeCrews Logo" class="nav-main-logo">
         </a>
         <div class="nav-links">
-            <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
+            <a href="/admin/id-card/index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
             <span class="nav-link active"><i class="fas fa-edit"></i> EDITOR</span>
         </div>
     </nav>
@@ -30,9 +30,9 @@
             <form id="editForm">
                 <div class="form-group">
                     <label>PROFILE IMAGE URL</label>
-                    <input type="text" id="editImage" placeholder="assets/name.jpg" required>
-                    <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 5px;">Tip: Use relative paths like
-                        "../../assets/name.jpg" or full URLs.</p>
+                    <input type="text" id="editImage" placeholder="/assets/name.jpg" required>
+                    <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 5px;">Tip: Use root-relative paths like
+                        "/assets/name.jpg" or full URLs.</p>
                 </div>
 
                 <div class="form-group">
@@ -110,7 +110,7 @@
         </div>
     </div>
 
-    <script src="js/data.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
