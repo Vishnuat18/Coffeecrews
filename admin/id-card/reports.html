@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPORTS COMMAND CENTER | CoffeeCrews Admin</title>
+    <link rel="stylesheet" href="../../admin/id-card/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        .reports-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 3rem;
+        }
+
+        .report-strip {
+            display: grid;
+            grid-template-columns: 80px 1fr 350px;
+            gap: 25px;
+            padding: 30px;
+            border-radius: 20px;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .report-strip {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .strip-photo {
+                margin: 0 auto;
+            }
+        }
+
+        .strip-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-primary);
+            object-fit: cover;
+        }
+
+        .report-main-content {
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 25px;
+        }
+
+        .report-user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .report-user-name {
+            font-family: 'Orbitron';
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .report-user-role {
+            font-size: 0.65rem;
+            color: var(--accent-primary);
+            letter-spacing: 2px;
+            background: rgba(var(--accent-rgb, 0, 243, 255), 0.1);
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        .report-body-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .command-center-controls {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pending-badge {
+            display: inline-block;
+            background: #ff003c;
+            color: #fff;
+            font-size: 0.6rem;
+            font-family: 'Orbitron';
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            from {
+                box-shadow: 0 0 0px #ff003c;
+            }
+
+            to {
+                box-shadow: 0 0 10px #ff003c;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <a href="../../index.html" class="nav-brand">
+            <img src="../../assets/logo/logo.png" alt="Logo" class="nav-main-logo" style="height: 40px;">
+            <span>COFFEECREWS</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
+            <a href="reports.html" class="nav-link active"><i class="fas fa-tower-broadcast"></i> COMMAND CENTER</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <button class="btn-primary" onclick="triggerGlobalBroadcast()"
+                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem;">
+                    <i class="fas fa-tower-broadcast"></i> GLOBAL BROADCAST
+                </button>
+                <div id="pending-indicator" style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ff003c;">
+                    <i class="fas fa-circle-exclamation"></i> <span id="pending-count">0</span> PENDING
+                </div>
+                <button onclick="handleLogout()"
+                    style="background:transparent; border:none; color:#ff003c; cursor:pointer; font-family:'Orbitron'; font-size:0.7rem;">
+                    <i class="fas fa-power-off"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="reports-feed" id="reports-feed">
+            <!-- Reports will be injected here -->
+        </div>
+    </div>
+
+    <script src="../../admin/id-card/js/data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // AUTH CHECK
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            if (session.role !== 'admin') {
+                location.href = 'login.html';
+                return;
+            }
+
+            refreshReports();
+
+            // REAL-TIME SYNC: Listen for updates (Cross-tab and Local)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'coffeecrews_id_cards') refreshReports();
+            });
+
+            window.addEventListener('coffeecrews_data_update', () => {
+                refreshReports();
+            });
+        });
+
+        // COMMAND ACTIONS
+        function triggerGlobalBroadcast() {
+            const msg = prompt("ENTER GLOBAL MISSION DIRECTIVE (Will be sent to ALL crew members):");
+            if (msg && msg.trim()) {
+                if (DataManager.globalBroadcast(msg.trim())) {
+                    alert("GLOBAL TRANSMISSION SUCCESSFUL");
+                    refreshReports();
+                }
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("TERMINATE SECURE SESSION?")) {
+                localStorage.removeItem('cc_session');
+                location.href = 'login.html';
+            }
+        }
+
+        function refreshReports() {
+            const members = window.DataManager.getAllMembers();
+            const feed = document.getElementById('reports-feed');
+            let pending = 0;
+
+            feed.innerHTML = '';
+
+            members.forEach(m => {
+                const history = m.chatHistory || [];
+                const needsReply = history.length > 0 && history[history.length - 1].sender !== 'HQ';
+                if (needsReply) pending++;
+
+                const strip = document.createElement('div');
+                strip.className = 'report-strip glass';
+                strip.style.opacity = '0';
+
+                // Get last 2 messages for context
+                const recentHistory = history.slice(-2);
+                const historyHtml = recentHistory.map(msg => `
+                    <div style="font-size: 0.8rem; margin-top: 5px; opacity: ${msg.sender === 'HQ' ? '0.6' : '1'}; border-left: 2px solid ${msg.sender === 'HQ' ? '#aaa' : 'var(--accent-primary)'}; padding-left: 8px;">
+                        <span style="font-family: 'Orbitron'; font-size: 0.6rem; color: var(--accent-primary);">${msg.sender}:</span> 
+                        ${msg.text ? `"${msg.text}"` : (msg.image ? '[ATTACHED MEDIA]' : '')}
+                    </div>
+                `).join('');
+
+                strip.innerHTML = `
+                    <img src="${m.image}" alt="${m.name}" class="strip-photo">
+                    <div class="report-main-content">
+                        <div class="report-user-info">
+                            <span class="report-user-name">${m.name}</span>
+                            <span class="report-user-role">${m.role.toUpperCase()}</span>
+                            ${needsReply ? '<span class="pending-badge">PENDING ACTION</span>' : ''}
+                        </div>
+                        <div class="report-history" style="margin-top: 10px;">
+                            <div class="report-label" style="font-size: 0.6rem; opacity: 0.5; margin-bottom: 5px;">MISSION INTELLIGENCE HISTORY:</div>
+                            ${historyHtml || '<div style="opacity: 0.4; font-size: 0.8rem;">No active transmissions</div>'}
+                        </div>
+                    </div>
+                    <div class="command-center-controls">
+                        <div class="report-label" style="font-size: 0.6rem; margin-bottom: 8px;">BROADCAST HQ DIRECTIVE:</div>
+                        <textarea class="directive-input" id="reply-${m.id}" placeholder="Transmit orders..." style="height: 60px;"></textarea>
+                        <button class="btn-directive" onclick="sendDirective('${m.id}')" style="padding: 10px; font-size: 0.7rem;">
+                            <i class="fas fa-tower-broadcast"></i> BROADCAST DIRECTIVE
+                        </button>
+                    </div>
+                `;
+                feed.appendChild(strip);
+            });
+
+            document.getElementById('pending-count').textContent = pending;
+
+            gsap.to('.report-strip', {
+                opacity: 1,
+                y: 0,
+                stagger: 0.1,
+                duration: 0.6,
+                startAt: { y: 20 }
+            });
+        }
+
+        async function sendDirective(id) {
+            const input = document.getElementById(`reply-${id}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> TRANSMITTING...';
+
+            await new Promise(r => setTimeout(r, 600));
+
+            const member = window.DataManager.getMemberById(id);
+            const history = member.chatHistory || [];
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            history.push({ sender: 'HQ', text, time });
+
+            if (window.DataManager.updateMember(id, { chatHistory: history })) {
+                btn.innerHTML = '<i class="fas fa-check"></i> BROADCAST SUCCESS';
+                btn.style.color = '#0aff0a';
+                btn.style.borderColor = '#0aff0a';
+
+                setTimeout(() => {
+                    refreshReports();
+                }, 1000);
+            } else {
+                btn.innerHTML = originalHtml;
+            }
+        }
+    </script>
+</body>
+
+</html>

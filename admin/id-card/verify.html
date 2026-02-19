@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERSONNEL WORKSPACE | CoffeeCrews Secure</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/workspace-refinements.css">
+</head>
+
+<body>
+    <div id="loader">INITIATING WORKSPACE...</div>
+
+    <header class="workspace-header">
+        <div class="brand-sec">
+            <img src="../../assets/favicon.png" alt="Logo"
+                style="height: 25px; filter: drop-shadow(0 0 5px var(--accent-primary));">
+            <span>COFFEECREWS</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="font-family: 'Orbitron'; font-size: 0.7rem; color: var(--safe-green);">
+                <i class="fas fa-satellite"></i> HQ ESTABLISHED
+            </div>
+            <button onclick="handleLogout()"
+                style="background:rgba(255,0,60,0.1); border:1px solid #ff003c; border-radius:30px; padding:8px 15px; color:#ff003c; cursor:pointer; font-family:'Orbitron'; font-size:0.6rem; transition:0.3s;">
+                TERMINATE <i class="fas fa-power-off"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <aside class="profile-sidebar">
+            <div class="identity-card">
+                <div class="photo-wrapper">
+                    <img id="p-photo" src="" alt="Personnel">
+                </div>
+                <div class="profile-details" style="text-align: left;">
+                    <h1 id="p-name" class="name-tag">NAME</h1>
+                    <span id="p-role" class="role-tag">ROLE</span>
+                    <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                        <div class="stat-pill" style="padding: 8px 12px; font-size: 0.7rem;">
+                            <i class="fas fa-microchip"></i>
+                            <div>
+                                <div style="font-size: 0.5rem; opacity: 0.5;">DEPT</div>
+                                <div id="p-dept">---</div>
+                            </div>
+                        </div>
+                        <div class="stat-pill" style="padding: 8px 12px; font-size: 0.7rem;">
+                            <i class="fas fa-fingerprint"></i>
+                            <div>
+                                <div style="font-size: 0.5rem; opacity: 0.5;">ID / CC</div>
+                                <div id="p-id-sidebar" style="color: #fff;">CC-XXXXX</div>
+                            </div>
+                        </div>
+                        <div class="stat-pill" style="padding: 8px 12px; font-size: 0.7rem;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <div style="font-size: 0.5rem; opacity: 0.5;">JOIN DATE</div>
+                                <div id="p-join">---</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <nav class="workspace-nav">
+                <button class="nav-item-btn active" onclick="switchTab('home')">
+                    <i class="fas fa-home"></i> HOME
+                </button>
+                <button class="nav-item-btn" onclick="switchTab('chats')">
+                    <i class="fas fa-comments"></i> CREW CHATS
+                </button>
+                <button class="nav-item-btn" onclick="switchTab('status')">
+                    <i class="fas fa-file-signature"></i> STATUS
+                </button>
+                <button class="nav-item-btn" onclick="switchTab('attendance')">
+                    <i class="fas fa-calendar-check"></i> ATTENDANCE
+                </button>
+            </nav>
+
+            <!-- SECTION: HOME (Achievements, Analytics) -->
+            <div id="section-home" class="workspace-section active">
+                <div id="drive-dock" class="drive-dock" style="margin-bottom: 2rem;"></div>
+                <div id="home-telemetry-container"></div>
+            </div>
+
+            <!-- SECTION: CREW CHATS (Individual & Global Comms) -->
+            <div id="section-chats" class="workspace-section">
+                <div id="crew-list-container" class="crew-chat-list"></div>
+
+                <div id="active-chat-container" style="display: none; margin-top: 2rem;">
+                    <div class="section-title">
+                        <i class="fas fa-comments"></i> SECURE TRANSMISSION CHANNEL
+                    </div>
+                    <div class="chat-container">
+                        <div id="chat-feed" class="chat-feed"></div>
+                        <div class="chat-controls">
+                            <label class="media-btn" title="Share Work Image">
+                                <i class="fas fa-image"></i>
+                                <input type="file" id="media-upload" accept="image/*" style="display: none;">
+                            </label>
+                            <input type="text" id="chat-input" placeholder="Secure transmission...">
+                            <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: DAILY STATUS -->
+            <div id="section-status" class="workspace-section">
+                <section class="dashboard-section">
+                    <div class="section-title">
+                        <i class="fas fa-file-signature"></i> DAILY STATUS DRAFTER
+                    </div>
+                    <div class="card-glass" style="padding: 20px; border-radius: 20px;">
+                        <textarea id="drafter-input" placeholder="Draft your mission status here..."
+                            style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; padding: 15px; font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 15px;"></textarea>
+                        <button onclick="commitStatus()" class="btn-primary" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i> COMMIT TO HQ
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION: ATTENDANCE -->
+            <div id="section-attendance" class="workspace-section">
+                <div id="attendance-section" class="attendance-calendar card-glass">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin: 0;">MISSION LOG: ATTENDANCE</h3>
+                        <button id="btn-attendance" onclick="markTodayAttendance()" class="btn-primary"
+                            style="background: rgba(10, 255, 10, 0.1); border: 1px solid #0aff0a; color: #0aff0a; border-radius: 30px; padding: 8px 15px; font-size: 0.6rem;">
+                            <i class="fas fa-calendar-check"></i> MARK TODAY
+                        </button>
+                    </div>
+                    <div id="calendar-grid" class="calendar-grid"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        let activeMember = null;
+        let currentTab = 'home';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // AUTH CHECK
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            if (!session.timestamp || (Date.now() - session.timestamp > 1000 * 60 * 60 * 24)) {
+                location.href = 'login.html';
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            // ACL Check
+            if (session.role === 'crew' && session.id !== id) {
+                location.href = `verify.html?id=${session.id}`;
+                return;
+            }
+
+            setTimeout(() => {
+                activeMember = window.DataManager.getMemberById(id);
+                if (!activeMember) {
+                    location.href = '../../index.html';
+                    return;
+                }
+                renderWorkspace();
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 800);
+
+            document.getElementById('media-upload').addEventListener('change', shareImage);
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMsg();
+            });
+
+            // REAL-TIME SYNC: Listen for HQ Directives (Cross-tab and Local)
+            const syncHandler = (e) => {
+                const updated = window.DataManager.getMemberById(id);
+                if (updated) {
+                    activeMember = updated;
+                    // Auto-refresh the current active section
+                    if (currentTab === 'home') renderHome();
+                    if (currentTab === 'chats') {
+                        // If we are in the member list, just refresh it. 
+                        // If we are in an active private chat, refresh the chat feed.
+                        if (document.getElementById('active-chat-container').style.display === 'block') {
+                            renderChat();
+                        } else {
+                            renderCrewList();
+                        }
+                    }
+                    if (currentTab === 'attendance') renderCalendar();
+
+                    // Specific notification for new messages
+                    if (e && e.detail && e.detail.type === 'chat') {
+                        playNotificationSound();
+                    }
+                }
+            };
+
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'coffeecrews_id_cards') syncHandler();
+            });
+
+            window.addEventListener('coffeecrews_data_update', (e) => {
+                if (e.detail.id === id) syncHandler();
+            });
+        });
+
+        function playNotificationSound() {
+            // Futuristic electronic beep (Base64)
+            const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTdvT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19");
+            audio.volume = 0.5;
+            audio.play().catch(() => { });
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            // Update Nav Buttons
+            document.querySelectorAll('.nav-item-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
+            });
+
+            // Update Sections
+            document.querySelectorAll('.workspace-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`section-${tabId}`).classList.add('active');
+
+            // Specialized Rendering
+            if (tabId === 'home') renderHome();
+            if (tabId === 'chats') renderCrewList();
+            if (tabId === 'attendance') renderCalendar();
+        }
+
+        function renderHome() {
+            if (!activeMember) return;
+            const container = document.getElementById('home-telemetry-container');
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div class="card-glass" style="padding: 20px; border-radius: 20px;">
+                        <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-primary);">
+                            <i class="fas fa-award"></i> MISSION ACHIEVEMENTS
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${(activeMember.achievements || ["Core System Sync", "Unit Compliance"]).map(ach => `
+                                <div class="stat-pill" style="justify-content: space-between; padding: 10px 15px;">
+                                    <span style="font-size: 0.75rem;">${ach}</span>
+                                    <span style="color: var(--safe-green); font-size: 0.6rem; font-family: 'Orbitron';">COMPLETE</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="card-glass" style="padding: 20px; border-radius: 20px;">
+                        <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-primary);">
+                            <i class="fas fa-chart-line"></i> ANALYTICAL DATA
+                        </h3>
+                        <div style="height: 60px; display: flex; align-items: flex-end; gap: 4px;">
+                            <div style="height: 40%; width: 100%; background: var(--accent-primary); opacity: 0.3; border-radius: 2px;"></div>
+                            <div style="height: 70%; width: 100%; background: var(--accent-primary); opacity: 0.4; border-radius: 2px;"></div>
+                            <div style="height: 50%; width: 100%; background: var(--accent-primary); opacity: 0.2; border-radius: 2px;"></div>
+                            <div style="height: 90%; width: 100%; background: var(--accent-primary); opacity: 0.6; border-radius: 2px;"></div>
+                        </div>
+                        <p style="font-size: 0.5rem; opacity: 0.5; margin-top: 10px; text-align: center;">MISSION EFFICIENCY: OPTIMAL</p>
+                    </div>
+                </div>
+            `;
+            renderDrive();
+        }
+
+        function renderCrewList() {
+            const container = document.getElementById('crew-list-container');
+            const members = DataManager.getAllMembers();
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+
+            // Filter out self and potentially Admins (unless user wants to chat with them)
+            const chatableMembers = members.filter(m => m.id !== session.id);
+
+            container.innerHTML = chatableMembers.map(m => `
+                <div class="crew-chat-item" onclick="startPrivateChat('${m.id}')">
+                    <img src="${m.image}" alt="${m.name}">
+                    <span class="crew-name">${m.name}</span>
+                    <div style="font-size: 0.5rem; opacity: 0.6; font-family: 'Orbitron';">
+                        <span class="crew-status-dot"></span> Online
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startPrivateChat(targetId) {
+            const target = DataManager.getMemberById(targetId);
+            if (!target) return;
+
+            document.getElementById('active-chat-container').style.display = 'block';
+            document.getElementById('crew-list-container').style.display = 'none';
+
+            // Simulation: Viewing target's chat feed
+            renderChat(targetId);
+        }
+
+        function renderWorkspace() {
+            if (!activeMember) return;
+
+            document.getElementById('p-name').innerText = activeMember.name;
+            document.getElementById('p-role').innerText = activeMember.role;
+            document.getElementById('p-photo').src = activeMember.image;
+
+            // Map Sidebar Data
+            document.getElementById('p-dept').innerText = activeMember.role.includes("Dev") ? "ENGINEERING" : "OPERATIONS";
+            const joinDate = activeMember.personalInfo ? activeMember.personalInfo.doj : "Jan 2024";
+            document.getElementById('p-join').innerText = joinDate;
+
+            const sidebarId = document.getElementById('p-id-sidebar');
+            if (sidebarId) sidebarId.innerText = `CC-${activeMember.ccCode}`;
+
+            // Initial render
+            switchTab('home');
+        }
+
+        function renderDrive() {
+            const dock = document.getElementById('drive-dock');
+            if (!dock) return;
+            dock.innerHTML = '';
+            (activeMember.driveLinks || []).forEach(link => {
+                dock.innerHTML += `
+                    <a href="${link.url}" target="_blank" class="drive-btn card-glass">
+                        <i class="fab ${link.icon || 'fa-google-drive'}"></i>
+                        <span>${link.title}</span>
+                    </a>
+                `;
+            });
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+
+            // Generate last 30 days for simplicity in mission log
+            grid.innerHTML = '';
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const isMarked = activeMember.attendance && activeMember.attendance.includes(dateStr);
+                const isToday = i === 0;
+
+                grid.innerHTML += `
+                    <div class="calendar-day ${isMarked ? 'marked' : ''} ${isToday ? 'today' : ''}" 
+                         title="${dateStr}"
+                         ${isToday ? 'onclick="markTodayAttendance()"' : ''}>
+                        ${date.getDate()}
+                    </div>
+                `;
+            }
+        }
+
+        function markTodayAttendance() {
+            if (DataManager.markAttendance(activeMember.id)) {
+                alert("MISSION ATTENDANCE LOGGED");
+                activeMember = DataManager.getMemberById(activeMember.id);
+                renderCalendar();
+            } else {
+                alert("ATTENDANCE ALREADY MARKED FOR TODAY");
+            }
+        }
+
+        function renderChat() {
+            const feed = document.getElementById('chat-feed');
+            const history = activeMember.chatHistory || [];
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+
+            feed.innerHTML = history.map(msg => {
+                // POV Logic: If I sent it, it appears on the right
+                const isMyMessage = msg.sender === session.id.toUpperCase() || (session.role === 'admin' && msg.sender === 'HQ');
+                return `
+                    <div class="chat-msg ${isMyMessage ? 'msg-self' : 'msg-other'}">
+                        <span class="msg-meta">${msg.sender} // ${msg.time}</span>
+                        ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
+                        ${msg.image ? `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function handleLogout() {
+            if (confirm("TERMINATE SECURE SESSION?")) {
+                localStorage.removeItem('cc_session');
+                location.href = 'login.html';
+            }
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            const senderId = session.role === 'admin' ? 'HQ' : session.id.toUpperCase();
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const history = activeMember.chatHistory || [];
+            history.push({ sender: senderId, text, time });
+
+            if (window.DataManager.updateMember(activeMember.id, { chatHistory: history })) {
+                input.value = '';
+                renderChat();
+            }
+        }
+
+        function shareImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 1024 * 512) { alert("Image too large. Max 500KB."); return; }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+                const senderId = session.role === 'admin' ? 'HQ' : session.id.toUpperCase();
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const history = activeMember.chatHistory || [];
+                history.push({ sender: senderId, image: event.target.result, time });
+                if (window.DataManager.updateMember(activeMember.id, { chatHistory: history })) {
+                    renderChat();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addDriveLink() {
+            const url = prompt("Enter Drive/Compute Link:");
+            const label = prompt("Enter Link Label (e.g. My Workspace):");
+            if (url && label) {
+                const links = activeMember.driveLinks || [];
+                links.push({ label, url });
+                if (window.DataManager.updateMember(activeMember.id, { driveLinks: links })) {
+                    renderDriveLinks();
+                }
+            }
+        }
+        function commitStatus() {
+            const input = document.getElementById('drafter-input');
+            const text = input.value.trim();
+            if (text) {
+                const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const senderId = session.id.toUpperCase();
+
+                if (!activeMember.chatHistory) activeMember.chatHistory = [];
+                activeMember.chatHistory.push({
+                    sender: senderId,
+                    text: `[DAILY STATUS COMMIT]\n${text}`,
+                    time: time
+                });
+
+                DataManager.updateMember(activeMember.id, { chatHistory: activeMember.chatHistory });
+                input.value = '';
+                renderChat();
+                alert("MISSION STATUS COMMITTED TO HQ");
+            }
+        }
+    </script>
+</body>
+
+</html>
+```

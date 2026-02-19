@@ -1,0 +1,329 @@
+:root[data-theme="light"] {
+    --bg-primary: #fcfcfd;
+    --bg-secondary: #f3f4f6;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --accent-1: #6d28d9;
+    --accent-2: #ea580c;
+    --accent-3: #0891b2;
+    --card-bg: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --navbar-bg: rgba(252, 252, 253, 0.8);
+}
+
+:root[data-theme="dark"] {
+    --bg-primary: #050508;
+    --bg-secondary: #0f172a;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-1: #a78bfa;
+    --accent-2: #fb923c;
+    --accent-3: #22d3ee;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+    --navbar-bg: rgba(5, 5, 8, 0.8);
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-1);
+    color: #fff;
+    transform: rotate(15deg);
+}
+
+[data-theme="dark"] .sun-icon {
+    display: block;
+}
+
+[data-theme="dark"] .moon-icon {
+    display: none;
+}
+
+[data-theme="light"] .sun-icon {
+    display: none;
+}
+
+[data-theme="light"] .moon-icon {
+    display: block;
+}
+
+/* ===== SPECTRAL BACKGROUND ===== */
+.spectral-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: var(--bg-dark);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+/* ===== HERO REDESIGN ===== */
+.projects-hero {
+    position: relative;
+    padding: 180px 0 100px;
+    text-align: center;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(123, 63, 228, 0.1);
+    border: 1px solid rgba(123, 63, 228, 0.2);
+    border-radius: 50px;
+    color: var(--accent-1);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.projects-hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 7.5rem);
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    line-height: 0.9;
+    /* Use text-primary instead of #fff so it adapts to light mode */
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-1) 50%, var(--accent-3) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.projects-hero p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ===== BENTO GRID ===== */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    margin-bottom: 100px;
+}
+
+.project-card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Span variations for Bento effect */
+.card-large {
+    grid-column: span 8;
+    height: 500px;
+}
+
+.card-tall {
+    grid-column: span 4;
+    grid-row: span 2;
+    height: 100%;
+}
+
+.card-medium {
+    grid-column: span 4;
+    height: 500px;
+}
+
+.card-small {
+    grid-column: span 4;
+    height: 350px;
+}
+
+.card-wide {
+    grid-column: span 8;
+    height: 350px;
+}
+
+@media (max-width: 991px) {
+
+    .card-large,
+    .card-tall,
+    .card-medium,
+    .card-small,
+    .card-wide {
+        grid-column: span 12;
+        height: 400px;
+    }
+}
+
+.project-img-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.project-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    filter: saturate(0.8) brightness(0.7);
+}
+
+.project-card:hover .project-img {
+    transform: scale(1.1);
+    filter: saturate(1.1) brightness(0.9);
+}
+
+.project-content {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    padding: 3rem;
+    /* Dark gradient overlay stays consistent in both modes for readability */
+    background: linear-gradient(to top, rgba(5, 5, 8, 0.95) 20%, transparent 100%);
+    transition: all 0.5s ease;
+}
+
+.project-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    transition: transform 0.4s ease;
+}
+
+.project-tagline {
+    font-size: 0.95rem;
+    /* Force light color because of the dark overlay */
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+    max-width: 90%;
+    opacity: 0.8;
+}
+
+.project-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.badge-tech {
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    /* Force light color */
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hover states for specific cards */
+.project-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.project-card[data-accent="purple"]:hover {
+    border-color: var(--accent-1);
+    box-shadow: 0 0 50px rgba(123, 63, 228, 0.25), inset 0 0 20px rgba(123, 63, 228, 0.1);
+}
+
+.project-card[data-accent="orange"]:hover {
+    border-color: var(--accent-2);
+    box-shadow: 0 0 50px rgba(255, 122, 89, 0.25), inset 0 0 20px rgba(255, 122, 89, 0.1);
+}
+
+.project-card[data-accent="cyan"]:hover {
+    border-color: var(--accent-3);
+    box-shadow: 0 0 50px rgba(0, 243, 255, 0.25), inset 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+/* Filter Pills */
+.filter-container {
+    margin-bottom: 60px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-pill {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 12px 30px;
+    border-radius: 50px;
+    color: var(--text-secondary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.filter-pill:hover,
+.filter-pill.active {
+    background: var(--accent-1);
+    color: #fff;
+    border-color: var(--accent-1);
+    box-shadow: 0 10px 25px rgba(123, 63, 228, 0.3);
+}
+
+/* ===== FOOTER OVERRIDE ===== */
+.site-footer {
+    background: var(--bg-dark);
+    border-top: 1px solid var(--border-color);
+}

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Profile | CoffeeCrews</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Orbitron:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background: #000;
+            overflow-x: hidden;
+            margin: 0;
+            color: #fff;
+        }
+
+        .display-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at top right, #1a1a1a 0%, #000 100%);
+        }
+
+        .profile-card {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            background: #111;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: cardSlideUp 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes cardSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(80px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-img-container {
+            height: 550px;
+            width: 100%;
+            position: relative;
+        }
+
+        .profile-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to top, #111 0%, rgba(17, 17, 17, 0.9) 40%, transparent 100%);
+        }
+
+        .profile-details {
+            padding: 0 2.5rem 4rem;
+            position: relative;
+            z-index: 2;
+            margin-top: -120px;
+        }
+
+        .profile-role {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-role::before {
+            content: '';
+            width: 30px;
+            height: 2px;
+            background: var(--accent-member, var(--accent-primary));
+        }
+
+        .profile-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 1.5rem;
+            line-height: 0.9;
+        }
+
+        .profile-bio {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .contact-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .contact-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .contact-pill:hover {
+            background: #fff;
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-pill i {
+            color: var(--accent-member, var(--accent-primary));
+            font-size: 1.1rem;
+        }
+
+        .contact-pill:hover i {
+            color: #000;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            font-family: 'Orbitron';
+            letter-spacing: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading-screen">INITIALIZING...</div>
+
+    <nav class="top-nav" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <a href="../../index.html" class="nav-brand">
+            <img src="../../assets/logo/mainlogo.jpeg" alt="CoffeeCrews Logo" class="nav-main-logo">
+        </a>
+        <div class="nav-links">
+            <a href="../../index.html" class="nav-link"><i class="fas fa-home"></i> MAIN SITE</a>
+            <span class="nav-link active"><i class="fas fa-id-badge"></i> PERSONNEL PROFILE</span>
+        </div>
+    </nav>
+
+    <div class="display-wrapper" style="padding-top: 80px;">
+        <div class="profile-card" id="profile-container" style="display: none;">
+            <div class="profile-img-container">
+                <img id="member-photo" src="" alt="">
+                <div class="profile-overlay"></div>
+            </div>
+
+            <div class="profile-details">
+                <div class="profile-role" id="member-role">ROLE</div>
+                <h1 class="profile-name" id="member-name">NAME</h1>
+                <p class="profile-bio" id="member-desc">Description goes here...</p>
+
+                <div class="contact-grid" id="contact-links">
+                    <!-- Links will be injected here -->
+                </div>
+            </div>
+
+            <div style="padding: 2rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                <p style="font-family: 'Orbitron'; font-size: 0.6rem; letter-spacing: 3px; opacity: 0.2; margin: 0;">
+                    COFFEECREWS PERSONNEL DIVISION // VERIFIED IDENTIFICATION</p>
+            </div>
+        </div>
+
+        <div id="error-container" style="display: none; text-align: center;">
+            <h1 style="font-family: 'Outfit'; font-size: 4rem; color: #ff003c; margin: 0;">404</h1>
+            <p style="font-family: 'Orbitron'; letter-spacing: 5px; opacity: 0.5;">PERSONNEL NOT FOUND</p>
+            <br><br>
+            <a href="../../index.html" class="contact-pill"
+                style="display: inline-flex; justify-content: center;">RETURN TO COMMAND</a>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberId = urlParams.get('id');
+
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+
+                if (!memberId) {
+                    showError();
+                    return;
+                }
+
+                const member = DataManager.getMemberById(memberId);
+                if (!member) {
+                    showError();
+                    return;
+                }
+
+                renderMember(member);
+            }, 800);
+        });
+
+        function renderMember(member) {
+            document.getElementById('profile-container').style.display = 'block';
+
+            // Set content
+            document.getElementById('member-name').textContent = member.name;
+            document.getElementById('member-role').textContent = member.role.toUpperCase();
+            document.getElementById('member-desc').textContent = member.description || 'Verified personnel unit of the CoffeeCrews team.';
+            document.getElementById('member-photo').src = member.image;
+
+            // Set dynamic color
+            document.documentElement.style.setProperty('--accent-member', member.accent);
+
+            // Render contact links
+            const contactContainer = document.getElementById('contact-links');
+            contactContainer.innerHTML = '';
+
+            const icons = {
+                phone: 'fas fa-phone',
+                email: 'fas fa-envelope',
+                portfolio: 'fas fa-globe',
+                linkedin: 'fab fa-linkedin-in',
+                github: 'fab fa-github'
+            };
+
+            const labels = {
+                phone: 'Call',
+                email: 'Email',
+                portfolio: 'Work',
+                linkedin: 'Profile',
+                github: 'Code'
+            };
+
+            if (member.contact) {
+                for (const [key, value] of Object.entries(member.contact)) {
+                    if (value && value !== '#') {
+                        const href = key === 'email' ? `mailto:${value}` : (key === 'phone' ? `tel:${value}` : value);
+                        const pill = document.createElement('a');
+                        pill.href = href;
+                        pill.className = 'contact-pill';
+                        pill.target = '_blank';
+                        pill.innerHTML = `<i class="${icons[key] || 'fas fa-link'}"></i> ${labels[key] || key.toUpperCase()}`;
+                        contactContainer.appendChild(pill);
+                    }
+                }
+            }
+        }
+
+        function showError() {
+            document.getElementById('error-container').style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>

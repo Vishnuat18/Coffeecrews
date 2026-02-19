@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Apply | COFFEECREWS</title>
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/apply.css" rel="stylesheet">
+    <link rel="shortcut icon" href="assets/favicon.png">
+    <!-- Theme Initialization -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-landing">
+        <div class="container position-relative" style="z-index: 2;">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+                <span>COFFEECREWS</span>
+            </a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="crew.html">Crew</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="careers.html">Careers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Theme Toggle Button -->
+            <div class="theme-toggle ms-lg-4" id="theme-toggle" title="Switch Theme">
+                <i class="fas fa-moon moon-icon"></i>
+                <i class="fas fa-sun sun-icon"></i>
+            </div>
+        </div>
+    </nav>
+
+    <main class="apply-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="apply-console">
+                        <div class="text-center mb-5">
+                            <span class="hero-badge" id="roleBadge">Mission Assignment</span>
+                            <h2 class="fw-bold" id="roleTitle">Strategic Role Application</h2>
+                        </div>
+
+                        <div class="step-indicator-wrapper">
+                            <div class="step-dot active" id="dot-1"></div>
+                            <div class="step-dot" id="dot-2"></div>
+                            <div class="step-dot" id="dot-3"></div>
+                            <div class="step-dot" id="dot-4"></div>
+                        </div>
+
+                        <form id="applyForm">
+                            <!-- STEP 1: IDENTITY -->
+                            <div class="form-step active" id="step-1">
+                                <div class="step-header mb-4 text-center">
+                                    <h3>Step 1: Deployment Identity</h3>
+                                    <p class="text-theme-muted">Establish your primary communication channels.</p>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <div class="input-group-custom">
+                                            <label>Full Commander Name</label>
+                                            <input type="text" id="fullName" placeholder="Enter your name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group-custom">
+                                            <label>Secure Email Address</label>
+                                            <input type="email" id="email" placeholder="email@mission.com" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group-custom">
+                                            <label>Contact Frequency (Phone)</label>
+                                            <input type="tel" id="phone" placeholder="+1 (000) 000-0000" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="apply-nav-btns">
+                                    <div class="ms-auto">
+                                        <button type="button" class="btn-apply-next"
+                                            onclick="validateStep(1)">Initialize Profile →</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STEP 2: TACTICAL ASSETS -->
+                            <div class="form-step" id="step-2">
+                                <div class="step-header mb-4 text-center">
+                                    <h3>Step 2: Tactical Assets</h3>
+                                    <p class="text-theme-muted">Upload your history and current loadout.</p>
+                                </div>
+                                <div class="input-group-custom">
+                                    <label>Portfolio / Arsenal Link</label>
+                                    <input type="url" id="portfolio" placeholder="https://github.com/..." required>
+                                </div>
+                                <div class="input-group-custom">
+                                    <label>Resume / Tactical Briefing (PDF)</label>
+                                    <div class="upload-box" id="dropZone">
+                                        <input type="file" id="resumeFile" accept=".pdf" style="display: none;">
+                                        <i class="fas fa-file-upload mb-2"
+                                            style="font-size: 2rem; color: var(--accent-1);"></i>
+                                        <p id="fileNameDisp">Drag & Drop Resume or click to browse</p>
+                                    </div>
+                                </div>
+                                <div class="apply-nav-btns">
+                                    <button type="button" class="btn-apply-back" onclick="changeStep(1)">← Back</button>
+                                    <button type="button" class="btn-apply-next" onclick="validateStep(2)">Analyze
+                                        Assets →</button>
+                                </div>
+                            </div>
+
+                            <!-- STEP 3: MISSION CONTEXT -->
+                            <div class="form-step" id="step-3">
+                                <div class="step-header mb-4 text-center">
+                                    <h3>Step 3: Mission Context</h3>
+                                    <p class="text-theme-muted">Define your role in the collective dream.</p>
+                                </div>
+                                <div class="input-group-custom">
+                                    <label>Primary Tech Stack Focus</label>
+                                    <select id="techStack" required>
+                                        <option value="">Select Priority Stack...</option>
+                                        <option value="frontend">Frontend Architecture</option>
+                                        <option value="backend">Backend Core</option>
+                                        <option value="fullstack">Full Stack Hybrid</option>
+                                        <option value="design">UI/UX Interface Design</option>
+                                        <option value="automation">QA & Automation</option>
+                                    </select>
+                                </div>
+                                <div class="input-group-custom">
+                                    <label>Why CoffeeCrews? (Mission Statement)</label>
+                                    <textarea id="motivation" rows="4" placeholder="How do you contribute to the dream?"
+                                        required></textarea>
+                                </div>
+                                <div class="apply-nav-btns">
+                                    <button type="button" class="btn-apply-back" onclick="changeStep(2)">← Back</button>
+                                    <button type="button" class="btn-apply-next" onclick="validateStep(3)">Finalize
+                                        Briefing →</button>
+                                </div>
+                            </div>
+
+                            <!-- STEP 4: FINAL CLEARANCE -->
+                            <div class="form-step" id="step-4">
+                                <div class="step-header mb-4 text-center">
+                                    <h3>Step 4: Final Clearance</h3>
+                                    <p class="text-theme-muted">Review and authorize your broadcast.</p>
+                                </div>
+                                <div class="review-panel p-4 rounded-4 mb-4"
+                                    style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);">
+                                    <div class="row small g-3">
+                                        <div class="col-6"><span class="text-theme-muted">NAME:</span> <span
+                                                id="revName">...</span></div>
+                                        <div class="col-6"><span class="text-theme-muted">ROLE:</span> <span
+                                                id="revRole">...</span></div>
+                                        <div class="col-6"><span class="text-theme-muted">EMAIL:</span> <span
+                                                id="revEmail">...</span></div>
+                                        <div class="col-6"><span class="text-theme-muted">STACK:</span> <span
+                                                id="revStack">...</span></div>
+                                    </div>
+                                </div>
+                                <div class="terms-wrapper">
+                                    <input type="checkbox" id="terms" required>
+                                    <label for="terms" class="small text-theme-muted">
+                                        I confirm that all details provided are accurate and I agree to the mission
+                                        deployment protocols (Terms & Conditions).
+                                    </label>
+                                </div>
+                                <div class="apply-nav-btns">
+                                    <button type="button" class="btn-apply-back" onclick="changeStep(3)">← Back</button>
+                                    <button type="submit" class="btn-apply-next">Broadcast Signal</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- SUCCESS STATE -->
+                        <div id="successState" class="d-none">
+                            <div class="success-broadcast">
+                                <i class="fas fa-satellite-dish success-icon"></i>
+                                <h2 class="fw-bold mb-3">Signal Broadcasted!</h2>
+                                <p class="text-theme-muted mb-4">Your tactical profile has been securely transmitted.
+                                    Our lead crew will intercept and review your briefing within 48 standard business
+                                    hours.</p>
+                                <button onclick="window.location.href='index.html'" class="btn-apply-next"
+                                    style="width: auto;">Return to Station</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Role Detection
+        const urlParams = new URLSearchParams(window.location.search);
+        const role = urlParams.get('role') || 'Candidate';
+        document.getElementById('roleTitle').innerText = role + ' Recruitment';
+        document.getElementById('roleBadge').innerText = 'Assignment: ' + role;
+
+        let currentStep = 1;
+
+        function changeStep(step) {
+            document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+
+            document.querySelectorAll('.step-dot').forEach((dot, i) => {
+                if (i + 1 === step) dot.classList.add('active');
+                else if (i + 1 < step) {
+                    dot.classList.remove('active');
+                    dot.classList.add('completed');
+                } else {
+                    dot.classList.remove('active', 'completed');
+                }
+            });
+            currentStep = step;
+
+            if (step === 4) populateReview();
+        }
+
+        function validateStep(step) {
+            const currentEl = document.getElementById('step-' + step);
+            const inputs = currentEl.querySelectorAll('input[required], select[required], textarea[required]');
+            let valid = true;
+
+            inputs.forEach(input => {
+                if (!input.value) {
+                    valid = false;
+                    input.style.borderColor = '#ff4b2b';
+                } else {
+                    input.style.borderColor = 'var(--border-color)';
+                }
+            });
+
+            if (step === 2 && !document.getElementById('resumeFile').files.length) {
+                valid = false;
+                document.getElementById('dropZone').style.borderColor = '#ff4b2b';
+            }
+
+            if (valid) changeStep(step + 1);
+        }
+
+        function populateReview() {
+            document.getElementById('revName').innerText = document.getElementById('fullName').value;
+            document.getElementById('revRole').innerText = role;
+            document.getElementById('revEmail').innerText = document.getElementById('email').value;
+            document.getElementById('revStack').innerText = document.getElementById('techStack').value.toUpperCase();
+        }
+
+        // File Selection logic
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('resumeFile');
+        const fileNameDisp = document.getElementById('fileNameDisp');
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = () => {
+            if (fileInput.files.length) {
+                fileNameDisp.innerText = 'UPLOADING: ' + fileInput.files[0].name;
+                fileNameDisp.style.color = 'var(--accent-3)';
+                dropZone.style.borderColor = 'var(--accent-3)';
+            }
+        };
+
+        // Form Submit
+        document.getElementById('applyForm').onsubmit = (e) => {
+            e.preventDefault();
+            if (!document.getElementById('terms').checked) return;
+
+            // Prepare Application Data
+            const applicationData = {
+                id: 'APP-' + Date.now(),
+                name: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                role: role,
+                stack: document.getElementById('techStack').value,
+                portfolio: document.getElementById('portfolio').value,
+                motivation: document.getElementById('motivation').value, // Added motivation
+                timestamp: new Date().toLocaleString()
+            };
+
+            // 1. Save to LocalStorage for local Admin Hub demo
+            const existingApps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+            existingApps.unshift(applicationData);
+            localStorage.setItem('cc_applications', JSON.stringify(existingApps));
+
+            // 2. Broadcast Signal to coffeecrewsoffl@gmail.com via Formspree
+            // Note: We use the AJAX approach to keep the premium success UI
+            const formspreeEndpoint = "https://formspree.io/f/mqaevepk"; // This is a placeholder, User should replace with their own ID
+
+            fetch(formspreeEndpoint, {
+                method: "POST",
+                body: JSON.stringify({
+                    subject: `New Application: ${role} - ${applicationData.name}`,
+                    ...applicationData
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Signal received by CoffeeCrews Command.');
+                } else {
+                    console.warn('Signal broadcast issues. Local backup saved.');
+                }
+            }).catch(error => {
+                console.error('Transmission failure:', error);
+            });
+
+            // Trigger Success Animation Immediately (Optimistic UI)
+            gsap.to('.apply-console', {
+                scale: 0.98,
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    document.getElementById('applyForm').classList.add('d-none');
+                    document.getElementById('successState').classList.remove('d-none');
+                    document.querySelector('.step-indicator-wrapper').classList.add('d-none');
+                    gsap.to('.apply-console', { scale: 1, opacity: 1, duration: 0.8 });
+                }
+            });
+        };
+
+        // Theme logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Cursor
+        const glow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+    </script>
+</body>
+
+</html>

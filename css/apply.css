@@ -1,0 +1,189 @@
+:root {
+    --step-dot-size: 12px;
+}
+
+.apply-container {
+    padding: 120px 0;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.apply-console {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 32px;
+    padding: 60px;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.step-indicator-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 50px;
+}
+
+.step-dot {
+    width: var(--step-dot-size);
+    height: var(--step-dot-size);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.step-dot.active {
+    background: var(--accent-1);
+    box-shadow: 0 0 15px var(--accent-1);
+}
+
+.step-dot.completed {
+    background: var(--accent-3);
+}
+
+.form-step {
+    display: none;
+    animation: stepIn 0.6s ease forwards;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes stepIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.input-group-custom {
+    margin-bottom: 25px;
+}
+
+.input-group-custom label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+.input-group-custom input,
+.input-group-custom select,
+.input-group-custom textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px 20px;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.input-group-custom input:focus,
+.input-group-custom select:focus,
+.input-group-custom textarea:focus {
+    border-color: var(--accent-1);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 15px rgba(123, 63, 228, 0.2);
+}
+
+.apply-nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+}
+
+.btn-apply-next,
+.btn-apply-back {
+    padding: 12px 35px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-apply-next {
+    background: var(--accent-1);
+    color: white;
+}
+
+.btn-apply-back {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.btn-apply-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(123, 63, 228, 0.4);
+}
+
+.upload-box {
+    border: 2px dashed var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+    border-color: var(--accent-1);
+    background: rgba(123, 63, 228, 0.05);
+}
+
+.terms-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.terms-wrapper input {
+    margin-top: 5px;
+}
+
+/* Success State */
+.success-broadcast {
+    text-align: center;
+}
+
+.success-icon {
+    font-size: 5rem;
+    color: var(--accent-3);
+    margin-bottom: 30px;
+    animation: pulseIcon 2s infinite;
+}
+
+@keyframes pulseIcon {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+        text-shadow: 0 0 20px var(--accent-3);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}

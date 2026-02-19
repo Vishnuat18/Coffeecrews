@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Cockpit | CoffeeCrews Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP for Innovative Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <a href="../../index.html" class="nav-brand">
+            <img src="../../assets/logo/mainlogo.jpeg" alt="CoffeeCrews Logo" class="nav-main-logo">
+        </a>
+        <div class="nav-links">
+            <a href="../../index.html" class="nav-link"><i class="fas fa-home"></i> MAIN SITE</a>
+            <a href="index.html" class="nav-link active"><i class="fas fa-th-large"></i> COCKPIT</a>
+            <a href="reports.html" class="nav-link"><i class="fas fa-tower-broadcast"></i> COMMAND Center</a>
+        </div>
+    </nav>
+
+    <div class="admin-container" style="padding-top: 3rem;">
+        <div class="header-content card-glass">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="../../favicon.png" style="width: 40px; filter: drop-shadow(0 0 10px var(--accent-primary));">
+                <div>
+                    <h1 class="glitch-title" data-text="PERSONNEL COMMAND" style="font-size: 1.5rem;">PERSONNEL COMMAND
+                    </h1>
+                    <p style="opacity: 0.5; font-family: 'Orbitron'; font-size: 0.6rem; letter-spacing: 2px;">V6.0 // HQ
+                        ADMINISTRATION</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <button class="btn-primary" onclick="openGlobalConfig()"
+                    style="background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; color: #ffd700; border-radius: 30px; padding: 10px 25px; font-size: 0.7rem;">
+                    <i class="fas fa-cog"></i> GLOBAL CONFIG
+                </button>
+                <button class="btn-primary" onclick="triggerGlobalBroadcast()"
+                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem;">
+                    <i class="fas fa-tower-broadcast"></i> GLOBAL BROADCAST
+                </button>
+                <div id="stat-last-update-header" style="font-family: 'Orbitron'; font-size: 0.7rem; opacity: 0.5;">
+                    00:00</div>
+                <button onclick="handleLogout()"
+                    style="background:transparent; border:none; color:#ff003c; cursor:pointer; font-family:'Orbitron'; font-size:0.7rem;">
+                    <i class="fas fa-power-off"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" style="margin-bottom: 2rem;">
+            <div class="stat-card glass" style="padding: 1rem;">
+                <div class="stat-value" id="stat-total" style="font-size: 1.5rem;">0</div>
+                <div class="stat-label" style="font-size: 0.6rem;">Total Personnel</div>
+            </div>
+            <div class="stat-card glass" style="padding: 1rem;">
+                <div class="stat-value" id="stat-roles" style="font-size: 1.5rem;">0</div>
+                <div class="stat-label" style="font-size: 0.6rem;">Unique Roles</div>
+            </div>
+            <div class="stat-card glass" style="padding: 1rem;">
+                <div class="stat-value" id="stat-last-update" style="font-size: 1.5rem;">--:--</div>
+                <div class="stat-label" style="font-size: 0.6rem;">Last Sync</div>
+            </div>
+        </div>
+
+        <!-- Search Container -->
+        <div class="search-container" style="margin-bottom: 2rem;">
+            <i class="fas fa-search search-icon" style="left: 20px; font-size: 1rem;"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search team members..."
+                style="padding: 15px 50px; border-radius: 12px; font-size: 1rem;">
+        </div>
+
+        <!-- Member Grid -->
+        <div class="member-list" id="member-list">
+            <!-- Members will be injected here via JS -->
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        let searchQuery = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // AUTH CHECK
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            if (session.role !== 'admin') {
+                location.href = 'login.html';
+                return;
+            }
+
+            refreshDashboard();
+
+            // Search listener
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                renderMemberList();
+            });
+
+            // REAL-TIME SYNC: Listen for updates (Cross-tab and Local)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'coffeecrews_id_cards') refreshDashboard();
+            });
+
+            window.addEventListener('coffeecrews_data_update', () => {
+                refreshDashboard();
+            });
+        });
+
+        function refreshDashboard() {
+            updateStats();
+            renderMemberList();
+        }
+
+        function updateStats() {
+            const members = DataManager.getAllMembers();
+            document.getElementById('stat-total').textContent = members.length;
+
+            const roles = [...new Set(members.map(m => m.role))];
+            document.getElementById('stat-roles').textContent = roles.length;
+
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            if (document.getElementById('stat-last-update')) document.getElementById('stat-last-update').textContent = timeStr;
+            if (document.getElementById('stat-last-update-header')) document.getElementById('stat-last-update-header').textContent = timeStr;
+        }
+
+        // COMMAND ACTIONS
+        function triggerGlobalBroadcast() {
+            const msg = prompt("ENTER GLOBAL MISSION DIRECTIVE (Will be sent to ALL crew members):");
+            if (msg && msg.trim()) {
+                if (DataManager.globalBroadcast(msg.trim())) {
+                    alert("GLOBAL TRANSMISSION SUCCESSFUL");
+                    refreshDashboard();
+                }
+            }
+        }
+
+        function openGlobalConfig() {
+            const config = DataManager.getSiteConfig();
+            const newTitle = prompt("SITE COMMAND: Update Title", config.siteTitle);
+            const newHero = prompt("SITE COMMAND: Update Hero Title", config.heroTitle);
+
+            if (newTitle !== null || newHero !== null) {
+                if (DataManager.updateSiteConfig({ siteTitle: newTitle || config.siteTitle, heroTitle: newHero || config.heroTitle })) {
+                    alert("SITE RECONFIGURATION SUCCESSFUL");
+                }
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("TERMINATE SECURE SESSION?")) {
+                localStorage.removeItem('cc_session');
+                location.href = 'login.html';
+            }
+        }
+
+        function renderMemberList() {
+            const members = DataManager.getAllMembers();
+            const container = document.getElementById('member-list');
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+
+            // FILTER: Don't show myself (Admin) in the list to manage
+            const viewableMembers = members.filter(m => m.id !== session.id);
+
+            const filtered = viewableMembers.filter(m => {
+                return m.name.toLowerCase().includes(searchQuery) ||
+                    m.role.toLowerCase().includes(searchQuery);
+            });
+
+            container.innerHTML = '';
+
+            filtered.forEach((member, index) => {
+                const item = document.createElement('div');
+                item.className = 'member-item';
+                item.style.opacity = '0';
+
+                const history = member.chatHistory || [];
+                const lastMsg = history.length > 0 ? history[history.length - 1] : { text: "No active transmissions", sender: "System" };
+                const isUnread = lastMsg.sender === 'STAFF';
+
+                item.innerHTML = `
+                    <img class="member-card-img" src="${member.image}" alt="${member.name}">
+                    <div class="card-overlay">
+                        <div class="card-content">
+                            <h3 class="member-item-title">${member.name}</h3>
+                            <div class="card-badges">
+                                <span class="badge-pill" style="border-left: 3px solid ${member.accent}">
+                                    <i class="fas fa-id-badge"></i> ${member.role.toUpperCase()}
+                                </span>
+                            </div>
+                            
+                            <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
+                                <a href="verify.html?id=${member.id}" target="_blank" class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: var(--accent-primary); color: #000; border: none;">
+                                    <i class="fas fa-comments"></i> OPEN WORKSPACE
+                                </a>
+                                <a href="edit.html?id=${member.id}" class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #fff;">Config</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // GSAP Staggered Entry
+            gsap.to('.member-item', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.05,
+                ease: "power3.out",
+                startAt: { y: 30, opacity: 0 }
+            });
+        }
+
+        function handleDelete(event, id) {
+            event.stopPropagation();
+            if (confirm('Delete this record?')) {
+                if (DataManager.deleteMember(id)) {
+                    refreshDashboard();
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

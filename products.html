@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Products | COFFEECREWS</title>
+    <link href="style.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --accent-red: #ff3c3c;
+            --accent-green: #3cff7d;
+            --accent-blue: #3c9dff;
+            --glow-size: 400px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Cursor Glow Effect */
+        .cursor-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--glow-size);
+            height: var(--glow-size);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        body:hover .cursor-glow {
+            opacity: 1;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), var(--bg-color)), url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            margin-bottom: 4rem;
+        }
+
+        .hero-section h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Product Sections */
+        .product-container {
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .product-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8rem;
+            position: relative;
+        }
+
+        .product-row.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .product-box {
+            flex: 1;
+            height: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .product-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(5, 5, 8, 0.2), rgba(5, 5, 8, 0.6));
+            z-index: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .product-box:hover::before {
+            opacity: 0.4;
+        }
+
+        .product-box:hover {
+            transform: scale(1.02);
+        }
+
+        .product-box .number {
+            position: absolute;
+            top: 25px;
+            right: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            user-select: none;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+            z-index: 2;
+            transition: all 0.4s ease;
+        }
+
+        .box-red:hover .number {
+            -webkit-text-stroke: 1px var(--accent-red);
+            color: var(--accent-red);
+            filter: drop-shadow(0 0 15px rgba(255, 60, 60, 0.4));
+        }
+
+        .box-green:hover .number {
+            -webkit-text-stroke: 1px var(--accent-green);
+            color: var(--accent-green);
+            filter: drop-shadow(0 0 15px rgba(60, 255, 125, 0.4));
+        }
+
+        .box-blue:hover .number {
+            -webkit-text-stroke: 1px var(--accent-blue);
+            color: var(--accent-blue);
+            filter: drop-shadow(0 0 15px rgba(60, 157, 255, 0.4));
+        }
+
+        .product-info {
+            flex: 1;
+            padding: 0 4rem;
+        }
+
+        .product-info h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            transition: color 0.4s ease;
+        }
+
+        .product-info p {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        /* Blue Card (2: iX Platform) */
+        .box-blue-ix {
+            background-image: url('assets/products/ix.png');
+            background-size: contain;
+            background-position: center;
+            border-color: rgba(60, 157, 255, 0.1);
+        }
+
+        .box-blue-ix:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 40px rgba(60, 157, 255, 0.25);
+            transform: translateY(-8px);
+        }
+
+        /* Green Card (1: Chitly) */
+        .box-green {
+            background-image: url('assets/products/chitly.png');
+            background-size: contain;
+            background-position: center;
+            border-color: rgba(60, 255, 125, 0.1);
+        }
+
+        .box-green:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 40px rgba(60, 255, 125, 0.25);
+            transform: translateY(-8px);
+        }
+
+        /* Blue Card (Standard) */
+        .box-blue {
+            border-color: rgba(60, 157, 255, 0.1);
+        }
+
+        .box-blue:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 40px rgba(60, 157, 255, 0.25);
+            transform: translateY(-8px);
+        }
+
+        /* Buttons */
+        .btn-detail {
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: 2px solid;
+        }
+
+        .btn-red {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .btn-red:hover {
+            background: var(--accent-red);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 60, 60, 0.6);
+        }
+
+        .btn-green {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .btn-green:hover {
+            background: var(--accent-green);
+            color: black;
+            box-shadow: 0 0 20px rgba(60, 255, 125, 0.6);
+        }
+
+        .btn-blue {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .btn-blue:hover {
+            background: var(--accent-blue);
+            color: white;
+            box-shadow: 0 0 20px rgba(60, 157, 255, 0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .product-row {
+                flex-direction: column !important;
+                text-align: center;
+                margin-bottom: 4rem;
+            }
+
+            .product-info {
+                padding: 2rem 0;
+            }
+
+            .product-info p {
+                margin: 0 auto 2rem;
+            }
+
+            .product-box {
+                width: 100%;
+                max-width: 500px;
+            }
+
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* ===== NAVBAR Custom ===== */
+        .navbar-landing {
+            background: rgba(5, 5, 8, 0.4) !important;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            z-index: 2000;
+            transition: all 0.3s ease;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            overflow: hidden;
+        }
+
+        .navbar-landing .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #7b3fe4, #00f3ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+
+        .navbar-landing .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.2rem !important;
+            position: relative;
+        }
+
+        .navbar-landing .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 1.2rem;
+            right: 1.2rem;
+            height: 2px;
+            background: #7b3fe4;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-landing .nav-link:hover::after,
+        .navbar-landing .nav-link.active::after {
+            transform: scaleX(1);
+        }
+
+        .navbar-landing .nav-link:hover {
+            color: #fff !important;
+        }
+
+        .navbar-landing .nav-link.active {
+            color: #fff !important;
+        }
+
+        .nav-cta {
+            background: #7b3fe4;
+            color: #fff !important;
+            padding: 0.6rem 2rem !important;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            margin-left: 2rem;
+            box-shadow: 0 10px 20px rgba(123, 63, 228, 0.3);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .nav-cta:hover {
+            background: #fff;
+            color: #000 !important;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-landing">
+        <div class="container position-relative" style="z-index: 2;">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+                <span>COFFEECREWS</span>
+            </a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="crew.html">Crew</a></li>
+                    <li class="nav-item"><a class="nav-link" href="careers.html">Careers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero-section">
+        <div class="container text-center">
+            <h1>OUR PROJECT</h1>
+        </div>
+    </header>
+
+    <!-- PRODUCT SECTIONS -->
+    <div class="container">
+
+        <!-- Product 1: Chitly -->
+        <div class="product-row">
+            <div class="product-box box-green" onclick="window.location.href='case-studies/chitly.html'">
+                <div class="number">1</div>
+            </div>
+            <div class="product-info">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <h2 style="color: var(--accent-green); margin-bottom: 0;">Chitly</h2>
+                    <span class="badge rounded-pill"
+                        style="background: var(--accent-green); color: #000; font-family: 'Orbitron'; font-size: 0.7rem; letter-spacing: 1px; padding: 5px 12px;">READY
+                        TO USE</span>
+                </div>
+                <p>Modern chit fund management solution providing transparency, security, and ease of use for managing
+                    group savings and investments efficiently.</p>
+                <a href="case-studies/chitly.html" class="btn-detail btn-green">View Details</a>
+            </div>
+        </div>
+
+        <!-- Product 2: iX Platform -->
+        <div class="product-row reverse">
+            <div class="product-box box-blue-ix" onclick="window.location.href='case-studies/ix-platform.html'">
+                <div class="number">2</div>
+            </div>
+            <div class="product-info">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <h2 style="color: var(--accent-blue); margin-bottom: 0;">iX Platform</h2>
+                    <span class="badge rounded-pill"
+                        style="background: rgba(60, 157, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); font-family: 'Orbitron'; font-size: 0.6rem; letter-spacing: 1px; padding: 4px 10px;">WORKING
+                        FOR COMPLETION</span>
+                </div>
+                <p>Advanced learning and preparation platform designed to bridge the gap between education and
+                    placements. Master the skills you need to excel in your career.</p>
+                <a href="case-studies/ix-platform.html" class="btn-detail btn-blue">View Details</a>
+            </div>
+        </div>
+
+        <!-- Product 3: Smart Cart (Archived) -->
+        <!-- 
+        <div class="product-row">
+            <div class="product-box box-blue" onclick="window.location.href='case-studies/smart-cart.html'">
+                <div class="number">3</div>
+            </div>
+            <div class="product-info">
+                <h2 style="color: var(--accent-blue)">Smart Cart</h2>
+                <p>Digital purchasing and payment system that streamlines the shopping experience. Secure, fast, and
+                    integrated with modern payment gateways.</p>
+                <a href="case-studies/smart-cart.html" class="btn-detail btn-blue">View Details</a>
+            </div>
+        </div>
+        -->
+
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer"
+        style="background: rgba(5, 5, 8, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 80px 0 30px; position: relative; z-index: 10;">
+        <div class="container">
+            <div class="row g-5 text-start">
+                <div class="col-lg-4">
+                    <a class="navbar-brand fw-bold mb-4 d-block text-decoration-none" href="index.html"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; background: linear-gradient(135deg, #7b3fe4, #00f3ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">COFFEECREWS</a>
+                    <p class="text-white-50 mb-4" style="max-width: 300px;">Crafting high-impact digital experiences
+                        through innovative code and premium design.</p>
+                    <div class="social-links d-flex gap-3">
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px;">NAVIGATE
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="index.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Home</a>
+                        </li>
+                        <li class="mb-2"><a href="about.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">About</a>
+                        </li>
+                        <li class="mb-2"><a href="services.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Services</a>
+                        </li>
+                        <li class="mb-2"><a href="products.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Products</a>
+                        </li>
+                        <li class="mb-2"><a href="crew.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Crew</a>
+                        </li>
+                        <li class="mb-2"><a href="careers.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Careers</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px;">CONTACT
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="contact.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Get
+                                in Touch</a></li>
+                        <li class="mb-2"><a href="mailto:contact@coffeecrews.com"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s; font-size: 0.9rem;">Email
+                                Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px;">NEWSLETTER
+                    </h5>
+                    <div class="newsletter-form p-1 rounded-pill"
+                        style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); display: flex;">
+                        <input type="email" placeholder="Email transmission..."
+                            style="background: none; border: none; color: #fff; padding: 10px 20px; flex-grow: 1; font-size: 0.85rem; outline: none;">
+                        <button
+                            style="background: #7b3fe4; border: none; color: #fff; padding: 10px 25px; border-radius: 50px; font-weight: 700; font-size: 0.75rem;">JOIN</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom mt-5 pt-4 border-top border-secondary border-opacity-10 text-center">
+                <p class="text-white-50 small mb-0">&copy; 2026 COFFEECREWS. ALL RIGHTS RESERVED. // OPERATED BY
+                    VISHNUAT18</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const glow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            glow.style.left = x + 'px';
+            glow.style.top = y + 'px';
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

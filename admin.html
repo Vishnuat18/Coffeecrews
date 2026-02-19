@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Hub | COFFEECREWS</title>
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="assets/favicon.png"> <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Theme Initialization -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
+    <link href="css/admin.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-landing">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">ADMIN HUB // COFFEECREWS</a>
+            <div class="ms-auto d-flex align-items-center">
+                <a href="index.html" class="btn-neon">Return to Site</a>
+                <!-- Theme Toggle Button -->
+                <div class="theme-toggle" id="theme-toggle" title="Switch Theme">
+                    <i class="fas fa-moon moon-icon"></i>
+                    <i class="fas fa-sun sun-icon"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NAVIGATION HUB -->
+    <section class="page-section" id="nav-hub">
+        <div class="container">
+            <span class="section-label">Operations Control</span>
+            <h2 class="section-title">Ecosystem Navigation</h2>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-building" style="font-size: 1.5rem; color: var(--accent-1);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">EST. 2024</span>
+                        </div>
+                        <h3>Company</h3>
+                        <p class="text-secondary small flex-grow-1">Mission control for brand identity and engineering
+                            philosophy.</p>
+                        <a href="about.html" class="btn-neon mt-2 w-100 text-center">Manage About</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-info-circle" style="font-size: 1.5rem; color: var(--accent-3);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">LEGACY</span>
+                        </div>
+                        <h3>Information</h3>
+                        <p class="text-secondary small flex-grow-1">Central data hub for missions, history, and
+                            strategic outlooks.</p>
+                        <a href="about.html#mission" class="btn-neon mt-2 w-100 text-center"
+                            style="border-color: var(--accent-3); color: var(--accent-3);">Link History</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-microchip" style="font-size: 1.5rem; color: var(--accent-2);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">SOLUTIONS</span>
+                        </div>
+                        <h3>Services</h3>
+                        <p class="text-secondary small flex-grow-1">Inventory control for core development and design
+                            offerings.</p>
+                        <a href="services.html" class="btn-neon mt-2 w-100 text-center"
+                            style="border-color: var(--accent-2); color: var(--accent-2);">Edit Services</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-box-open" style="font-size: 1.5rem; color: var(--accent-1);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">INNOVATIONS</span>
+                        </div>
+                        <h3>Products</h3>
+                        <p class="text-secondary small flex-grow-1">Product lifecycle management for internal
+                            innovations.</p>
+                        <a href="products.html" class="btn-neon mt-2 w-100 text-center">Manage Catalog</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-users" style="font-size: 1.5rem; color: var(--accent-3);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">MASTERMINDS</span>
+                        </div>
+                        <h3>Crew</h3>
+                        <p class="text-secondary small flex-grow-1">Human resources and personnel architecture control.
+                        </p>
+                        <a href="crew.html" class="btn-neon mt-2 w-100 text-center"
+                            style="border-color: var(--accent-3); color: var(--accent-3);">Update Crew</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-briefcase" style="font-size: 1.5rem; color: var(--accent-2);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">CAREERS</span>
+                        </div>
+                        <h3>Careers</h3>
+                        <p class="text-secondary small flex-grow-1">Recruitment management and talent acquisition
+                            pipelines.</p>
+                        <a href="careers.html" class="btn-neon mt-2 w-100 text-center"
+                            style="border-color: var(--accent-2); color: var(--accent-2);">Post Vacancy</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            <i class="fas fa-envelope-open-text" style="font-size: 1.5rem; color: var(--accent-1);"></i>
+                            <span class="badge rounded-pill bg-light text-secondary border small"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">CONNECT</span>
+                        </div>
+                        <h3>Contact</h3>
+                        <p class="text-secondary small flex-grow-1">Communication logs and leads management system.</p>
+                        <a href="contact.html" class="btn-neon mt-2 w-100 text-center">View Inbox</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- APPLICATIONS MANAGEMENT -->
+        <section class="page-section" id="applications-hub"
+            style="background: var(--bg-secondary); border-top: 1px solid var(--border-color);">
+            <div class="container">
+                <span class="section-label">Recruitment Pipeline</span>
+                <h2 class="section-title">Submitted Applications</h2>
+                <p class="text-secondary small mb-4">
+                    <i class="fas fa-info-circle me-2"></i>Note: Applications are currently stored in your local
+                    browser. For real-time cross-device tracking, a Firebase/Firestore integration is recommended.
+                </p>
+
+                <div class="feature-card p-0 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="appsTable">
+                            <thead style="background: rgba(0,0,0,0.02);">
+                                <tr>
+                                    <th class="ps-4 py-3 small text-uppercase">ID</th>
+                                    <th class="py-3 small text-uppercase">Name</th>
+                                    <th class="py-3 small text-uppercase">Role</th>
+                                    <th class="py-3 small text-uppercase">Email</th>
+                                    <th class="py-3 small text-uppercase">Date</th>
+                                    <th class="pe-4 py-3 small text-uppercase text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appsList">
+                                <!-- JS populated -->
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-secondary">
+                                        <i class="fas fa-inbox mb-2 d-block" style="font-size: 2rem; opacity: 0.3;"></i>
+                                        No applications received yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-5 py-4 border-top border-secondary border-opacity-10 text-center text-secondary small">
+            &copy; 2026 COFFEECREWS // ADMIN CONSOLE VERSION 1.0.4
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Theme Toggle Logic
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlElement = document.documentElement;
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = htmlElement.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+
+            // Applications Management Logic
+            function loadApplications() {
+                const appsList = document.getElementById('appsList');
+                const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+
+                if (apps.length === 0) {
+                    appsList.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-secondary">
+                            <i class="fas fa-inbox mb-2 d-block" style="font-size: 2rem; opacity: 0.3;"></i>
+                            No applications received yet.
+                        </td>
+                    </tr>
+                `;
+                    return;
+                }
+
+                appsList.innerHTML = apps.map(app => `
+                <tr class="align-middle">
+                    <td class="ps-4 small fw-bold text-secondary">${app.id}</td>
+                    <td class="fw-bold">${app.name}</td>
+                    <td><span class="badge bg-opacity-10 bg-primary text-primary border border-primary border-opacity-25 small">${app.role}</span></td>
+                    <td class="small text-secondary">${app.email}</td>
+                    <td class="small text-secondary">${app.timestamp}</td>
+                    <td class="pe-4 text-end">
+                        <button onclick="viewApp('${app.id}')" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2" style="font-size: 0.7rem;">View</button>
+                        <button onclick="deleteApp('${app.id}')" class="btn btn-sm btn-outline-danger rounded-pill" style="font-size: 0.7rem;"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            }
+
+            function deleteApp(id) {
+                if (!confirm('Authorize deletion of this record?')) return;
+                let apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+                apps = apps.filter(app => app.id !== id);
+                localStorage.setItem('cc_applications', JSON.stringify(apps));
+                loadApplications();
+            }
+
+            function viewApp(id) {
+                const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+                const app = apps.find(a => a.id === id);
+                if (app) {
+                    alert(`Commander: ${app.name}\nRole: ${app.role}\nEmail: ${app.email}\nPhone: ${app.phone}\nStack: ${app.stack}\nPortfolio: ${app.portfolio}`);
+                }
+            }
+
+            window.onload = loadApplications;
+        </script>
+</body>
+
+</html>

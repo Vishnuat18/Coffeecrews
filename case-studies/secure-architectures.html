@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Secure Architectures Case Study | COFFEECREWS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-glow: #bc3cff;
+            --accent-color: #bc3cff;
+            --bg-dark: var(--bg-primary);
+            --card-bg: var(--card-bg);
+            --border-color: var(--border-color);
+            --text-main: var(--text-primary);
+            --text-theme-muted: var(--text-secondary);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        .orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Navbar Glassmorphism */
+        .navbar-glass {
+            background: var(--navbar-bg);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            color: var(--text-main) !important;
+        }
+
+        /* Hero Section */
+        .case-hero {
+            position: relative;
+            padding: 160px 0 100px;
+            background: radial-gradient(circle at 50% 0%, rgba(188, 60, 255, 0.15) 0%, transparent 70%);
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(188, 60, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            border-radius: 50px;
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #7b3fe4, #00f3ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-tagline {
+            font-size: 1.25rem;
+            color: var(--text-theme-muted);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Case Study Section Styles */
+        .case-section {
+            padding: 80px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        .section-label {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        /* Cards & UI Elements */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            height: 100%;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(188, 60, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tech Grid */
+        .tech-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            margin: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-pill:hover {
+            background: var(--accent-color);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* Stats & Impact */
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-theme-muted);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Architecture Visual */
+        .arch-box {
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .arch-box::after {
+            content: "\f061";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+        }
+
+        .arch-box.last::after {
+            display: none;
+        }
+
+        /* Navigation */
+        .footer-nav {
+            padding: 60px 0;
+            background: #0a0a0a;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
+
+        /* Animations */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        [data-reveal].active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg fixed-top navbar-landing"
+        style="background: var(--navbar-bg); backdrop-filter: blur(25px); border-bottom: 1px solid var(--border-color); font-family: 'Orbitron', sans-serif; z-index: 2000;">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html" style="padding: 0;">
+                <img src="../assets/logo/mainlogo.jpeg" alt="CoffeeCrews Logo"
+                    style="height: 50px; width: auto; object-fit: contain; filter: drop-shadow(0 0 10px rgba(123, 63, 228, 0.3));">
+            </a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="../index.html#hero">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../services.html">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../projects.html">Innovations</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../careers.html">Careers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../support.html">Support Crew</a></li>
+                    <li class="nav-item"><a class="nav-link nav-cta" href="../inquiry.html"
+                            style="background: #7b3fe4; color: #fff !important; border-radius: 50px; padding: 0.6rem 2rem !important; font-size: 0.8rem; font-weight: 800; margin-left: 2rem; box-shadow: 0 10px 20px rgba(123, 63, 228, 0.3);">Get
+                            In Touch</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="case-hero">
+        <div class="container text-center">
+            <span class="hero-badge">Enterprise Cybersecurity</span>
+            <h1 class="hero-title">Secure Architectures</h1>
+            <p class="hero-tagline mx-auto">Hardening digital infrastructures through advanced threat modeling,
+                zero-trust protocols, and proactive defense systems.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#overview" class="btn btn-outline-light px-4 py-2 rounded-pill">Explore Case Study</a>
+                <a href="#" class="btn btn-primary px-4 py-2 rounded-pill shadow-lg"
+                    style="background: var(--accent-color); color: #fff; border: none; font-weight: 700;">Security
+                    Audit</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. PROJECT OVERVIEW -->
+    <section class="case-section" id="overview">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-reveal>
+                    <span class="section-label">01 // The Vision</span>
+                    <h2 class="section-title mb-4">Project Overview</h2>
+                    <p class="lead text-muted">Secure Architectures is a comprehensive cybersecurity initiative designed
+                        to shield enterprise-level web applications from sophisticated attack vectors. It focuses on
+                        multilayered defense strategies, real-time threat detection, and resilient cloud configurations.
+                    </p>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0" data-reveal>
+                    <div class="glass-card">
+                        <div class="row text-center">
+                            <div class="col-6 mb-4">
+                                <div class="stat-value">Z-T</div>
+                                <div class="stat-label">Zero-Trust Ready</div>
+                            </div>
+                            <div class="col-6 mb-4">
+                                <div class="stat-value">24/7</div>
+                                <div class="stat-label">Monitoring</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="stat-value">Vishnu R.</div>
+                                <div class="stat-label">Lead Developer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. PROBLEM STATEMENT -->
+    <section class="case-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5" data-reveal>
+                    <span class="section-label">02 // The Challenge</span>
+                    <h2 class="section-title mb-4">Problem Statement</h2>
+                </div>
+                <div class="col-lg-7" data-reveal>
+                    <div class="glass-card">
+                        <p class="mb-0">Traditional perimeter-based security is no longer sufficient against modern
+                            cyber threats like distributed denial of service (DDoS), SQL injections, and sophisticated
+                            phishing campaigns. Enterprises face increasing risks of data breaches and service
+                            interruptions due to fragmented security policies and legacy infrastructure.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SOLUTION APPROACH -->
+    <section class="case-section bg-dark">
+        <div class="container">
+            <div class="section-header text-center" data-reveal>
+                <span class="section-label">03 // The Strategy</span>
+                <h2 class="section-title">Solution Approach</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card text-center">
+                        <div class="feature-icon mx-auto"><i class="fas fa-shield-halved"></i></div>
+                        <h3>Defense-in-Depth</h3>
+                        <p class="text-muted">Implementing multiple layers of security controls throughout the IT system
+                            to provide redundancies.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card text-center">
+                        <div class="feature-icon mx-auto"><i class="fas fa-microscope"></i></div>
+                        <h3>Proactive Scanning</h3>
+                        <p class="text-muted">Automated vulnerability assessments and penetration testing integrated
+                            into the CI/CD pipeline.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card text-center">
+                        <div class="feature-icon mx-auto"><i class="fas fa-lock"></i></div>
+                        <h3>Zero-Trust Framework</h3>
+                        <p class="text-muted">Strict identity verification for every person and device trying to access
+                            resources on a private network.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. KEY FEATURES -->
+    <section class="case-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6" data-reveal>
+                    <span class="section-label">04 // Capabilities</span>
+                    <h2 class="section-title mb-4">Key Features</h2>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-4 d-flex gap-3">
+                            <i class="fas fa-check-circle text-primary mt-1"
+                                style="color: var(--accent-color) !important;"></i>
+                            <div>
+                                <h5>WAF Implementation</h5>
+                                <p class="text-muted">Customized Web Application Firewalls to filter and monitor HTTP
+                                    traffic to and from a web service.</p>
+                            </div>
+                        </li>
+                        <li class="mb-4 d-flex gap-3">
+                            <i class="fas fa-check-circle text-primary mt-1"
+                                style="color: var(--accent-color) !important;"></i>
+                            <div>
+                                <h5>Intrusion Detection (IDS/IPS)</h5>
+                                <p class="text-muted">Real-time systems that monitor network traffic for suspicious
+                                    activity and known threats.</p>
+                            </div>
+                        </li>
+                        <li class="mb-4 d-flex gap-3">
+                            <i class="fas fa-check-circle text-primary mt-1"
+                                style="color: var(--accent-color) !important;"></i>
+                            <div>
+                                <h5>End-to-End Encryption</h5>
+                                <p class="text-muted">Rigorously securing data at rest and in transit using the latest
+                                    cryptographic standards.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6" data-reveal>
+                    <div class="glass-card d-flex align-items-center justify-content-center"
+                        style="min-height: 400px; border: 2px dashed var(--border-color);">
+                        <div class="text-center">
+                            <i class="fas fa-vault fa-5x mb-4 text-primary opacity-50"
+                                style="color: var(--accent-color) !important;"></i>
+                            <h3>Hardened Infrastructure</h3>
+                            <p class="text-muted px-4">Representation of a secure environment with segregated subnets
+                                and encrypted databases.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. TECHNOLOGIES USED -->
+    <section class="case-section">
+        <div class="container text-center">
+            <span class="section-label" data-reveal>05 // The Tech Stack</span>
+            <h2 class="section-title mb-5" data-reveal>Technologies Used</h2>
+            <div class="d-flex flex-wrap justify-content-center" data-reveal>
+                <div class="tech-pill"><i class="fas fa-cloud-lock me-2"></i> AWS Security Hub</div>
+                <div class="tech-pill"><i class="fas fa-firewall me-2"></i> Cloudflare WAF</div>
+                <div class="tech-pill"><i class="fab fa-docker me-2"></i> Docker / K8s</div>
+                <div class="tech-pill"><i class="fas fa-fingerprint me-2"></i> Okta / Auth0</div>
+                <div class="tech-pill"><i class="fas fa-magnifying-glass-chart me-2"></i> ELK Stack</div>
+                <div class="tech-pill"><i class="fas fa-code-merge me-2"></i> Terraform / IaC</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. MY ROLE -->
+    <section class="case-section bg-dark">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center" data-reveal>
+                    <img src="../assets/vishnu_branded.png" class="img-fluid rounded-circle mb-4"
+                        style="max-width: 200px; border: 3px solid var(--accent-color);" alt="Vishnu R">
+                    <h4>Vishnu R.</h4>
+                    <p class="text-muted">Senior Security Architect</p>
+                </div>
+                <div class="col-md-8" data-reveal>
+                    <span class="section-label">06 // Defense Leadership</span>
+                    <h2 class="section-title mb-4">My Role</h2>
+                    <p class="lead">As the lead for Secure Architectures, I designed the foundational security policies
+                        and infrastructure templates. I conducted extensive penetration tests, implemented the automated
+                        threat detection pipelines, and ensured compliance with SOC2 and GDPR standards throughout the
+                        architecture.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. SYSTEM ARCHITECTURE -->
+    <section class="case-section">
+        <div class="container text-center">
+            <span class="section-label" data-reveal>07 // Structural Blueprint</span>
+            <h2 class="section-title mb-5" data-reveal>System Architecture</h2>
+            <div class="row g-4 mt-4" data-reveal>
+                <div class="col-md-3">
+                    <div class="arch-box">
+                        <h5>Edge Layer</h5>
+                        <p class="small text-muted">CDN / DDOS Protection</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="arch-box">
+                        <h5>Access Layer</h5>
+                        <p class="small text-muted">IAM / MFA Controls</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="arch-box">
+                        <h5>App Layer</h5>
+                        <p class="small text-muted">Encrypted Microservices</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="arch-box last">
+                        <h5>Log Center</h5>
+                        <p class="small text-muted">SIEM / SOC Analysis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. SCREENSHOTS / DEMO -->
+    <section class="case-section">
+        <div class="container">
+            <span class="section-label text-center d-block" data-reveal>08 // Visual Evidence</span>
+            <h2 class="section-title text-center mb-5" data-reveal>Screenshots & Demo</h2>
+            <div class="row g-4">
+                <div class="col-md-8" data-reveal>
+                    <div class="glass-card" style="height: 400px; position: relative; padding: 0; overflow: hidden;">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200"
+                            class="img-fluid w-100 h-100" style="object-fit: cover;" alt="Security Dashboard">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4"
+                            style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                            <h5 class="mb-0">Threat Detection Dashboard</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card d-flex align-items-center justify-content-center text-center"
+                        style="height: 400px; border: 2px dashed var(--border-color);">
+                        <div>
+                            <i class="fas fa-play-circle fa-4x mb-3 text-primary"
+                                style="color: var(--accent-color) !important;"></i>
+                            <p>Live Attack Simulation Placeholder</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. CHALLENGES FACED -->
+    <section class="case-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5" data-reveal>
+                    <span class="section-label">09 // Roadblocks</span>
+                    <h2 class="section-title mb-4">Challenges Faced</h2>
+                </div>
+                <div class="col-lg-7" data-reveal>
+                    <div class="glass-card">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3"><strong>Performance Overhead:</strong> Minimizing the latency impact caused
+                                by heavy decryption and traffic inspection.</li>
+                            <li class="mb-3"><strong>false Positives:</strong> Tuning IDs systems to avoid blocking
+                                legitimate user traffic while remaining vigilant.</li>
+                            <li><strong>Legacy Conflicts:</strong> Integrating modern OIDC/OAuth2 protocols with older,
+                                incompatible enterprise systems.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. LEARNINGS -->
+    <section class="case-section">
+        <div class="container text-center">
+            <span class="section-label" data-reveal>10 // Growth</span>
+            <h2 class="section-title mb-5" data-reveal>Key Learnings</h2>
+            <div class="row g-4">
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card">
+                        <i class="fas fa-award fa-2x mb-3 text-primary"
+                            style="color: var(--accent-color) !important;"></i>
+                        <h5>Compliance Standards</h5>
+                        <p class="small text-muted">Intense deep-dive into international data residency and security
+                            laws.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card">
+                        <i class="fas fa-bug-slash fa-2x mb-3 text-primary"
+                            style="color: var(--accent-color) !important;"></i>
+                        <h5>Advanced Cryptography</h5>
+                        <p class="small text-muted">Practical implementation of HSMs and sophisticated key management
+                            services.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card">
+                        <i class="fas fa-user-check fa-2x mb-3 text-primary"
+                            style="color: var(--accent-color) !important;"></i>
+                        <h5>IAM Optimization</h5>
+                        <p class="small text-muted">Mastering fine-grained access control at an enterprise scale.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11. RESULTS & IMPACT -->
+    <section class="case-section bg-primary" style="background: linear-gradient(rgba(188, 60, 255, 0.1), transparent);">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6" data-reveal>
+                    <span class="section-label">11 // Outcome</span>
+                    <h2 class="section-title mb-4">Results & Impact</h2>
+                    <p class="lead">Implementation across partner organizations led to a **99.9% reduction** in
+                        successful brute-force attempts and a significant decrease in vulnerability remediation time
+                        through automated scanning.</p>
+                </div>
+                <div class="col-md-6" data-reveal>
+                    <div class="glass-card">
+                        <div class="stat-value">Zero</div>
+                        <div class="stat-label">Critical Breaches</div>
+                        <hr class="border-secondary my-4">
+                        <div class="stat-value">99%</div>
+                        <div class="stat-label">Attack Deflection</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12. FUTURE ENHANCEMENTS -->
+    <section class="case-section">
+        <div class="container">
+            <div class="section-header text-center" data-reveal>
+                <span class="section-label">12 // The Roadmap</span>
+                <h2 class="section-title">Future Enhancements</h2>
+            </div>
+            <div class="row g-4" data-reveal>
+                <div class="col-md-6">
+                    <div class="glass-card">
+                        <h5>AI-Driven SIEM</h5>
+                        <p class="text-muted">Integrating machine learning models for predictive threat analysis and
+                            automated incident response.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card">
+                        <h5>Quantum-Resistant Crypto</h5>
+                        <p class="text-muted">Researching and implementing post-quantum cryptographic algorithms to
+                            future-proof data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13. PROJECT LINKS -->
+    <section class="case-section text-center">
+        <div class="container" data-reveal>
+            <span class="section-label">13 // Reference</span>
+            <h2 class="section-title mb-5">Project Links</h2>
+            <div class="d-flex justify-content-center gap-4">
+                <a href="#" class="btn btn-outline-primary px-5 py-3 rounded-pill"
+                    style="border-color: var(--accent-color); color: var(--accent-color);"><i
+                        class="fas fa-file-shield me-2"></i> Security Whitepaper</a>
+                <a href="#" class="btn btn-primary px-5 py-3 rounded-pill"
+                    style="background: var(--accent-color); color: #fff; border: none; font-weight: 700;"><i
+                        class="fas fa-magnifying-glass me-2"></i> Infrastructure Audit</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer"
+        style="background: rgba(5, 5, 8, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 80px 0 30px; position: relative; z-index: 10;">
+        <div class="container">
+            <div class="row g-5 text-start">
+                <div class="col-lg-4">
+                    <a class="navbar-brand fw-bold mb-4 d-block text-decoration-none" href="../index.html"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; background: linear-gradient(135deg, #7b3fe4, #00f3ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">COFFEECREWS</a>
+                    <p class="text-white-50 mb-4" style="max-width: 300px;">Crafting high-impact digital experiences
+                        through innovative code and premium design.</p>
+                    <div class="social-links d-flex gap-3">
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">NAVIGATE
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../services.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Services</a>
+                        </li>
+                        <li class="mb-2"><a href="../products.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Products</a>
+                        </li>
+                        <li class="mb-2"><a href="../projects.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Innovations</a>
+                        </li>
+                        <li class="mb-2"><a href="../about.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Our
+                                Crew</a></li>
+                        <li class="mb-2"><a href="../careers.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Careers</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">SUPPORT
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../support.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Help
+                                Center</a></li>
+                        <li class="mb-2"><a href="../inquiry.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Contact</a>
+                        </li>
+                        <li class="mb-2"><a href="#"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Terms</a>
+                        </li>
+                        <li class="mb-2"><a href="#"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">NEWSLETTER
+                    </h5>
+                    <div class="newsletter-form p-1 rounded-pill"
+                        style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); display: flex;">
+                        <input type="email" placeholder="Email transmission..."
+                            style="background: none; border: none; color: #fff; padding: 10px 20px; flex-grow: 1; font-size: 0.85rem; outline: none;">
+                        <button
+                            style="background: #7b3fe4; border: none; color: #fff; padding: 10px 25px; border-radius: 50px; font-weight: 700; font-size: 0.75rem;">JOIN</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom mt-5 pt-4 border-top border-secondary border-opacity-10 text-center">
+                <p class="text-white-50 small mb-0">&copy; 2026 COFFEECREWS. ALL RIGHTS RESERVED. // OPERATED BY
+                    VISHNUAT18</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        // GSAP Scroll Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        document.querySelectorAll('[data-reveal]').forEach((el) => {
+            gsap.to(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 85%",
+                    onEnter: () => el.classList.add('active')
+                }
+            });
+        });
+
+        // Parallax Effect for Hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.case-hero');
+            hero.style.backgroundPositionY = scrolled * 0.5 + 'px';
+        });
+    </script>
+</body>
+
+</html>

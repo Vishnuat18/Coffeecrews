@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>iX-Ide Case Study | COFFEECREWS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-glow: #ffcc3c;
+            --accent-color: #ffcc3c;
+            --bg-dark: var(--bg-primary);
+            --card-bg: var(--card-bg);
+            --border-color: var(--border-color);
+            --text-main: var(--text-primary);
+            --text-theme-muted: var(--text-secondary);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        .orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Navbar Glassmorphism */
+        .navbar-glass {
+            background: var(--navbar-bg);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            color: var(--text-main) !important;
+        }
+
+        /* Hero Section */
+        .case-hero {
+            position: relative;
+            padding: 160px 0 100px;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 204, 60, 0.15) 0%, transparent 70%);
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(255, 204, 60, 0.1);
+            border: 1px solid var(--accent-color);
+            border-radius: 50px;
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #7b3fe4, #00f3ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-tagline {
+            font-size: 1.25rem;
+            color: var(--text-theme-muted);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Case Study Section Styles */
+        .case-section {
+            padding: 80px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        .section-label {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        /* Cards & UI Elements */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            height: 100%;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 204, 60, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tech Grid */
+        .tech-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            margin: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-pill:hover {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* Stats & Impact */
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent-color);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-theme-muted);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Architecture Visual */
+        .arch-box {
+            border: 2px dashed var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .arch-box::after {
+            content: "\f061";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+        }
+
+        .arch-box.last::after {
+            display: none;
+        }
+
+        /* Navigation */
+        .footer-nav {
+            padding: 60px 0;
+            background: #0a0a0a;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .back-btn:hover {
+            color: var(--accent-color);
+        }
+
+        /* Animations */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        [data-reveal].active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg fixed-top navbar-landing"
+        style="background: var(--navbar-bg); backdrop-filter: blur(25px); border-bottom: 1px solid var(--border-color); font-family: 'Orbitron', sans-serif; z-index: 2000;">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../index.html"
+                style="background: linear-gradient(135deg, #7b3fe4, #ff7a59); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">COFFEECREWS</a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="../index.html#hero">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../services.html">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../projects.html">Innovations</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../careers.html">Careers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../support.html">Support Crew</a></li>
+                    <li class="nav-item"><a class="nav-link nav-cta" href="../inquiry.html"
+                            style="background: #7b3fe4; color: #fff !important; border-radius: 50px; padding: 0.6rem 2rem !important; font-size: 0.8rem; font-weight: 800; margin-left: 2rem; box-shadow: 0 10px 20px rgba(123, 63, 228, 0.3);">Get
+                            In Touch</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="case-hero">
+        <div class="container text-center">
+            <span class="hero-badge">Developer Tools & Productivity</span>
+            <h1 class="hero-title">iX-Ide</h1>
+            <p class="hero-tagline mx-auto">A next-generation browser-based development environment that simplifies
+                coding workflows, collaboration, and deployment cycles.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#overview" class="btn btn-outline-light px-4 py-2 rounded-pill">Explore Case Study</a>
+                <a href="#" class="btn btn-warning px-4 py-2 rounded-pill shadow-lg"
+                    style="background: var(--accent-color); color: #000; border: none; font-weight: 700;">Open IDE</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. PROJECT OVERVIEW -->
+    <section class="case-section" id="overview">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-reveal>
+                    <span class="section-label">01 // The Vision</span>
+                    <h2 class="section-title mb-4">Project Overview</h2>
+                    <p class="lead text-muted">iX-Ide is an advanced Integrated Development Environment (IDE) built
+                        specifically for the web. It provides a seamless, powerful workspace that allows developers to
+                        write, debug, and ship code directly from their browser, eliminating the need for complex local
+                        setups.</p>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0" data-reveal>
+                    <div class="glass-card">
+                        <div class="row text-center">
+                            <div class="col-6 mb-4">
+                                <div class="stat-value">Instant</div>
+                                <div class="stat-label">Project Spin-up</div>
+                            </div>
+                            <div class="col-6 mb-4">
+                                <div class="stat-value">Zero</div>
+                                <div class="stat-label">Local Dependency</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="stat-value">Rohith S.</div>
+                                <div class="stat-label">Lead Tooling Engineer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. PROBLEM STATEMENT -->
+    <section class="case-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5" data-reveal>
+                    <span class="section-label">02 // The Challenge</span>
+                    <h2 class="section-title mb-4">Problem Statement</h2>
+                </div>
+                <div class="col-lg-7" data-reveal>
+                    <div class="glass-card">
+                        <p class="mb-0">Setting up local development environments is often a tedious and error-prone
+                            process that consumes valuable time. Furthermore, collaborating on code in real-time remains
+                            a major hurdle for remote teams, often leading to synchronization issues and friction in the
+                            development cycle.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SOLUTION APPROACH -->
+    <section class="case-section bg-dark">
+        <div class="container">
+            <div class="section-header text-center" data-reveal>
+                <span class="section-label">03 // The Strategy</span>
+                <h2 class="section-title">Solution Approach</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card text-center">
+                        <div class="feature-icon mx-auto"><i class="fas fa-terminal"></i></div>
+                        <h3>Cloud Containers</h3>
+                        <p class="text-muted">Utilizing isolated, sandboxed containers to provide consistent runtime
+                            environments across any machine.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card text-center">
+                        <div class="feature-icon mx-auto"><i class="fas fa-code-pull-request"></i></div>
+                        <h3>Live Collaboration</h3>
+                        <p class="text-muted">Implementing Operational Transformation (OT) for lag-free, multiplayer
+                            code editing and terminal sharing.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card text-center">
+                        <div class="feature-icon mx-auto"><i class="fas fa-rocket"></i></div>
+                        <h3>Edge Execution</h3>
+                        <p class="text-muted">Developing a high-performance execution engine that runs code snippets at
+                            the edge for instant feedback.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. KEY FEATURES -->
+    <section class="case-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6" data-reveal>
+                    <span class="section-label">04 // Capabilities</span>
+                    <h2 class="section-title mb-4">Key Features</h2>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-4 d-flex gap-3">
+                            <i class="fas fa-check-circle text-warning mt-1"
+                                style="color: var(--accent-color) !important;"></i>
+                            <div>
+                                <h5>Multi-Language Support</h5>
+                                <p class="text-muted">Intelligent code completion (Intellisense) and linting for over
+                                    20+ programming languages.</p>
+                            </div>
+                        </li>
+                        <li class="mb-4 d-flex gap-3">
+                            <i class="fas fa-check-circle text-warning mt-1"
+                                style="color: var(--accent-color) !important;"></i>
+                            <div>
+                                <h5>Integrated Git Control</h5>
+                                <p class="text-muted">Visual versioning tools for staging, committing, and branching
+                                    without leaving the editor.</p>
+                            </div>
+                        </li>
+                        <li class="mb-4 d-flex gap-3">
+                            <i class="fas fa-check-circle text-warning mt-1"
+                                style="color: var(--accent-color) !important;"></i>
+                            <div>
+                                <h5>One-Click Deployment</h5>
+                                <p class="text-muted">Seamless integration with major cloud providers for instancing and
+                                    shipping applications instantly.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6" data-reveal>
+                    <div class="glass-card d-flex align-items-center justify-content-center"
+                        style="min-height: 400px; border: 2px dashed var(--border-color);">
+                        <div class="text-center">
+                            <i class="fas fa-code fa-5x mb-4 text-warning opacity-50"
+                                style="color: var(--accent-color) !important;"></i>
+                            <h3>Advanced Code Editor UI</h3>
+                            <p class="text-muted px-4">Representation of a dark-themed, sleek IDE interface with
+                                multi-tab support and terminal integration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. TECHNOLOGIES USED -->
+    <section class="case-section">
+        <div class="container text-center">
+            <span class="section-label" data-reveal>05 // The Tech Stack</span>
+            <h2 class="section-title mb-5" data-reveal>Technologies Used</h2>
+            <div class="d-flex flex-wrap justify-content-center" data-reveal>
+                <div class="tech-pill"><i class="fab fa-js me-2"></i> TypeScript</div>
+                <div class="tech-pill"><i class="fab fa-react me-2"></i> React / Redux</div>
+                <div class="tech-pill"><i class="fab fa-docker me-2"></i> Docker Engine</div>
+                <div class="tech-pill"><i class="fas fa-code-branch me-2"></i> Monaco Editor</div>
+                <div class="tech-pill"><i class="fas fa-bolt me-2"></i> WebAssembly (WASM)</div>
+                <div class="tech-pill"><i class="fab fa-node-js me-2"></i> Node / gRPC</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. MY ROLE -->
+    <section class="case-section bg-dark">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center" data-reveal>
+                    <img src="../assets/rohith_branded.png" class="img-fluid rounded-circle mb-4"
+                        style="max-width: 200px; border: 3px solid var(--accent-color);" alt="Rohith S">
+                    <h4>Rohith S.</h4>
+                    <p class="text-muted">Lead Tooling Engineer</p>
+                </div>
+                <div class="col-md-8" data-reveal>
+                    <span class="section-label">06 // DX Design & Engine</span>
+                    <h2 class="section-title mb-4">My Role</h2>
+                    <p class="lead">As the Lead Tooling Engineer, I architected the core editor engine and the
+                        project-sync logic of iX-Ide. My work focused on optimizing the Developer Experience (DX),
+                        implementing the multiplayer editing protocols, and integrating with containerisation services
+                        to ensure code isolated runtimes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. SYSTEM ARCHITECTURE -->
+    <section class="case-section">
+        <div class="container text-center">
+            <span class="section-label" data-reveal>07 // Structural Blueprint</span>
+            <h2 class="section-title mb-5" data-reveal>System Architecture</h2>
+            <div class="row g-4 mt-4" data-reveal>
+                <div class="col-md-3">
+                    <div class="arch-box">
+                        <h5>Frontend Host</h5>
+                        <p class="small text-muted">React Editor Shell</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="arch-box">
+                        <h5>Language Server</h5>
+                        <p class="small text-muted">LSP / gRPC Gateway</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="arch-box">
+                        <h5>Compute Node</h5>
+                        <p class="small text-muted">K8s / Container Runtimes</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="arch-box last">
+                        <h5>File Sync</h5>
+                        <p class="small text-muted">Distributed File System</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. SCREENSHOTS / DEMO -->
+    <section class="case-section">
+        <div class="container">
+            <span class="section-label text-center d-block" data-reveal>08 // Visual Evidence</span>
+            <h2 class="section-title text-center mb-5" data-reveal>Screenshots & Demo</h2>
+            <div class="row g-4">
+                <div class="col-md-8" data-reveal>
+                    <div class="glass-card" style="height: 400px; position: relative; padding: 0; overflow: hidden;">
+                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1200"
+                            class="img-fluid w-100 h-100" style="object-fit: cover;" alt="iX-Ide Screenshot">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4"
+                            style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                            <h5 class="mb-0">Modern Dark-Theme Workspace</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card d-flex align-items-center justify-content-center text-center"
+                        style="height: 400px; border: 2px dashed var(--border-color);">
+                        <div>
+                            <i class="fas fa-play-circle fa-4x mb-3 text-warning"
+                                style="color: var(--accent-color) !important;"></i>
+                            <p>Interactive IDE Walkthrough Placeholder</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. CHALLENGES FACED -->
+    <section class="case-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5" data-reveal>
+                    <span class="section-label">09 // Roadblocks</span>
+                    <h2 class="section-title mb-4">Challenges Faced</h2>
+                </div>
+                <div class="col-lg-7" data-reveal>
+                    <div class="glass-card">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-3"><strong>Latency in Editing:</strong> Reducing the round-trip time for OT
+                                operations to ensure multiplayer editing feels native.</li>
+                            <li class="mb-3"><strong>Security Isolation:</strong> Ensuring that untrusted code executed
+                                in the terminal cannot affect other tenants or the host.</li>
+                            <li><strong>Language Complexity:</strong> Implementing robust language support without
+                                bloating the browser bundle.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. LEARNINGS -->
+    <section class="case-section">
+        <div class="container text-center">
+            <span class="section-label" data-reveal>10 // Growth</span>
+            <h2 class="section-title mb-5" data-reveal>Key Learnings</h2>
+            <div class="row g-4">
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card">
+                        <i class="fas fa-microchip fa-2x mb-3 text-warning"
+                            style="color: var(--accent-color) !important;"></i>
+                        <h5>Low-Level Protocols</h5>
+                        <p class="small text-muted">Deep dive into TCP/gRPC communication for high-performance
+                            toolchains.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card">
+                        <i class="fas fa-wand-magic-sparkles fa-2x mb-3 text-warning"
+                            style="color: var(--accent-color) !important;"></i>
+                        <h5>DX Principles</h5>
+                        <p class="small text-muted">Understanding what makes a tool "invisible" and delightful for
+                            professional developers.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-reveal>
+                    <div class="glass-card">
+                        <i class="fas fa-cube fa-2x mb-3 text-warning"
+                            style="color: var(--accent-color) !important;"></i>
+                        <h5>WASM & Edge</h5>
+                        <p class="small text-muted">Harnessing the power of WebAssembly to run heavy computations on the
+                            client side.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11. RESULTS & IMPACT -->
+    <section class="case-section bg-warning" style="background: linear-gradient(rgba(255, 204, 60, 0.1), transparent);">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6" data-reveal>
+                    <span class="section-label">11 // Outcome</span>
+                    <h2 class="section-title mb-4">Results & Impact</h2>
+                    <p class="lead">iX-Ide has successfully improved team development speed by **50%** across trial
+                        groups by eliminating setup hurdles. It now supports over **100 concurrent collaboration
+                        sessions** with no noticeable degradation in performance.</p>
+                </div>
+                <div class="col-md-6" data-reveal>
+                    <div class="glass-card">
+                        <div class="stat-value">50%</div>
+                        <div class="stat-label">Faster Dev Cycle</div>
+                        <hr class="border-secondary my-4">
+                        <div class="stat-value">1s</div>
+                        <div class="stat-label">Average Load Time</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12. FUTURE ENHANCEMENTS -->
+    <section class="case-section">
+        <div class="container">
+            <div class="section-header text-center" data-reveal>
+                <span class="section-label">12 // The Roadmap</span>
+                <h2 class="section-title">Future Enhancements</h2>
+            </div>
+            <div class="row g-4" data-reveal>
+                <div class="col-md-6">
+                    <div class="glass-card">
+                        <h5>AI Pair Programmer</h5>
+                        <p class="text-muted">Directly integrating Large Language Models for context-aware code
+                            suggestions and explanations.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card">
+                        <h5>Plugin Ecosystem</h5>
+                        <p class="text-muted">Developing a marketplace for third-party extensions to customize the
+                            iX-Ide experience.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13. PROJECT LINKS -->
+    <section class="case-section text-center">
+        <div class="container" data-reveal>
+            <span class="section-label">13 // Reference</span>
+            <h2 class="section-title mb-5">Project Links</h2>
+            <div class="d-flex justify-content-center gap-4">
+                <a href="#" class="btn btn-outline-warning px-5 py-3 rounded-pill"
+                    style="border-color: var(--accent-color); color: var(--accent-color);"><i
+                        class="fab fa-github me-2"></i> Source Code</a>
+                <a href="#" class="btn btn-warning px-5 py-3 rounded-pill"
+                    style="background: var(--accent-color); color: #000; border: none; font-weight: 700;"><i
+                        class="fas fa-plus me-2"></i> Start New Project</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer"
+        style="background: rgba(5, 5, 8, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 80px 0 30px; position: relative; z-index: 10;">
+        <div class="container">
+            <div class="row g-5 text-start">
+                <div class="col-lg-4">
+                    <a class="navbar-brand fw-bold mb-4 d-block text-decoration-none" href="../index.html"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; background: linear-gradient(135deg, #7b3fe4, #00f3ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">COFFEECREWS</a>
+                    <p class="text-white-50 mb-4" style="max-width: 300px;">Crafting high-impact digital experiences
+                        through innovative code and premium design.</p>
+                    <div class="social-links d-flex gap-3">
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: #fff; opacity: 0.5; transition: 0.3s;"><i
+                                class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">NAVIGATE
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../services.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Services</a>
+                        </li>
+                        <li class="mb-2"><a href="../products.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Products</a>
+                        </li>
+                        <li class="mb-2"><a href="../projects.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Innovations</a>
+                        </li>
+                        <li class="mb-2"><a href="../about.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Our
+                                Crew</a></li>
+                        <li class="mb-2"><a href="../careers.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Careers</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">SUPPORT
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../support.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Help
+                                Center</a></li>
+                        <li class="mb-2"><a href="../inquiry.html"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Contact</a>
+                        </li>
+                        <li class="mb-2"><a href="#"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Terms</a>
+                        </li>
+                        <li class="mb-2"><a href="#"
+                                style="color: rgba(255,255,255,0.6); text-decoration: none; transition: 0.3s;">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="fw-bold mb-4 text-white"
+                        style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; letter-spacing: 1px;">NEWSLETTER
+                    </h5>
+                    <div class="newsletter-form p-1 rounded-pill"
+                        style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); display: flex;">
+                        <input type="email" placeholder="Email transmission..."
+                            style="background: none; border: none; color: #fff; padding: 10px 20px; flex-grow: 1; font-size: 0.85rem; outline: none;">
+                        <button
+                            style="background: #7b3fe4; border: none; color: #fff; padding: 10px 25px; border-radius: 50px; font-weight: 700; font-size: 0.75rem;">JOIN</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom mt-5 pt-4 border-top border-secondary border-opacity-10 text-center">
+                <p class="text-white-50 small mb-0">&copy; 2026 COFFEECREWS. ALL RIGHTS RESERVED. // OPERATED BY
+                    VISHNUAT18</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        // GSAP Scroll Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        document.querySelectorAll('[data-reveal]').forEach((el) => {
+            gsap.to(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 85%",
+                    onEnter: () => el.classList.add('active')
+                }
+            });
+        });
+
+        // Parallax Effect for Hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.case-hero');
+            hero.style.backgroundPositionY = scrolled * 0.5 + 'px';
+        });
+    </script>
+</body>
+
+</html>

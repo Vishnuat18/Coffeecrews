@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>THE CREW | TITAN V11.6</title>
+    <link rel="shortcut icon" href="assets/favicon.png">
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@900&family=Rajdhani:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Theme Initialization -->
+    <script>
+        (function () {
+            // FORCE DARK MODE FOR CREW PAGE
+            document.documentElement.setAttribute('data-theme', 'dark');
+            // Optional: Set localStorage to dark if you want the user to stay in dark mode 
+            // after visiting this page, but per requirements "crew.html never be light mode",
+            // this usually implies a local override without changing global preference.
+            // For now, we just force the attribute.
+        })();
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/crew.css" rel="stylesheet">
+
+
+
+</head>
+
+<body>
+
+    <!-- CURSOR SPOTLIGHT -->
+
+    <div class="cursor-glow" id="cursor-glow"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+
+    <!-- Theme Toggle REMOVED for Crew Page -->
+
+    <div class="titan-container" id="slider">
+        <!-- PARTICLE CANVAS -->
+        <canvas id="particle-canvas"
+            style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; opacity: 0.4;"></canvas>
+
+        <!-- SLIDES -->
+        <div class="slide active" data-color="vishnu">
+            <div class="bg-type" data-depth="0.1">VISHNU</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/vishnu.jpeg" class="hero-img" alt="Vishnu">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Full stack Dev</span>
+                <h1 class="name-title glitch-text" data-text="Vishnu R">Vishnu R</h1>
+                <p class="desc-text">Engineering Student & Developer passionate about crafting robust, scalable web
+                    applications. Expert in Java systems and Secure Web Architectures.</p>
+                <a href="https://v-portfolio-drab.vercel.app/" target="_blank" class="cta-btn">View Portfolio &rarr;</a>
+            </div>
+
+            <!-- RADIAL MENU -->
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-vishnu);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="tel:+910000000000" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="mailto:vishnu@example.com" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="https://v-portfolio-drab.vercel.app/" target="_blank" class="branch" title="Portfolio"><i
+                            class="fas fa-globe"></i></a>
+                    <a href="#" target="_blank" class="branch" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" class="branch" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-color="kiran">
+            <div class="bg-type" data-depth="0.1">KIRAN</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/kiran.jpeg" class="hero-img" alt="Kiran">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Full Stack Dev</span>
+                <h1 class="name-title glitch-text" data-text="Kiran Patil">Kiran Patil</h1>
+                <p class="desc-text">Specialist in Node.js and Java backends. Creator of SmartCart and complex
+                    Management Systems. "Write Once, Run Anywhere."</p>
+                <a href="https://kiranpatil05.netlify.app/" target="_blank" class="cta-btn">View Portfolio &rarr;</a>
+            </div>
+
+            <!-- RADIAL MENU -->
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-kiran);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="tel:+910000000000" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="mailto:kiran@example.com" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="https://kiranpatil05.netlify.app/" target="_blank" class="branch" title="Portfolio"><i
+                            class="fas fa-globe"></i></a>
+                    <a href="#" target="_blank" class="branch" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" class="branch" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-color="rohith">
+            <div class="bg-type" data-depth="0.1">ROHITH</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/rohith.png" class="hero-img" alt="Rohith">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Front end Dev</span>
+                <h1 class="name-title glitch-text" data-text="Rohith S">Rohith S</h1>
+                <p class="desc-text">Focus on Front-End Design and Interactive Experiences. Creating visually engaging,
+                    responsive layouts that wow users.</p>
+                <a href="https://rohith22s.github.io/portfolio-2.0/" target="_blank" class="cta-btn">View Portfolio
+                    &rarr;</a>
+            </div>
+
+            <!-- RADIAL MENU -->
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-rohith);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="tel:+910000000000" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="mailto:rohith@example.com" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="https://rohith22s.github.io/portfolio-2.0/" target="_blank" class="branch"
+                        title="Portfolio"><i class="fas fa-globe"></i></a>
+                    <a href="#" target="_blank" class="branch" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" class="branch" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-color="prasanna">
+            <div class="bg-type" data-depth="0.1" style="z-index: 12;">PRASANNA</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/prasanna.jpeg" class="hero-img" alt="Prasanna">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Founder & Ceo</span>
+                <h1 class="name-title glitch-text" data-text="Prasanna S">Prasanna S</h1>
+                <p class="desc-text">Visionary leader driving the strategic direction of CoffeeCrews. Fostering
+                    innovation and building the future of tech.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+
+            <!-- RADIAL MENU -->
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-prasanna);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="#" target="_blank" class="branch" title="Portfolio"><i class="fas fa-globe"></i></a>
+                    <a href="#" target="_blank" class="branch" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" class="branch" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-color="gokul">
+            <div class="bg-type" data-depth="0.1">GOKUL</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/gokul.jpeg" class="hero-img" alt="Gokul">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Video Editor</span>
+                <h1 class="name-title glitch-text" data-text="Gokul">Gokul</h1>
+                <p class="desc-text">Master of Motion and Visual Storytelling. Bringing static concepts to life through
+                    animation and design.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+
+            <!-- RADIAL MENU -->
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-gokul);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="#" target="_blank" class="branch" title="Portfolio"><i class="fas fa-globe"></i></a>
+                    <a href="#" target="_blank" class="branch" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" class="branch" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-color="senthil">
+            <div class="bg-type" data-depth="0.1">SENTHIL</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/senthil.png" class="hero-img" alt="Senthil">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">UI/UX Designer</span>
+                <h1 class="name-title glitch-text" data-text="Senthil">Senthilnathan</h1>
+                <p class="desc-text">Creative Web Designer focusing on intuitive user interfaces and modern aesthetics.
+                    Crafting digital experiences that inspire.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+
+            <!-- RADIAL MENU -->
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-senthil);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                    <a href="#" target="_blank" class="branch" title="Portfolio"><i class="fas fa-globe"></i></a>
+                    <a href="#" target="_blank" class="branch" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" target="_blank" class="branch" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-color="dharani">
+            <div class="bg-type" data-depth="0.1">DHARANI</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/dharani.png" class="hero-img" alt="Dharani">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Founder & Ceo</span>
+                <h1 class="name-title glitch-text" data-text="Dharanitharan">Dharanitharan</h1>
+                <p class="desc-text">Optimizing systems and driving growth. Bridging the gap between engineering
+                    excellence and strategic vision.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-dharani);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="slide" data-color="santhosh">
+            <div class="bg-type" data-depth="0.1">SANTHOSH</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="cyber_neural_brain_3d_1771137317306.png" class="hero-img" alt="Santhosh"
+                    style="filter: hue-rotate(280deg) brightness(1.2);">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Prompt Engineer</span>
+                <h1 class="name-title glitch-text" data-text="Santhosh">Santhosh</h1>
+                <p class="desc-text">Specializing in iterative prompt design and behavior fine-tuning for complex
+                    digital assistants.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-santhosh);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="slide" data-color="nithish">
+            <div class="bg-type" data-depth="0.1">NITHISH</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/nithish.png" class="hero-img" alt="Nithish">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Prompt Engineer</span>
+                <h1 class="name-title glitch-text" data-text="Nithish">Nithish</h1>
+                <p class="desc-text">Synthesizing data-driven insights with creative linguistic patterns to enhance AI
+                    reasoning capabilities.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-nithish);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="slide" data-color="gk">
+            <div class="bg-type" data-depth="0.1">GK</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/gk.png" class="hero-img" alt="GK">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Content Creator</span>
+                <h1 class="name-title glitch-text" data-text="Gokul Krishnan">Gokul Krishnan</h1>
+                <p class="desc-text">Architect of high-impact visual content. Expert in editing and cinematic production
+                    for the digital age.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-gk);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+ -->
+        <div class="slide" data-color="gc">
+            <div class="bg-type" data-depth="0.1">GC</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/gk.png" class="hero-img" alt="GC">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">DB Manager</span>
+                <h1 class="name-title glitch-text" data-text="Gowdhama Chandran">Gowdhama Chandran</h1>
+                <p class="desc-text">Master of Data management. Ensuring the integrity and availability of our most
+                    critical information assets.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-gc);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="slide" data-color="akshaya">
+            <div class="bg-type" data-depth="0.1">AKSHAYA</div>
+            <div class="hero-img-wrap" data-depth="0.3">
+                <img src="assets/akshaya.png" class="hero-img" alt="Akshaya">
+            </div>
+            <div class="info-panel" data-depth="0.5">
+                <span class="role-badge">Web Designer</span>
+                <h1 class="name-title glitch-text" data-text="Akshaya">Akshaya</h1>
+                <p class="desc-text">UI/UX Designer creating intuitive, human-centric interfaces. Merging pixel
+                    perfection with user empathy.</p>
+                <a href="#" class="cta-btn">Profile Locked &rarr;</a>
+            </div>
+            <div class="contact-menu-wrap" style="--member-accent: var(--accent-akshaya);">
+                <div class="contact-trigger" onclick="toggleSocialMenu(this)"></div>
+                <div class="social-branches">
+                    <a href="#" class="branch" title="Phone"><i class="fas fa-phone"></i></a>
+                    <a href="#" class="branch" title="Mail"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> BACK</a>
+    <button class="cat-menu-trigger" onclick="toggleCatMenu()">CATEGORIES</button>
+    <div class="category-overlay" id="catOverlay">
+        <h5 class="mb-5" style="letter-spacing: 5px; opacity: 0.5;">TEAM GROUPS</h5>
+        <div class="cat-item" onclick="jumpToMember('prasanna')"><span>01</span>FOUNDER & CEO</div>
+        <div class="cat-item" onclick="jumpToMember('vishnu')"><span>02</span>DEVELOPMENT CREW</div>
+        <div class="cat-item" onclick="jumpToMember('gokul')"><span>03</span>CONTENT CREATORS</div>
+        <div class="cat-item" onclick="jumpToMember('senthil')"><span>04</span>DESIGNING CREW</div>
+        <div class="cat-item" onclick="jumpToMember('gc')"><span>05</span>DB ADMIN</div>
+        <div class="cat-item" onclick="jumpToMember('santhosh')"><span>06</span>SUPPORT SPECIALISTS</div>
+        <button class="nav-btn mt-5" onclick="toggleCatMenu()"
+            style="width: auto; height: auto; padding: 15px 30px; border-radius: 50px; font-size: 0.8rem;">CLOSE</button>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" title="Previous Slide">&larr;</button>
+        <button class="nav-btn" id="nextBtn" title="Next Slide">&rarr;</button>
+    </div>
+
+    <div class="slide-indicators" id="indicators"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-landing">
+        <div class="container position-relative" style="z-index: 2;">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+                <span>COFFEECREWS</span>
+            </a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="crew.html">Crew</a></li>
+                    <li class="nav-item"><a class="nav-link" href="careers.html">Careers</a></li>
+                    <li class="nav-item"><a class="nav-link nav-cta" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const indicatorsContainer = document.getElementById('indicators');
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        const glow = document.getElementById('cursor-glow');
+        const dot = document.getElementById('cursor-dot');
+
+        let currentIndex = 0;
+        let isAnimating = false;
+        let particles = [];
+
+        const colors = {
+            vishnu: 'rgba(0, 243, 255, 0.5)',        // #00f3ff
+            kiran: 'rgba(255, 0, 60, 0.5)',          // #ff003c
+            rohith: 'rgba(10, 255, 10, 0.5)',        // #0aff0a
+            prasanna: 'rgba(255, 215, 0, 0.5)',      // #ffd700
+            gokul: 'rgba(255, 0, 255, 0.5)',         // #ff00ff
+            senthil: 'rgba(255, 87, 34, 0.5)',       // #ff5722
+            dharani: 'rgba(255, 215, 0, 0.5)',       // #ffd700
+            santhosh: 'rgba(183, 27, 77, 0.5)',      // #b71b4d
+            nithish: 'rgba(143, 210, 34, 0.5)',      // #8fd222
+            gk: 'rgba(99, 102, 241, 0.5)',           // #6366f1
+            gc: 'rgba(68, 239, 171, 0.5)',           // #44efab
+            akshaya: 'rgba(244, 114, 182, 0.5)'      // #f472b6
+        };
+
+        function toggleCatMenu() {
+            document.getElementById('catOverlay').classList.toggle('active');
+        }
+
+        function jumpToMember(memberId) {
+            const targetIndex = Array.from(slides).findIndex(s => s.dataset.color === memberId);
+            if (targetIndex !== -1) {
+                toggleCatMenu();
+                gotoSlide(targetIndex);
+            }
+        }
+
+        // Resize
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Particles
+        class Part {
+            constructor() { this.init(); }
+            init() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.s = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = (Math.random() - 0.5) * 0.8;
+                this.a = Math.random();
+            }
+            draw() {
+                const c = colors[slides[currentIndex].dataset.color].replace('0.5', '1');
+                ctx.fillStyle = c;
+                ctx.globalAlpha = this.a * 0.3;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI * 2); ctx.fill();
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.init();
+            }
+        }
+        for (let i = 0; i < 80; i++) particles.push(new Part());
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.draw());
+            requestAnimationFrame(render);
+        }
+        render();
+
+        // Mouse Spotlight & keyboard Nav
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(glow, { left: e.clientX, top: e.clientY, duration: 0.8, ease: "power2.out" });
+            gsap.to(dot, { left: e.clientX, top: e.clientY, duration: 0.1 });
+
+            const px = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+            const py = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+
+            slides[currentIndex].querySelectorAll('[data-depth]').forEach(el => {
+                const d = parseFloat(el.dataset.depth);
+                gsap.to(el, { x: px * d * 100, y: py * d * 50, duration: 2, ease: "power3.out" });
+            });
+        });
+
+        // Indicators
+        slides.forEach((_, i) => {
+            const b = document.createElement('div'); b.className = 'bar' + (i === 0 ? ' active' : '');
+            b.onclick = () => { resetTimer(); gotoSlide(i); }; indicatorsContainer.appendChild(b);
+        });
+        const bars = document.querySelectorAll('.bar');
+
+        prevBtn.onclick = () => { resetTimer(); prevSlide(); };
+        nextBtn.onclick = () => { resetTimer(); nextSlide(); };
+
+        function prevSlide() {
+            let idx = currentIndex - 1;
+            if (idx < 0) idx = slides.length - 1;
+            gotoSlide(idx);
+        }
+
+        function nextSlide() {
+            let idx = currentIndex + 1;
+            if (idx >= slides.length) idx = 0;
+            gotoSlide(idx);
+        }
+
+        // Auto Slide Timer
+        let autoSlideInterval = setInterval(nextSlide, 5000);
+
+        function resetTimer() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(nextSlide, 5000);
+        }
+
+        function gotoSlide(index) {
+            if (isAnimating || index === currentIndex) return;
+            isAnimating = true;
+            resetTimer();
+
+            const out = slides[currentIndex];
+            const inc = slides[index];
+            const dir = index > currentIndex ? 1 : -1;
+
+            // Special case for wrap around
+            const actualDir = (index === 0 && currentIndex === slides.length - 1) ? 1 :
+                (index === slides.length - 1 && currentIndex === 0) ? -1 : dir;
+
+            document.documentElement.style.setProperty('--glow-color', colors[inc.dataset.color]);
+
+            gsap.to(out.querySelector('.name-title'), { y: -60 * actualDir, opacity: 0, duration: 0.7 });
+            gsap.to(out.querySelector('.hero-img'), { scale: 0.85, opacity: 0, duration: 0.7 });
+            gsap.to(out.querySelector('.bg-type'), { x: -300 * actualDir, opacity: 0, duration: 0.7 });
+            gsap.to(out.querySelector('.info-panel'), { x: 300, opacity: 0, duration: 0.7 });
+
+            setTimeout(() => {
+                out.classList.remove('active'); inc.classList.add('active');
+
+                // Set In
+                gsap.set(inc.querySelector('.name-title'), { y: 60 * dir, opacity: 0 });
+                gsap.set(inc.querySelector('.hero-img'), { scale: 1.15, opacity: 0 });
+                gsap.set(inc.querySelector('.bg-type'), { x: 300 * dir, opacity: 0 });
+                gsap.set(inc.querySelector('.info-panel'), { x: 300, opacity: 0 });
+
+                // Animate In
+                gsap.to(inc.querySelector('.bg-type'), { x: 0, opacity: 1, duration: 1.5, ease: "expo.out" });
+                gsap.to(inc.querySelector('.hero-img'), { scale: 1, opacity: 0.7, duration: 1.5, delay: 0.2, ease: "expo.out" });
+                gsap.to(inc.querySelector('.info-panel'), { x: 0, opacity: 1, duration: 1.5, delay: 0.4, ease: "expo.out" });
+                gsap.to(inc.querySelector('.name-title'), { y: 0, opacity: 1, duration: 1.5, delay: 0.6, ease: "expo.out" });
+
+                bars.forEach(b => b.classList.remove('active')); bars[index].classList.add('active');
+                currentIndex = index; isAnimating = false;
+            }, 700);
+        }
+
+        nextBtn.onclick = () => gotoSlide((currentIndex + 1) % slides.length);
+        prevBtn.onclick = () => gotoSlide((currentIndex - 1 + slides.length) % slides.length);
+        window.onkeydown = (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextBtn.onclick();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevBtn.onclick();
+        };
+
+        // Intro
+        gsap.from(slides[0].querySelector('.bg-type'), { x: 300, opacity: 0, duration: 2, ease: "expo.out" });
+        gsap.from(slides[0].querySelector('.hero-img'), { scale: 1.2, opacity: 0, duration: 2, delay: 0.4, ease: "expo.out" });
+        gsap.from(slides[0].querySelector('.info-panel'), { x: 300, opacity: 0, duration: 2, delay: 0.8, ease: "expo.out" });
+
+        // Initial Deep Linking
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.slice(1).toLowerCase();
+            if (hash) {
+                const targetIndex = Array.from(slides).findIndex(s => s.dataset.color === hash);
+                if (targetIndex !== -1 && targetIndex !== currentIndex) {
+                    // Force immediate jump for the first slide if needed
+                    if (currentIndex === 0) {
+                        slides[0].classList.remove('active');
+                        bars[0].classList.remove('active');
+                        slides[targetIndex].classList.add('active');
+                        bars[targetIndex].classList.add('active');
+                        currentIndex = targetIndex;
+                        // Trigger intro for the new target
+                        gsap.from(slides[targetIndex].querySelector('.bg-type'), { x: 300, opacity: 0, duration: 2, ease: "expo.out" });
+                        gsap.from(slides[targetIndex].querySelector('.hero-img'), { scale: 1.2, opacity: 0, duration: 2, delay: 0.4, ease: "expo.out" });
+                        gsap.from(slides[targetIndex].querySelector('.info-panel'), { x: 300, opacity: 0, duration: 2, delay: 0.8, ease: "expo.out" });
+                    } else {
+                        gotoSlide(targetIndex);
+                    }
+                }
+            }
+        });
+
+        // Social Menu Toggle
+        function toggleSocialMenu(trigger) {
+            const wrap = trigger.parentElement;
+            const branches = wrap.querySelector('.social-branches');
+            const items = branches.querySelectorAll('.branch');
+            const isActive = branches.classList.contains('active');
+
+            if (!isActive) {
+                branches.classList.add('active');
+                gsap.to(branches, { opacity: 1, duration: 0.3 });
+                items.forEach((item, i) => {
+                    // Spread icons in a quarter circle (90 degrees)
+                    const angle = (i / (items.length - 1)) * (Math.PI / 2);
+                    const radius = 130; // Distance from center
+
+                    // Simple radial positioning from (0,0) which is center of trigger
+                    const x = Math.cos(angle) * radius;
+                    const y = -Math.sin(angle) * radius;
+
+                    gsap.to(item, {
+                        x: x,
+                        y: y,
+                        scale: 1,
+                        duration: 0.6,
+                        delay: i * 0.05,
+                        ease: "back.out(1.5)"
+                    });
+                });
+            } else {
+                gsap.to(items, {
+                    x: 0,
+                    y: 0,
+                    scale: 0,
+                    duration: 0.4,
+                    stagger: 0.05,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        branches.classList.remove('active');
+                    }
+                });
+            }
+        }
+    </script>
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+    htmlElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    });
+    </script>
+</body>
+
+</html>

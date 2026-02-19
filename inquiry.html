@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Inquiry | COFFEECREWS</title>
+    <link rel="shortcut icon" href="assets/favicon.png">
+    <!-- Theme Initialization -->
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/inquiry.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+    <div class="neural-container">
+        <div class="neural-blob"
+            style="width: 800px; height: 800px; background: var(--accent-1); top: -20%; left: -10%;"></div>
+        <div class="neural-blob"
+            style="width: 600px; height: 600px; background: var(--accent-3); bottom: -10%; right: -5%;"></div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-landing">
+        <div class="container position-relative" style="z-index: 2;">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+                <span>COFFEECREWS</span>
+            </a>
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            Index.html links: Home, About, Services, Products, Crew, Careers, Contact.
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="crew.html">Crew</a></li>
+                    <li class="nav-item"><a class="nav-link" href="careers.html">Careers</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Theme Toggle Button -->
+            <div class="theme-toggle ms-lg-4" id="theme-toggle" title="Switch Theme">
+                <i class="fas fa-moon moon-icon"></i>
+                <i class="fas fa-sun sun-icon"></i>
+            </div>
+        </div>
+    </nav>
+
+    <main class="inquiry-console">
+        <div class="glass-card">
+            <div class="step-indicator">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+            </div>
+
+            <!-- STEP 1: OBJECTIVE -->
+            <div class="form-step active" id="step1">
+                <div class="step-header">
+                    <h2>Mission Objective</h2>
+                    <p>Select the path of your next digital endeavor.</p>
+                </div>
+                <div class="option-grid">
+                    <div class="option-card active" onclick="selectPath(this, 'Project')">
+                        <i class="fas fa-rocket"></i>
+                        <h4>New Project</h4>
+                        <p>Launch a fresh solution from conceptual phase.</p>
+                    </div>
+                    <div class="option-card" onclick="selectPath(this, 'Expansion')">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                        <h4>System Expansion</h4>
+                        <p>Scale or refactor your existing infrastructure.</p>
+                    </div>
+                    <div class="option-card" onclick="selectPath(this, 'Security')">
+                        <i class="fas fa-shield-virus"></i>
+                        <h4>Security Audit</h4>
+                        <p>Fortify your digital assets and protocols.</p>
+                    </div>
+                    <div class="option-card" onclick="selectPath(this, 'Consulting')">
+                        <i class="fas fa-brain"></i>
+                        <h4>Consulting</h4>
+                        <p>Strategic guidance for complex IT challenges.</p>
+                    </div>
+                </div>
+                <button class="btn-neural" onclick="nextStep(2)">Initialize Parameters</button>
+            </div>
+
+            <!-- STEP 2: PARAMETERS -->
+            <div class="form-step" id="step2">
+                <div class="step-header">
+                    <h2>Parameters</h2>
+                    <p>Define the technical requirements of the mission.</p>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <input type="text" class="form-control-custom"
+                            placeholder="Primary Tech Stack Preference (e.g. React, Node, Python)">
+                        <textarea class="form-control-custom" rows="4"
+                            placeholder="Mission Overview - Tell us about the vision..."></textarea>
+                    </div>
+                </div>
+                <button class="btn-neural" onclick="nextStep(3)">Establish Connection</button>
+                <div class="text-center">
+                    <button class="btn-back" onclick="nextStep(1)">← Back to Objective</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: CONNECTION -->
+            <div class="form-step" id="step3">
+                <div class="step-header">
+                    <h2>Connection</h2>
+                    <p>How shall our lead crew reach you?</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control-custom" placeholder="Commander Name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="email" class="form-control-custom" placeholder="Communication Channel (Email)"
+                            required>
+                    </div>
+                    <div class="col-12">
+                        <input type="url" class="form-control-custom"
+                            placeholder="Existing Repository / Website (Optional)">
+                    </div>
+                </div>
+                <button class="btn-neural" onclick="submitInquiry()">Broadcast Signal</button>
+                <div class="text-center">
+                    <button class="btn-back" onclick="nextStep(2)">← Back to Parameters</button>
+                </div>
+            </div>
+
+            <!-- SUCCESS STATE -->
+            <div class="form-step text-center" id="stepSuccess">
+                <div class="success-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2>Signal Broadcasted</h2>
+                <p class="mb-5">Our lead crew has received your transmission. Expect a response within 12 standard
+                    business hours.</p>
+                <button class="btn-neural" onclick="window.location.href='index.html'"
+                    style="width: auto; padding: 18px 60px;">Return to Station</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        // Background Animation
+        gsap.to('.neural-blob', {
+            x: 'random(-100, 100)',
+            y: 'random(-100, 100)',
+            duration: 'random(15, 25)',
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+        });
+
+        function selectPath(el, type) {
+            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function nextStep(step) {
+            const current = document.querySelector('.form-step.active');
+            const target = document.getElementById('step' + step);
+
+            gsap.to(current, {
+                opacity: 0,
+                y: -20,
+                duration: 0.4,
+                onComplete: () => {
+                    current.classList.remove('active');
+                    target.classList.add('active');
+
+                    // Update dots
+                    document.querySelectorAll('.step-dot').forEach((dot, i) => {
+                        if (i < step) dot.classList.add('active');
+                        else dot.classList.remove('active');
+                    });
+
+                    gsap.fromTo(target,
+                        { opacity: 0, y: 20 },
+                        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+                    );
+                }
+            });
+        }
+
+        function submitInquiry() {
+            const current = document.getElementById('step3');
+            const success = document.getElementById('stepSuccess');
+
+            gsap.to(current, {
+                opacity: 0,
+                scale: 0.95,
+                duration: 0.5,
+                onComplete: () => {
+                    current.classList.remove('active');
+                    success.classList.add('active');
+
+                    document.querySelector('.step-indicator').style.display = 'none';
+
+                    gsap.fromTo(success,
+                        { opacity: 0, scale: 1.05 },
+                        { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' }
+                    );
+                }
+            });
+        }
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                htmlElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
+    </script>
+</body>
+
+</html>
