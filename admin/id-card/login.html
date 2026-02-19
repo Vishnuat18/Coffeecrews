@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERSONNEL AUTHENTICATION | CoffeeCrews Secure</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+            overflow: hidden;
+        }
+
+        .login-container {
+            width: 450px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .scanner-frame {
+            width: 280px;
+            height: 350px;
+            margin: 0 auto 30px;
+            position: relative;
+            border: 2px solid rgba(0, 243, 255, 0.2);
+            border-radius: 20px;
+            padding: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .scanner-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, transparent, var(--accent-primary), transparent);
+            box-shadow: 0 0 15px var(--accent-primary);
+            z-index: 5;
+            animation: scan-line 3s infinite linear;
+        }
+
+        @keyframes scan-line {
+            0% {
+                top: 0;
+            }
+
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0;
+            }
+        }
+
+        .scanned-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            opacity: 0.3;
+            filter: grayscale(1) contrast(1.2);
+            transition: all 0.5s ease;
+        }
+
+        .scanned-photo.detected {
+            opacity: 0.8;
+            filter: grayscale(0) contrast(1);
+        }
+
+        .detection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            z-index: 3;
+        }
+
+        .status-msg {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .input-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: 0.5s ease;
+        }
+
+        .input-card.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .person-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .person-role {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .cc-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            padding: 15px;
+            text-align: center;
+            color: var(--accent-primary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .cc-input::placeholder {
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            opacity: 0.3;
+        }
+
+        .cc-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .scan-anim-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: rgba(0, 243, 255, 0.4);
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .manual-select {
+            margin-top: 20px;
+            font-family: 'Orbitron';
+            font-size: 0.6rem;
+            opacity: 0.4;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .manual-select:hover {
+            opacity: 1;
+            color: var(--accent-primary);
+        }
+
+        .member-dropdown {
+            background: #0a0a0a;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="scan-anim-overlay">
+        SYS_VER: 4.8.0<br>
+        SAT_LINK: ACTIVE<br>
+        LOC: HQ_MAIN
+    </div>
+
+    <div class="login-container">
+        <div class="scanner-frame">
+            <img id="scanned-id" src="../../assets/favicon.png" class="scanned-photo" alt="Personnel">
+            <div class="detection-overlay">
+                <i class="fas fa-fingerprint fa-2x" style="color: var(--accent-primary); opacity: 0.5;"></i>
+                <div id="status-text" class="status-msg">Scanning Personnel...</div>
+            </div>
+        </div>
+
+        <div id="input-card" class="input-card">
+            <h2 id="person-name" class="person-name">IDENTIFYING...</h2>
+            <div id="person-role" class="person-role">Awaiting Verification</div>
+
+            <select id="member-select" class="member-dropdown">
+                <!-- Populated via JS -->
+            </select>
+
+            <input type="password" id="cc-code" class="cc-input" placeholder="ENTER CC-CODE" maxlength="5">
+            <button id="auth-btn" class="btn-primary" style="width: 100%; border-radius: 12px;"
+                onclick="handleAuth()">AUTHORIZE ACCESS</button>
+            <div class="manual-select" onclick="toggleManual()">MANUAL OVERRIDE</div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        let members = [];
+        let currentMember = null;
+        let scanInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            members = DataManager.getAllMembers();
+            populateDropdown();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            // Support both 'return_to' and 'id' for auto-detection
+            const targetId = urlParams.get('return_to') || urlParams.get('id');
+
+            if (targetId) {
+                const target = members.find(m => m.id === targetId);
+                if (target) {
+                    detectPerson(target);
+                } else {
+                    startScanning();
+                }
+            } else {
+                startScanning();
+            }
+
+            document.getElementById('cc-code').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleAuth();
+            });
+        });
+
+        function populateDropdown() {
+            const select = document.getElementById('member-select');
+            members.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = m.name;
+                select.appendChild(opt);
+            });
+
+            select.addEventListener('change', (e) => {
+                const member = members.find(m => m.id === e.target.value);
+                detectPerson(member);
+            });
+        }
+
+        function startScanning() {
+            let index = 0;
+            scanInterval = setInterval(() => {
+                const m = members[index];
+                document.getElementById('scanned-id').src = m.image;
+                index = (index + 1) % members.length;
+            }, 600); // Slightly slower to be viewable
+        }
+
+        function detectPerson(member) {
+            if (scanInterval) clearInterval(scanInterval);
+            currentMember = member;
+            const photo = document.getElementById('scanned-id');
+            const status = document.getElementById('status-text');
+            const inputCard = document.getElementById('input-card');
+
+            photo.src = member.image;
+            photo.classList.add('detected');
+            status.innerHTML = "Personnel Identified";
+            status.style.color = "#0aff0a";
+
+            document.getElementById('person-name').innerText = member.name;
+            document.getElementById('person-role').innerText = member.role;
+
+            inputCard.classList.add('show');
+            document.getElementById('cc-code').focus();
+        }
+
+        function toggleManual() {
+            const dropdown = document.getElementById('member-select');
+            const isVisible = dropdown.style.display === 'block';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+
+            if (isVisible) {
+                startScanning();
+                document.getElementById('input-card').classList.remove('show');
+                document.getElementById('scanned-id').classList.remove('detected');
+                document.getElementById('status-text').innerHTML = "Scanning Personnel...";
+                document.getElementById('status-text').style.color = "var(--accent-primary)";
+            }
+        }
+
+        function handleAuth() {
+            const codeInput = document.getElementById('cc-code').value;
+            const btn = document.getElementById('auth-btn');
+
+            if (!currentMember) return;
+
+            // Normalize code (check if they entered CC-XXXX or just XXXX)
+            const cleanCode = codeInput.toUpperCase().replace('CC-', '');
+
+            if (cleanCode === currentMember.ccCode) {
+                btn.innerHTML = "<i class='fas fa-check'></i> ACCESS GRANTED";
+                btn.style.background = "#0aff0a";
+                btn.style.color = "#000";
+
+                // Set session
+                const role = currentMember.access === 'admin' ? 'admin' : 'crew';
+                localStorage.setItem('cc_session', JSON.stringify({
+                    id: currentMember.id,
+                    role: role,
+                    name: currentMember.name,
+                    timestamp: Date.now()
+                }));
+
+                setTimeout(() => {
+                    if (role === 'admin') {
+                        location.href = 'index.html';
+                    } else {
+                        location.href = 'verify.html?id=' + currentMember.id;
+                    }
+                }, 1000);
+            } else {
+                btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";
+                btn.style.background = "#ff003c";
+                btn.style.color = "#fff";
+
+                gsap.to('.input-card', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
+
+                setTimeout(() => {
+                    btn.innerHTML = "AUTHORIZE ACCESS";
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--accent-primary)";
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+
+</html>

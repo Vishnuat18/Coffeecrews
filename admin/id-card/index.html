@@ -195,10 +195,15 @@
                             </div>
                             
                             <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
-                                <a href="verify.html?id=${member.id}" target="_blank" class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: var(--accent-primary); color: #000; border: none;">
-                                    <i class="fas fa-comments"></i> OPEN WORKSPACE
+                                <div class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: rgba(0, 243, 255, 0.1); color: var(--accent-primary); border: 1px solid var(--accent-primary); cursor: default;">
+                                    <i class="fas fa-signal"></i> SIGNAL: ACTIVE
+                                </div>
+                                <a href="display.html?id=${member.id}" target="_blank" class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #fff;">
+                                    <i class="fas fa-id-card"></i> ID
                                 </a>
-                                <a href="edit.html?id=${member.id}" class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #fff;">Config</a>
+                                <a href="edit.html?id=${member.id}" class="btn-pill-action" style="padding: 10px; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: #fff;">
+                                    <i class="fas fa-cog"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
