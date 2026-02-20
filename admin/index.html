@@ -669,10 +669,10 @@
                         <div class="member-name">${member.name}</div>
                         <div class="member-role-badge" style="background: ${member.accent || 'var(--accent-primary)'}">${member.role.toUpperCase()}</div>
                         <div class="d-flex gap-2 mt-4">
-                            <a href="id-card/edit.html?id=${member.id}" class="btn-action flex-grow-1">
+                            <a href="/admin/id-card/edit.html?id=${member.id}" class="btn-action flex-grow-1">
                                 <i class="fas fa-edit"></i> EDIT
                             </a>
-                            <a href="id-card/display.html?id=${member.id}" target="_blank" class="btn-action">
+                            <a href="/admin/id-card/display.html?id=${member.id}" target="_blank" class="btn-action">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <button onclick="deleteMember('${member.id}')" class="btn-action" style="border-color: var(--accent-red); color: var(--accent-red);">
@@ -796,7 +796,7 @@
         function handleLogout() {
             if (confirm("TERMINATE SECURE SESSION?")) {
                 localStorage.removeItem('cc_session');
-                location.href = 'id-card/login.html';
+                location.href = '/admin/id-card/login.html';
             }
         }
 
