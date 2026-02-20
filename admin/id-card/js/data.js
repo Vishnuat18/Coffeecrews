@@ -229,6 +229,17 @@ class DataManager {
         return false;
     }
 
+    static deleteMember(id) {
+        const members = this.getAllMembers();
+        const filtered = members.filter(m => m.id !== id);
+        if (members.length !== filtered.length) {
+            this.saveAllMembers(filtered);
+            window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
+            return true;
+        }
+        return false;
+    }
+
     // --- CHAT SYSTEM (STABILIZED) ---
 
     static getChatStore() {
@@ -266,7 +277,7 @@ class DataManager {
 
         const message = {
             id: Date.now(),
-            sender: senderId,
+            senderId: senderId,
             text,
             image,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

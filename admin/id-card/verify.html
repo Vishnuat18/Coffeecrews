@@ -252,6 +252,41 @@
             z-index: 10;
         }
 
+        /* Mobile Scale Corrections */
+        @media (max-width: 600px) {
+            .action-circle-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.2rem;
+            }
+
+            .chat-controls {
+                gap: 10px;
+            }
+
+            .chat-controls input {
+                font-size: 0.95rem !important;
+                padding: 10px 15px !important;
+            }
+
+            .btn-directive {
+                height: 48px !important;
+                font-size: 0.65rem !important;
+            }
+
+            .chat-sub-nav {
+                gap: 8px;
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+
+            .chat-sub-nav .sub-nav-btn {
+                padding: 8px 10px;
+                font-size: 0.55rem;
+                min-width: 100px;
+            }
+        }
+
         .status-commit-item img.status-attachment {
             width: 100px;
             height: 100px;
@@ -751,7 +786,7 @@
             const mySenderId = loggedInUser.id;
 
             feed.innerHTML = messages.map(msg => renderMessageHTML({
-                sender: msg.senderId,
+                senderId: msg.senderId,
                 text: msg.text,
                 image: msg.image,
                 time: msg.time,
@@ -807,8 +842,8 @@
         }
 
         function renderMessageHTML(msg, myId) {
-            const isSelf = msg.sender === myId || (msg.meta === loggedInUser.name && myId === loggedInUser.id);
-            const meta = msg.meta || msg.sender;
+            const isSelf = msg.senderId === myId || (msg.meta === loggedInUser.name && myId === loggedInUser.id);
+            const meta = msg.meta || msg.senderId;
             return `
                 <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}">
                     <span class="msg-meta">${meta} // ${msg.time}</span>

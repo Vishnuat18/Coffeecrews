@@ -190,6 +190,12 @@ body:hover .cursor-glow {
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    #hero-animation-container {
+        height: 400px;
+    }
+}
+
 /* ===== SECTIONS ===== */
 .page-section {
     padding: 80px 0;
@@ -515,6 +521,12 @@ body:hover .cursor-glow {
     justify-content: center;
     align-items: center;
     cursor: crosshair;
+}
+
+@media (max-width: 768px) {
+    .collective-brain-viz {
+        height: 450px;
+    }
 }
 
 #neural-particles {
