@@ -688,62 +688,59 @@
             document.getElementById('loader').style.opacity = '0';
             setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
 
-            // SYNC HANDLERS
-            const refreshActiveView = async () => {
-                // Refresh Notification Indicators
-                if (currentTab !== 'chats') {
-                    // Show dots on CHATS main nav if any channel has updates (conceptual)
-                }
-
-                if (currentTab === 'chats') {
-                    if (currentChatChannel === 'hq') await renderHQChat();
-                    else {
-                        const hqDot = document.querySelector('#btn-hq .nav-unread-dot');
-                        if (hqDot) hqDot.style.display = 'block';
-                    }
-
-                    if (currentChatChannel === 'global') await renderGlobalChat();
-                    else {
-                        const globalDot = document.querySelector('#btn-global .nav-unread-dot');
-                        if (globalDot) globalDot.style.display = 'block';
-                    }
-
-                    if (currentChatChannel === 'crew') {
-                        if (activePeerId) await renderPeerChat();
-                        else await renderCrewList();
-                    } else {
-                        const crewDot = document.querySelector('#btn-crew .nav-unread-dot');
-                        if (crewDot) crewDot.style.display = 'block';
-                    }
-                }
-
-                // Always refresh mission feed if on home
-                if (currentTab === 'home') await renderHome();
-                else if (currentTab === 'attendance') await renderCalendar();
-            };
-
-            window.addEventListener('cc_chat_sync', refreshActiveView);
-            window.addEventListener('storage', async (e) => {
-                const syncKeys = [
-                    DataManager.STORAGE_KEY,
-                    DataManager.CHAT_KEY,
-                    DataManager.REQUESTS_KEY,
-                    'cc_session'
-                ];
-
-                if (syncKeys.includes(e.key)) {
-                    // Re-fetch core state to avoid stale data
-                    activeMember = await window.DataManager.getMemberById(id);
-                    await refreshActiveView();
+            // SYNC HANDLERS (Firebase Real-time)
+            const hqThreadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+            window.DataManager.subscribeToChat(hqThreadId, async (messages) => {
+                if (currentTab === 'chats' && currentChatChannel === 'hq') {
+                    await renderHQChat(messages);
+                } else {
+                    const hqDot = document.querySelector('#btn-hq .nav-unread-dot');
+                    if (hqDot) hqDot.style.display = 'block';
                 }
             });
+
+            window.DataManager.subscribeToGlobalChat(async (messages) => {
+                if (currentTab === 'chats' && currentChatChannel === 'global') {
+                    await renderGlobalChat(messages);
+                } else {
+                    const globalDot = document.querySelector('#btn-global .nav-unread-dot');
+                    if (globalDot) globalDot.style.display = 'block';
+                }
+            });
+
+            window.DataManager.subscribeToStatusFeed(async (feed) => {
+                if (currentTab === 'home') {
+                    await renderMissionFeed(feed);
+                }
+            });
+
+            // Listen for peer chat updates if active
+            let peerUnsub = null;
+            window.addEventListener('cc_peer_change', (e) => {
+                if (peerUnsub) peerUnsub();
+                if (activePeerId && activeMember) {
+                    const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+                    peerUnsub = window.DataManager.subscribeToChat(threadId, async (messages) => {
+                        if (currentTab === 'chats' && currentChatChannel === 'crew') {
+                            await renderPeerChat(messages);
+                        }
+                    });
+                }
+            });
+
+            window.addEventListener('storage', async (e) => {
+                if (e.key === 'cc_session') location.reload();
+            });
+
             window.addEventListener('coffeecrews_data_update', async (e) => {
                 if (e.detail.id === id) {
                     activeMember = await window.DataManager.getMemberById(id);
-                    await refreshActiveView();
+                    renderWorkspace();
                 }
             });
-            window.addEventListener('cc_security_update', refreshActiveView);
+            window.addEventListener('cc_security_update', async () => {
+                if (currentTab === 'security') await renderSecurity();
+            });
         });
 
         async function switchTab(tabId) {
@@ -803,10 +800,24 @@
             }
         }
 
-        async function renderHQChat() {
+        function smartScrollToBottom(element) {
+            if (!element) return;
+            const threshold = 150; // pixels from bottom
+            const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+            if (isNearBottom) {
+                element.scrollTop = element.scrollHeight;
+            }
+        }
+
+        async function renderHQChat(messages = null) {
+            if (!activeMember || !loggedInUser) return;
             const feed = document.getElementById('chat-feed-hq');
-            const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-            const messages = await window.DataManager.getMessages(threadId);
+            if (!feed) return;
+
+            if (!messages) {
+                const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+                messages = await window.DataManager.getMessages(threadId);
+            }
 
             const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
             const context = {
@@ -815,16 +826,21 @@
             };
 
             feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context)).join('');
-            feed.scrollTop = feed.scrollHeight;
+            smartScrollToBottom(feed);
         }
 
-        async function renderGlobalChat() {
+        async function renderGlobalChat(messages = null) {
+            if (!loggedInUser) return;
             const feed = document.getElementById('chat-feed-global');
-            const messages = await window.DataManager.getGlobalMessages();
+            if (!feed) return;
+
+            if (!messages) {
+                messages = await window.DataManager.getGlobalMessages();
+            }
             const myId = loggedInUser.id;
 
             feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId)).join('');
-            feed.scrollTop = feed.scrollHeight;
+            smartScrollToBottom(feed);
         }
 
         async function renderCrewList() {
@@ -854,19 +870,25 @@
             document.getElementById('peer-name-label').innerText = peer ? peer.name.toUpperCase() : 'CREW';
             document.getElementById('crew-list-container').style.display = 'none';
             document.getElementById('active-peer-chat').style.display = 'block';
+            window.dispatchEvent(new CustomEvent('cc_peer_change'));
             await renderPeerChat();
         }
 
         function backToCrewList() {
             activePeerId = null;
+            window.dispatchEvent(new CustomEvent('cc_peer_change'));
             renderCrewList();
         }
 
-        async function renderPeerChat() {
-            if (!activePeerId) return;
+        async function renderPeerChat(messages = null) {
+            if (!activeMember || !activePeerId) return;
             const feed = document.getElementById('chat-feed-peer');
-            const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
-            const messages = await window.DataManager.getMessages(threadId);
+            if (!feed) return;
+
+            if (!messages) {
+                const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+                messages = await window.DataManager.getMessages(threadId);
+            }
 
             const peer = await window.DataManager.getMemberById(activePeerId);
             const context = {
@@ -875,7 +897,7 @@
             };
 
             feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context)).join('');
-            feed.scrollTop = feed.scrollHeight;
+            smartScrollToBottom(feed);
         }
 
         function renderMessageHTML(msg, myId, nameContext = {}) {
@@ -939,12 +961,25 @@
         // --- OTHER WORKSPACE LOGIC ---
 
         function renderWorkspace() {
-            document.getElementById('p-name').innerText = activeMember.name;
-            document.getElementById('p-role').innerText = activeMember.role;
-            document.getElementById('p-photo').src = activeMember.image;
-            document.getElementById('p-dept').innerText = activeMember.role.includes("Dev") ? "ENGINEERING" : "OPERATIONS";
-            document.getElementById('p-join').innerText = activeMember.personalInfo ? activeMember.personalInfo.doj : "Jan 2024";
-            document.getElementById('p-view-link').href = `display.html?id=${activeMember.id}`;
+            if (!activeMember) return;
+            const pName = document.getElementById('p-name');
+            if (pName) pName.innerText = activeMember.name;
+
+            const pRole = document.getElementById('p-role');
+            if (pRole) pRole.innerText = activeMember.role;
+
+            const pPhoto = document.getElementById('p-photo');
+            if (pPhoto) pPhoto.src = activeMember.image;
+
+            const pDept = document.getElementById('p-dept');
+            if (pDept) pDept.innerText = activeMember.role.includes("Dev") ? "ENGINEERING" : "OPERATIONS";
+
+            const pJoin = document.getElementById('p-join');
+            if (pJoin) pJoin.innerText = activeMember.personalInfo ? activeMember.personalInfo.doj : "Jan 2024";
+
+            const pViewLink = document.getElementById('p-view-link');
+            if (pViewLink) pViewLink.href = `display.html?id=${activeMember.id}`;
+
             const sidebarId = document.getElementById('p-id-sidebar');
             if (sidebarId) sidebarId.innerText = `CC-${activeMember.ccCode}`;
             switchTab('home');
@@ -953,8 +988,9 @@
         let pendingStatusImage = null;
 
         async function renderHome() {
+            if (!activeMember) return;
             const container = document.getElementById('home-telemetry-container');
-            const statusFeed = await window.DataManager.getStatusFeed();
+            if (!container) return;
 
             container.innerHTML = `
                 <div class="home-grid-layout">
@@ -987,10 +1023,11 @@
             renderDrive();
         }
 
-        async function renderMissionFeed() {
+        async function renderMissionFeed(feedData = null) {
             const list = document.getElementById('mission-feed-list');
-            const statusFeed = await window.DataManager.getStatusFeed();
             if (!list) return;
+
+            const statusFeed = feedData || await window.DataManager.getStatusFeed();
 
             if (statusFeed.length === 0) {
                 list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;">No mission commits logged in the last 24h</div>';

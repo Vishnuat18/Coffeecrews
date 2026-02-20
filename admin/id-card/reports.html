@@ -163,10 +163,21 @@
 
             await refreshReports();
 
-            // REAL-TIME SYNC
-            window.addEventListener('cc_chat_sync', refreshReports);
+            await refreshReports();
+
+            // REAL-TIME SYNC (Firebase)
+            const chatsRef = firebase.database().ref('chats/threads');
+            chatsRef.on('value', async () => {
+                await refreshReports();
+            });
+
+            const globalChatRef = firebase.database().ref('chats/global');
+            globalChatRef.on('value', async () => {
+                // Potential notification or indicator refresh
+            });
+
             window.addEventListener('storage', async (e) => {
-                if (e.key === 'coffeecrews_chats' || e.key === 'coffeecrews_id_cards') await refreshReports();
+                if (e.key === 'cc_session') location.reload();
             });
         });
 
@@ -188,7 +199,15 @@
             }
         }
 
+        let refreshTimeout;
         async function refreshReports() {
+            if (refreshTimeout) clearTimeout(refreshTimeout);
+            refreshTimeout = setTimeout(async () => {
+                await executeRefresh();
+            }, 300);
+        }
+
+        async function executeRefresh() {
             const members = await window.DataManager.getAllMembers();
             const feed = document.getElementById('reports-feed');
             let pending = 0;

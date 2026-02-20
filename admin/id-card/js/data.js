@@ -264,11 +264,15 @@ class DataManager {
     }
 
     static async getMessages(threadId) {
-        const snapshot = await db.ref(`chats/threads/${threadId}`).once('value');
-        const data = snapshot.val();
-        if (!data) return [];
-        // Support both array and object structures
-        return Array.isArray(data) ? data : Object.values(data);
+        try {
+            const snapshot = await db.ref(`chats/threads/${threadId}`).once('value');
+            const data = snapshot.val();
+            if (!data) return [];
+            return Array.isArray(data) ? data : Object.values(data);
+        } catch (e) {
+            console.error("Firebase getMessages failed:", e);
+            return [];
+        }
     }
 
     static async sendMessage(senderId, receiverId, text, image = null) {
@@ -305,10 +309,15 @@ class DataManager {
     }
 
     static async getGlobalMessages() {
-        const snapshot = await db.ref('chats/global').limitToLast(50).once('value');
-        const data = snapshot.val();
-        if (!data) return [];
-        return Array.isArray(data) ? data : Object.values(data);
+        try {
+            const snapshot = await db.ref('chats/global').limitToLast(50).once('value');
+            const data = snapshot.val();
+            if (!data) return [];
+            return Array.isArray(data) ? data : Object.values(data);
+        } catch (e) {
+            console.error("Firebase getGlobalMessages failed:", e);
+            return [];
+        }
     }
 
     static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
@@ -430,6 +439,39 @@ class DataManager {
             return { success: true, message: "Request rejected." };
         }
         return { success: false, message: "Rejection failed." };
+    }
+
+    static subscribeToChat(threadId, callback) {
+        const ref = db.ref(`chats/threads/${threadId}`);
+        const listener = (snapshot) => {
+            const data = snapshot.val();
+            const messages = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            callback(messages);
+        };
+        ref.on('value', listener);
+        return () => ref.off('value', listener);
+    }
+
+    static subscribeToGlobalChat(callback) {
+        const ref = db.ref('chats/global');
+        const listener = (snapshot) => {
+            const data = snapshot.val();
+            const messages = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            callback(messages);
+        };
+        ref.on('value', listener);
+        return () => ref.off('value', listener);
+    }
+
+    static subscribeToStatusFeed(callback) {
+        const ref = db.ref('statusFeed');
+        const listener = (snapshot) => {
+            const data = snapshot.val();
+            const feed = data ? Object.values(data).reverse() : [];
+            callback(feed);
+        };
+        ref.on('value', listener);
+        return () => ref.off('value', listener);
     }
 }
 
