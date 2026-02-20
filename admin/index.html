@@ -592,10 +592,14 @@
         &copy; 2026 COFFEECREWS // SECURE ADMINISTRATION PANEL
     </footer>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <!-- Path updated to relative from admin/ -->
     <script src="/admin/id-card/js/data.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Auth Check
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
             console.log("Cockpit Auth Check - ID:", session.id, "Role:", session.role);
@@ -616,31 +620,36 @@
                 navLinks.insertBefore(workspaceLink, navLinks.firstChild);
             }
 
-            refreshDashboard();
+            await refreshDashboard();
 
             // Search Listener
-            document.getElementById('memberSearch').addEventListener('input', (e) => {
-                renderMembers(e.target.value.toLowerCase());
+            document.getElementById('memberSearch').addEventListener('input', async (e) => {
+                await renderMembers(e.target.value.toLowerCase());
             });
 
             // Storage event for real-time updates
-            window.addEventListener('storage', (e) => {
+            window.addEventListener('storage', async (e) => {
                 if (e.key === 'coffeecrews_id_cards' || e.key === 'cc_applications' || e.key === 'coffeecrews_passcode_requests') {
-                    refreshDashboard();
+                    await refreshDashboard();
                 }
             });
 
             // Listen for custom security event
-            window.addEventListener('cc_security_update', () => {
-                refreshDashboard();
+            window.addEventListener('cc_security_update', async () => {
+                await refreshDashboard();
+            });
+
+            // Listen for chat sync (also affects status/members)
+            window.addEventListener('cc_chat_sync', async () => {
+                await refreshDashboard();
             });
         });
 
-        function refreshDashboard() {
-            updateStats();
-            renderMembers();
+        async function refreshDashboard() {
+            await updateStats();
+            await renderMembers();
             renderApplications();
-            renderSecurityRequests();
+            await renderSecurityRequests();
             updateSyncTime();
         }
 
@@ -650,8 +659,8 @@
             document.getElementById('sync-time').textContent = `SYNCED // ${timeStr}`;
         }
 
-        function updateStats() {
-            const members = DataManager.getAllMembers();
+        async function updateStats() {
+            const members = await DataManager.getAllMembers();
             const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
             const roles = [...new Set(members.map(m => m.role))];
 
@@ -660,13 +669,10 @@
             document.getElementById('stat-roles').textContent = roles.length;
         }
 
-        function renderMembers(query = '') {
+        async function renderMembers(query = '') {
             const container = document.getElementById('memberList');
-            const members = DataManager.getAllMembers();
+            const members = await DataManager.getAllMembers();
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-
-            // Paths in images need adjustment if they were root-relative but used without leading slash in some cases
-            // Here we assume paths like "/assets/..." are fine as they are root-relative.
 
             const filtered = members.filter(m =>
                 (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
@@ -737,10 +743,10 @@
             `).join('');
         }
 
-        function deleteMember(id) {
+        async function deleteMember(id) {
             if (confirm('Authorize termination of this crew record?')) {
-                if (DataManager.deleteMember(id)) {
-                    refreshDashboard();
+                if (await DataManager.deleteMember(id)) {
+                    await refreshDashboard();
                 }
             }
         }
@@ -761,9 +767,9 @@
             }
         }
 
-        function renderSecurityRequests() {
+        async function renderSecurityRequests() {
             const container = document.getElementById('requestsList');
-            const requests = DataManager.getPasscodeRequests();
+            const requests = await DataManager.getPasscodeRequests();
 
             if (requests.length === 0) {
                 container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No security requests pending.</td></tr>`;
@@ -795,18 +801,18 @@
             }).join('');
         }
 
-        function approveRequest(id) {
+        async function approveRequest(id) {
             if (!confirm('Approve passcode change and update database?')) return;
-            const result = DataManager.approvePasscodeRequest(id);
+            const result = await DataManager.approvePasscodeRequest(id);
             alert(result.message);
-            refreshDashboard();
+            await refreshDashboard();
         }
 
-        function rejectRequest(id) {
+        async function rejectRequest(id) {
             if (!confirm('Reject this passcode change request?')) return;
-            const result = DataManager.rejectPasscodeRequest(id);
+            const result = await DataManager.rejectPasscodeRequest(id);
             alert(result.message);
-            refreshDashboard();
+            await refreshDashboard();
         }
 
         function handleLogout() {
@@ -816,8 +822,8 @@
             }
         }
 
-        function openGlobalConfig() {
-            const members = DataManager.getAllMembers();
+        async function openGlobalConfig() {
+            const members = await DataManager.getAllMembers();
             alert(`Global Configuration: ${members.length} personnel records active.`);
         }
     </script>

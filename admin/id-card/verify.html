@@ -108,6 +108,31 @@
             }
         }
 
+        /* Responsive Grid for Home Tab */
+        .home-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .home-grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chat-sub-nav {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .chat-sub-nav::-webkit-scrollbar {
+            display: none;
+        }
+
         /* Message Bubble Refinement */
         .msg-text {
             border-radius: 12px !important;
@@ -610,6 +635,10 @@
         </main>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <script src="/admin/id-card/js/data.js"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
@@ -618,7 +647,7 @@
         let currentChatChannel = 'hq'; // hq, global, crew
         let activePeerId = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
 
@@ -649,46 +678,52 @@
                 return;
             }
 
-            setTimeout(() => {
-                activeMember = window.DataManager.getMemberById(id);
-                if (!activeMember) {
-                    location.href = '/index.html';
-                    return;
-                }
-                renderWorkspace();
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-            }, 800);
+            // Refactored to use await
+            activeMember = await window.DataManager.getMemberById(id);
+            if (!activeMember) {
+                location.href = '/index.html';
+                return;
+            }
+            renderWorkspace();
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
 
             // SYNC HANDLERS
-            const refreshActiveView = () => {
+            const refreshActiveView = async () => {
                 // Refresh Notification Indicators
                 if (currentTab !== 'chats') {
                     // Show dots on CHATS main nav if any channel has updates (conceptual)
                 }
 
                 if (currentTab === 'chats') {
-                    if (currentChatChannel === 'hq') renderHQChat();
-                    else document.querySelector('#btn-hq .nav-unread-dot').style.display = 'block';
+                    if (currentChatChannel === 'hq') await renderHQChat();
+                    else {
+                        const hqDot = document.querySelector('#btn-hq .nav-unread-dot');
+                        if (hqDot) hqDot.style.display = 'block';
+                    }
 
-                    if (currentChatChannel === 'global') renderGlobalChat();
-                    else document.querySelector('#btn-global .nav-unread-dot').style.display = 'block';
+                    if (currentChatChannel === 'global') await renderGlobalChat();
+                    else {
+                        const globalDot = document.querySelector('#btn-global .nav-unread-dot');
+                        if (globalDot) globalDot.style.display = 'block';
+                    }
 
                     if (currentChatChannel === 'crew') {
-                        if (activePeerId) renderPeerChat();
-                        else renderCrewList();
+                        if (activePeerId) await renderPeerChat();
+                        else await renderCrewList();
                     } else {
-                        document.querySelector('#btn-crew .nav-unread-dot').style.display = 'block';
+                        const crewDot = document.querySelector('#btn-crew .nav-unread-dot');
+                        if (crewDot) crewDot.style.display = 'block';
                     }
                 }
 
                 // Always refresh mission feed if on home
-                if (currentTab === 'home') renderHome();
-                else if (currentTab === 'attendance') renderCalendar();
+                if (currentTab === 'home') await renderHome();
+                else if (currentTab === 'attendance') await renderCalendar();
             };
 
             window.addEventListener('cc_chat_sync', refreshActiveView);
-            window.addEventListener('storage', (e) => {
+            window.addEventListener('storage', async (e) => {
                 const syncKeys = [
                     DataManager.STORAGE_KEY,
                     DataManager.CHAT_KEY,
@@ -698,20 +733,20 @@
 
                 if (syncKeys.includes(e.key)) {
                     // Re-fetch core state to avoid stale data
-                    activeMember = window.DataManager.getMemberById(id);
-                    refreshActiveView();
+                    activeMember = await window.DataManager.getMemberById(id);
+                    await refreshActiveView();
                 }
             });
-            window.addEventListener('coffeecrews_data_update', (e) => {
+            window.addEventListener('coffeecrews_data_update', async (e) => {
                 if (e.detail.id === id) {
-                    activeMember = window.DataManager.getMemberById(id);
-                    refreshActiveView();
+                    activeMember = await window.DataManager.getMemberById(id);
+                    await refreshActiveView();
                 }
             });
             window.addEventListener('cc_security_update', refreshActiveView);
         });
 
-        function switchTab(tabId) {
+        async function switchTab(tabId) {
             currentTab = tabId;
             document.querySelectorAll('.nav-item-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -723,10 +758,10 @@
             });
             document.getElementById(`section-${tabId}`).classList.add('active');
 
-            if (tabId === 'home') renderHome();
-            else if (tabId === 'chats') switchChatChannel(currentChatChannel);
-            else if (tabId === 'attendance') renderCalendar();
-            else if (tabId === 'security') renderSecurity();
+            if (tabId === 'home') await renderHome();
+            else if (tabId === 'chats') await switchChatChannel(currentChatChannel);
+            else if (tabId === 'attendance') await renderCalendar();
+            else if (tabId === 'security') await renderSecurity();
         }
 
         // --- CHAT LOGIC ---
@@ -746,7 +781,7 @@
             });
         }
 
-        function switchChatChannel(channel) {
+        async function switchChatChannel(channel) {
             currentChatChannel = channel;
             document.querySelectorAll('.sub-nav-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -760,18 +795,18 @@
             document.querySelectorAll('.chat-channel').forEach(ch => ch.classList.remove('active'));
             document.getElementById(`chat-channel-${channel}`).classList.add('active');
 
-            if (channel === 'hq') renderHQChat();
-            else if (channel === 'global') renderGlobalChat();
+            if (channel === 'hq') await renderHQChat();
+            else if (channel === 'global') await renderGlobalChat();
             else if (channel === 'crew') {
-                if (activePeerId) renderPeerChat();
-                else renderCrewList();
+                if (activePeerId) await renderPeerChat();
+                else await renderCrewList();
             }
         }
 
-        function renderHQChat() {
+        async function renderHQChat() {
             const feed = document.getElementById('chat-feed-hq');
             const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-            const messages = window.DataManager.getMessages(threadId);
+            const messages = await window.DataManager.getMessages(threadId);
 
             // Context: If I'm an admin, messages I sent as HQ are 'self'. If I'm a crew member, messages I sent as [ID] are 'self'.
             const mySenderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
@@ -780,9 +815,9 @@
             feed.scrollTop = feed.scrollHeight;
         }
 
-        function renderGlobalChat() {
+        async function renderGlobalChat() {
             const feed = document.getElementById('chat-feed-global');
-            const messages = window.DataManager.getGlobalMessages();
+            const messages = await window.DataManager.getGlobalMessages();
             const mySenderId = loggedInUser.id;
 
             feed.innerHTML = messages.map(msg => renderMessageHTML({
@@ -795,9 +830,9 @@
             feed.scrollTop = feed.scrollHeight;
         }
 
-        function renderCrewList() {
+        async function renderCrewList() {
             const container = document.getElementById('crew-list-container');
-            const members = window.DataManager.getAllMembers();
+            const members = await window.DataManager.getAllMembers();
 
             container.style.display = 'grid';
             document.getElementById('active-peer-chat').style.display = 'none';
@@ -816,13 +851,13 @@
             `).join('');
         }
 
-        function startPrivateChat(peerId) {
+        async function startPrivateChat(peerId) {
             activePeerId = peerId;
-            const peer = window.DataManager.getMemberById(peerId);
+            const peer = await window.DataManager.getMemberById(peerId);
             document.getElementById('peer-name-label').innerText = peer ? peer.name.toUpperCase() : 'CREW';
             document.getElementById('crew-list-container').style.display = 'none';
             document.getElementById('active-peer-chat').style.display = 'block';
-            renderPeerChat();
+            await renderPeerChat();
         }
 
         function backToCrewList() {
@@ -830,11 +865,11 @@
             renderCrewList();
         }
 
-        function renderPeerChat() {
+        async function renderPeerChat() {
             if (!activePeerId) return;
             const feed = document.getElementById('chat-feed-peer');
             const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
-            const messages = window.DataManager.getMessages(threadId);
+            const messages = await window.DataManager.getMessages(threadId);
 
             // In peer chat, I am activeMember.id
             feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id)).join('');
@@ -855,7 +890,7 @@
             `;
         }
 
-        function sendMsg(channel) {
+        async function sendMsg(channel) {
             const inputId = channel === 'peer' ? 'chat-input-peer' : `chat-input-${channel}`;
             const input = document.getElementById(inputId);
             const text = input.value.trim();
@@ -864,11 +899,11 @@
             if (channel === 'hq') {
                 const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                 const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
-                window.DataManager.sendMessage(senderId, receiverId, text);
+                await window.DataManager.sendMessage(senderId, receiverId, text);
             } else if (channel === 'global') {
-                window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text);
+                await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text);
             } else if (channel === 'peer') {
-                window.DataManager.sendMessage(activeMember.id, activePeerId, text);
+                await window.DataManager.sendMessage(activeMember.id, activePeerId, text);
             }
 
             input.value = '';
@@ -886,11 +921,11 @@
                 if (channel === 'hq') {
                     const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                     const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
-                    window.DataManager.sendMessage(senderId, receiverId, null, resized);
+                    await window.DataManager.sendMessage(senderId, receiverId, null, resized);
                 } else if (channel === 'global') {
-                    window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, resized);
+                    await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, resized);
                 } else if (channel === 'peer') {
-                    window.DataManager.sendMessage(activeMember.id, activePeerId, null, resized);
+                    await window.DataManager.sendMessage(activeMember.id, activePeerId, null, resized);
                 }
             };
             reader.readAsDataURL(file);
@@ -912,12 +947,12 @@
 
         let pendingStatusImage = null;
 
-        function renderHome() {
+        async function renderHome() {
             const container = document.getElementById('home-telemetry-container');
-            const statusFeed = window.DataManager.getStatusFeed();
+            const statusFeed = await window.DataManager.getStatusFeed();
 
             container.innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; align-items: start;">
+                <div class="home-grid-layout">
                     <div class="card-glass" style="padding: 20px; border-radius: 20px;">
                         <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-primary);">
                             <i class="fas fa-award"></i> MISSION ACHIEVEMENTS
@@ -943,13 +978,13 @@
                     </div>
                 </div>
             `;
-            renderMissionFeed();
+            await renderMissionFeed();
             renderDrive();
         }
 
-        function renderMissionFeed() {
+        async function renderMissionFeed() {
             const list = document.getElementById('mission-feed-list');
-            const statusFeed = window.DataManager.getStatusFeed();
+            const statusFeed = await window.DataManager.getStatusFeed();
             if (!list) return;
 
             if (statusFeed.length === 0) {
@@ -972,9 +1007,10 @@
             `).join('');
         }
 
-        function renderSecurity() {
+        async function renderSecurity() {
             const list = document.getElementById('req-history-list');
-            const requests = window.DataManager.getPasscodeRequests().filter(r => r.memberId === activeMember.id);
+            const passcodeRequests = await window.DataManager.getPasscodeRequests();
+            const requests = passcodeRequests.filter(r => r.memberId === activeMember.id);
 
             if (requests.length === 0) {
                 list.innerHTML = '<div style="font-size: 0.7rem; opacity: 0.3; text-align: center; padding: 20px;">No recent security requests found.</div>';
@@ -998,7 +1034,7 @@
             }).join('');
         }
 
-        function requestPasscodeChange() {
+        async function requestPasscodeChange() {
             const cur = document.getElementById('cur-pass').value;
             const next = document.getElementById('new-pass').value;
             const conf = document.getElementById('conf-pass').value;
@@ -1013,13 +1049,13 @@
                 return;
             }
 
-            const result = window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
+            const result = await window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
             if (result.success) {
                 alert(result.message);
                 document.getElementById('cur-pass').value = '';
                 document.getElementById('new-pass').value = '';
                 document.getElementById('conf-pass').value = '';
-                renderSecurity();
+                await renderSecurity();
             } else {
                 alert(result.message);
             }
@@ -1077,22 +1113,22 @@
             }
         }
 
-        function markTodayAttendance() {
-            if (window.DataManager.markAttendance(activeMember.id)) {
-                activeMember = window.DataManager.getMemberById(activeMember.id);
+        async function markTodayAttendance() {
+            if (await window.DataManager.markAttendance(activeMember.id)) {
+                activeMember = await window.DataManager.getMemberById(activeMember.id);
                 renderCalendar();
             }
         }
 
-        function commitStatus() {
+        async function commitStatus() {
             const input = document.getElementById('drafter-input');
             const text = input.value.trim();
             if (text || pendingStatusImage) {
-                window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
+                await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
                 input.value = '';
                 removeStatusImage();
                 alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
-                switchTab('home');
+                await switchTab('home');
             }
         }
 

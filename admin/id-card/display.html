@@ -437,10 +437,14 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <!-- Data Injection Script -->
     <script src="/admin/id-card/js/data.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const memberId = urlParams.get('id');
 
@@ -451,25 +455,29 @@
                 if (adminLink) adminLink.style.display = 'flex';
             }
 
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+            // Added await for member record
+            if (!memberId) {
+                showError();
+                hideLoader();
+                return;
+            }
 
-                if (!memberId) {
-                    showError();
-                    return;
-                }
+            const member = await DataManager.getMemberById(memberId);
+            hideLoader();
 
-                const member = DataManager.getMemberById(memberId);
-                if (!member) {
-                    showError();
-                    return;
-                }
+            if (!member) {
+                showError();
+                return;
+            }
 
-                renderMember(member);
-            }, 1000);
+            renderMember(member);
         });
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        }
 
         function renderMember(member) {
             document.getElementById('profile-container').style.display = 'flex';
@@ -539,7 +547,7 @@
 
         async function shareProfile() {
             const memberId = new URLSearchParams(window.location.search).get('id');
-            const member = DataManager.getMemberById(memberId);
+            const member = await DataManager.getMemberById(memberId);
             const shareData = {
                 title: `${member ? member.name : 'Personnel'} | CoffeeCrews ID`,
                 text: `View the official CoffeeCrews Personnel ID for ${member ? member.name : 'this unit'}.`,

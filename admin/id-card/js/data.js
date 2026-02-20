@@ -1,7 +1,25 @@
 /**
  * ID Card System Data Layer
- * Handles member data persistence using localStorage
+ * Handles member data persistence using Firebase Realtime Database
  */
+
+// Firebase Configuration (Provided by User)
+const firebaseConfig = {
+    apiKey: "AIzaSyDbxQG0iDolgrx9atUxe5jTodEBMlSd3oc",
+    authDomain: "sympo-94600.firebaseapp.com",
+    databaseURL: "https://sympo-94600-default-rtdb.firebaseio.com",
+    projectId: "sympo-94600",
+    storageBucket: "sympo-94600.firebasestorage.app",
+    messagingSenderId: "725689848789",
+    appId: "1:725689848789:web:d85e9788a41a0478fc235c",
+    measurementId: "G-MXYD91NP5K"
+};
+
+// Initialize Firebase if not already initialized
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
 
 const INITIAL_MEMBERS = [
     {
@@ -174,106 +192,84 @@ class DataManager {
     static STORAGE_KEY = 'coffeecrews_id_cards';
     static CHAT_KEY = 'coffeecrews_chats';
     static REQUESTS_KEY = 'coffeecrews_passcode_requests';
-    static DATA_VERSION = '1.2'; // Increment to force data refreshes
+    static DATA_VERSION = '2.0'; // Updated for Firebase
 
-    static getAllMembers() {
+    static async getAllMembers() {
         try {
-            const stored = localStorage.getItem(this.STORAGE_KEY);
-            const version = localStorage.getItem(this.STORAGE_KEY + '_version');
+            const snapshot = await db.ref('members').once('value');
+            const data = snapshot.val();
 
-            if (!stored || version !== this.DATA_VERSION) {
-                // If version mismatch or new install, merge core roles but keep attendance
-                let currentData = stored ? JSON.parse(stored) : [];
-
-                // Force Update Core Admins
-                const coreAdmins = ['vishnu', 'prasanna', 'dharani'];
-                const updatedMembers = INITIAL_MEMBERS.map(initial => {
-                    const existing = currentData.find(m => m.id === initial.id);
-                    if (existing) {
-                        // Keep attendance and other user-modified data, but update core roles/access
-                        return { ...initial, attendance: existing.attendance || [] };
-                    }
-                    return initial;
-                });
-
-                this.saveAllMembers(updatedMembers);
-                localStorage.setItem(this.STORAGE_KEY + '_version', this.DATA_VERSION);
-                return updatedMembers;
+            if (!data) {
+                // Initialize Firebase with defaults if empty
+                await this.saveAllMembers(INITIAL_MEMBERS);
+                return INITIAL_MEMBERS;
             }
-            return JSON.parse(stored);
+
+            // Convert object to array if needed
+            return Array.isArray(data) ? data : Object.values(data);
         } catch (e) {
-            console.error("LocalStorage access failed:", e);
+            console.error("Firebase access failed:", e);
             return INITIAL_MEMBERS;
         }
     }
 
-    static getMemberById(id) {
-        const members = this.getAllMembers();
+    static async getMemberById(id) {
         if (!id) return null;
+        const members = await this.getAllMembers();
         return members.find(m => m.id.toLowerCase() === id.toLowerCase());
     }
 
-    static saveAllMembers(members) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(members));
+    static async saveAllMembers(members) {
+        await db.ref('members').set(members);
     }
 
-    static updateMember(id, updatedData) {
-        const members = this.getAllMembers();
+    static async updateMember(id, updatedData) {
+        const members = await this.getAllMembers();
         const index = members.findIndex(m => m.id === id);
         if (index !== -1) {
-            members[index] = { ...members[index], ...updatedData };
-            this.saveAllMembers(members);
+            const newMemberData = { ...members[index], ...updatedData };
+            await db.ref(`members/${index}`).update(updatedData);
             window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
             return true;
         }
         return false;
     }
 
-    static deleteMember(id) {
-        const members = this.getAllMembers();
+    static async deleteMember(id) {
+        const members = await this.getAllMembers();
         const filtered = members.filter(m => m.id !== id);
         if (members.length !== filtered.length) {
-            this.saveAllMembers(filtered);
+            await this.saveAllMembers(filtered);
             window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
             return true;
         }
         return false;
     }
 
-    // --- CHAT SYSTEM (STABILIZED) ---
+    // --- CHAT SYSTEM (REAL-TIME) ---
 
-    static getChatStore() {
-        return JSON.parse(localStorage.getItem(this.CHAT_KEY) || '{"threads": {}, "global": [], "statusFeed": []}');
+    static async getChatStore() {
+        const snapshot = await db.ref('chats').once('value');
+        const store = snapshot.val() || { threads: {}, global: [], statusFeed: [] };
+        return store;
     }
 
-    static saveChatStore(store) {
-        localStorage.setItem(this.CHAT_KEY, JSON.stringify(store));
+    static async saveChatStore(store) {
+        await db.ref('chats').set(store);
         window.dispatchEvent(new CustomEvent('cc_chat_sync'));
     }
 
-    /**
-     * Get unique thread ID for two users (alphabetical order)
-     */
     static getThreadId(id1, id2) {
         return [id1, id2].sort().join('_').toLowerCase();
     }
 
-    /**
-     * Fetch messages for a specific thread (Private or HQ)
-     */
-    static getMessages(threadId) {
-        const store = this.getChatStore();
-        return store.threads[threadId] || [];
+    static async getMessages(threadId) {
+        const snapshot = await db.ref(`chats/threads/${threadId}`).once('value');
+        return snapshot.val() || [];
     }
 
-    /**
-     * Send message to a targeted thread (supports text and image)
-     */
-    static sendMessage(senderId, receiverId, text, image = null) {
-        const store = this.getChatStore();
+    static async sendMessage(senderId, receiverId, text, image = null) {
         const threadId = this.getThreadId(senderId, receiverId);
-
-        if (!store.threads[threadId]) store.threads[threadId] = [];
 
         const message = {
             id: Date.now(),
@@ -284,16 +280,12 @@ class DataManager {
             timestamp: Date.now()
         };
 
-        store.threads[threadId].push(message);
-        this.saveChatStore(store);
+        await db.ref(`chats/threads/${threadId}`).push(message);
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
         return message;
     }
 
-    /**
-     * Send message to Global Operations channel
-     */
-    static sendGlobalMessage(senderId, senderName, text, image = null) {
-        const store = this.getChatStore();
+    static async sendGlobalMessage(senderId, senderName, text, image = null) {
         const message = {
             id: Date.now(),
             senderId,
@@ -304,25 +296,18 @@ class DataManager {
             timestamp: Date.now()
         };
 
-        store.global.push(message);
-        // Keep only last 50 for performance
-        if (store.global.length > 50) store.global.shift();
-
-        this.saveChatStore(store);
+        await db.ref('chats/global').push(message);
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
         return message;
     }
 
-    static getGlobalMessages() {
-        return this.getChatStore().global;
+    static async getGlobalMessages() {
+        const snapshot = await db.ref('chats/global').limitToLast(50).once('value');
+        const val = snapshot.val();
+        return val ? Object.values(val) : [];
     }
 
-    /**
-     * GLOBAL MISSION FEED: Commit a status update to the entire crew
-     */
-    static commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
-        const store = this.getChatStore();
-        if (!store.statusFeed) store.statusFeed = [];
-
+    static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
         const statusUpdate = {
             id: Date.now(),
             senderId,
@@ -334,26 +319,23 @@ class DataManager {
             timestamp: Date.now()
         };
 
-        store.statusFeed.unshift(statusUpdate); // Newest first
-        if (store.statusFeed.length > 20) store.statusFeed.pop();
-
-        this.saveChatStore(store);
+        await db.ref('chats/statusFeed').push(statusUpdate);
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
         return statusUpdate;
     }
 
-    static getStatusFeed() {
-        return this.getChatStore().statusFeed || [];
+    static async getStatusFeed() {
+        const snapshot = await db.ref('chats/statusFeed').limitToLast(20).once('value');
+        const val = snapshot.val();
+        return val ? Object.values(val).reverse() : [];
     }
 
-    /**
-     * Admin Broadcast: Sends to Global channel as HQ
-     */
-    static sendBroadcast(adminName, text) {
+    static async sendBroadcast(adminName, text) {
         return this.sendGlobalMessage('HQ', adminName, `[HQ DIRECTIVE] ${text}`);
     }
 
-    static markAttendance(id) {
-        const member = this.getMemberById(id);
+    static async markAttendance(id) {
+        const member = await this.getMemberById(id);
         if (!member) return false;
 
         const today = new Date().toISOString().split('T')[0];
@@ -367,20 +349,19 @@ class DataManager {
 
     // --- SECURITY & PASSCODE REQUESTS ---
 
-    static getPasscodeRequests() {
-        return JSON.parse(localStorage.getItem(this.REQUESTS_KEY) || '[]');
+    static async getPasscodeRequests() {
+        const snapshot = await db.ref('requests').once('value');
+        const val = snapshot.val();
+        return val ? Object.values(val).reverse() : [];
     }
 
-    static savePasscodeRequests(requests) {
-        localStorage.setItem(this.REQUESTS_KEY, JSON.stringify(requests));
+    static async savePasscodeRequests(requests) {
+        await db.ref('requests').set(requests);
         window.dispatchEvent(new CustomEvent('cc_security_update'));
     }
 
-    static submitPasscodeRequest(memberId, memberName, currentPass, newPass) {
-        const requests = this.getPasscodeRequests();
-
-        // Basic validation
-        const member = this.getMemberById(memberId);
+    static async submitPasscodeRequest(memberId, memberName, currentPass, newPass) {
+        const member = await this.getMemberById(memberId);
         if (!member || member.ccCode !== currentPass) {
             return { success: false, message: "Verification failed: Current CC Code is incorrect." };
         }
@@ -396,35 +377,52 @@ class DataManager {
             date: new Date().toLocaleDateString()
         };
 
-        requests.unshift(newRequest);
-        this.savePasscodeRequests(requests);
+        await db.ref('requests').push(newRequest);
+        window.dispatchEvent(new CustomEvent('cc_security_update'));
         return { success: true, message: "Passcode change request submitted to HQ." };
     }
 
-    static approvePasscodeRequest(requestId) {
-        const requests = this.getPasscodeRequests();
-        const index = requests.findIndex(r => r.id === requestId);
+    static async approvePasscodeRequest(requestId) {
+        const snapshot = await db.ref('requests').once('value');
+        const requests = snapshot.val() || {};
 
-        if (index !== -1 && requests[index].status === 'pending') {
-            const req = requests[index];
-            const updated = this.updateMember(req.memberId, { ccCode: req.newPass });
+        let foundKey = null;
+        let req = null;
 
+        for (const [key, value] of Object.entries(requests)) {
+            if (value.id === requestId) {
+                foundKey = key;
+                req = value;
+                break;
+            }
+        }
+
+        if (foundKey && req.status === 'pending') {
+            const updated = await this.updateMember(req.memberId, { ccCode: req.newPass });
             if (updated) {
-                requests[index].status = 'approved';
-                this.savePasscodeRequests(requests);
+                await db.ref(`requests/${foundKey}`).update({ status: 'approved' });
+                window.dispatchEvent(new CustomEvent('cc_security_update'));
                 return { success: true, message: "Request approved. CC Code updated." };
             }
         }
         return { success: false, message: "Approval failed." };
     }
 
-    static rejectPasscodeRequest(requestId) {
-        const requests = this.getPasscodeRequests();
-        const index = requests.findIndex(r => r.id === requestId);
+    static async rejectPasscodeRequest(requestId) {
+        const snapshot = await db.ref('requests').once('value');
+        const requests = snapshot.val() || {};
 
-        if (index !== -1 && requests[index].status === 'pending') {
-            requests[index].status = 'rejected';
-            this.savePasscodeRequests(requests);
+        let foundKey = null;
+        for (const [key, value] of Object.entries(requests)) {
+            if (value.id === requestId) {
+                foundKey = key;
+                break;
+            }
+        }
+
+        if (foundKey) {
+            await db.ref(`requests/${foundKey}`).update({ status: 'rejected' });
+            window.dispatchEvent(new CustomEvent('cc_security_update'));
             return { success: true, message: "Request rejected." };
         }
         return { success: false, message: "Rejection failed." };

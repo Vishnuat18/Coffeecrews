@@ -110,9 +110,13 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <script src="/admin/id-card/js/data.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const memberId = urlParams.get('id');
 
@@ -121,17 +125,17 @@
                 return;
             }
 
-            const member = DataManager.getMemberById(memberId);
+            const member = await DataManager.getMemberById(memberId);
             if (!member) {
                 alert('Personnel record not found!');
                 window.location.href = '/admin/index.html';
                 return;
             }
 
-            initEditor(member);
+            await initEditor(member);
         });
 
-        function initEditor(member) {
+        async function initEditor(member) {
             // Fill form
             const fields = {
                 editImage: member.image,
@@ -170,7 +174,7 @@
             updatePreview();
 
             // Save logic
-            document.getElementById('editForm').addEventListener('submit', (e) => {
+            document.getElementById('editForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const updatedData = {
                     image: document.getElementById('editImage').value,
@@ -185,16 +189,16 @@
                     }
                 };
 
-                if (DataManager.updateMember(member.id, updatedData)) {
+                if (await DataManager.updateMember(member.id, updatedData)) {
                     alert('Changes synchronized successfully!');
                     window.location.href = '/admin/index.html';
                 }
             });
 
             // Delete logic
-            document.getElementById('deleteBtn').onclick = () => {
+            document.getElementById('deleteBtn').onclick = async () => {
                 if (confirm(`CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
-                    if (DataManager.deleteMember(member.id)) {
+                    if (await DataManager.deleteMember(member.id)) {
                         window.location.href = '/admin/index.html';
                     }
                 }
