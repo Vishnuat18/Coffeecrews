@@ -808,25 +808,22 @@
             const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
             const messages = await window.DataManager.getMessages(threadId);
 
-            // Context: If I'm an admin, messages I sent as HQ are 'self'. If I'm a crew member, messages I sent as [ID] are 'self'.
-            const mySenderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+            const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+            const context = {
+                'HQ': 'HQ COMMAND',
+                [activeMember.id]: activeMember.name
+            };
 
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, mySenderId)).join('');
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context)).join('');
             feed.scrollTop = feed.scrollHeight;
         }
 
         async function renderGlobalChat() {
             const feed = document.getElementById('chat-feed-global');
             const messages = await window.DataManager.getGlobalMessages();
-            const mySenderId = loggedInUser.id;
+            const myId = loggedInUser.id;
 
-            feed.innerHTML = messages.map(msg => renderMessageHTML({
-                senderId: msg.senderId,
-                text: msg.text,
-                image: msg.image,
-                time: msg.time,
-                meta: msg.senderName
-            }, mySenderId)).join('');
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId)).join('');
             feed.scrollTop = feed.scrollHeight;
         }
 
@@ -871,17 +868,25 @@
             const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
             const messages = await window.DataManager.getMessages(threadId);
 
-            // In peer chat, I am activeMember.id
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id)).join('');
+            const peer = await window.DataManager.getMemberById(activePeerId);
+            const context = {
+                [activeMember.id]: activeMember.name,
+                [activePeerId]: peer ? peer.name : activePeerId
+            };
+
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context)).join('');
             feed.scrollTop = feed.scrollHeight;
         }
 
-        function renderMessageHTML(msg, myId) {
-            const isSelf = msg.senderId === myId || (msg.meta === loggedInUser.name && myId === loggedInUser.id);
-            const meta = msg.meta || msg.senderId;
+        function renderMessageHTML(msg, myId, nameContext = {}) {
+            // Support old and new property names
+            const sId = msg.senderId || msg.sender;
+            const sName = msg.senderName || msg.meta || nameContext[sId] || sId || 'UNKNOWN';
+            const isSelf = sId === myId || sName === loggedInUser.name;
+
             return `
                 <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}">
-                    <span class="msg-meta">${meta} // ${msg.time}</span>
+                    <span class="msg-meta">${sName} // ${msg.time || ''}</span>
                     <div class="msg-bubble">
                         ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
                         ${msg.image ? `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">` : ''}

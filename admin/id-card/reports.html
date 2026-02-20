@@ -208,12 +208,15 @@
 
                 // Get last 2 messages for context
                 const recentHistory = history.slice(-2);
-                const historyHtml = recentHistory.map(msg => `
-                    <div style="font-size: 0.8rem; margin-top: 5px; opacity: ${msg.senderId === 'HQ' ? '0.6' : '1'}; border-left: 2px solid ${msg.senderId === 'HQ' ? '#aaa' : 'var(--accent-primary)'}; padding-left: 8px;">
-                        <span style="font-family: 'Orbitron'; font-size: 0.6rem; color: var(--accent-primary);">${msg.senderId}:</span> 
-                        ${msg.text ? `"${msg.text}"` : (msg.image ? '[ATTACHED MEDIA]' : '')}
-                    </div>
-                `).join('');
+                const historyHtml = recentHistory.map(msg => {
+                    const sId = msg.senderId || msg.sender || 'UNKNOWN';
+                    return `
+                        <div style="font-size: 0.8rem; margin-top: 5px; opacity: ${sId === 'HQ' ? '0.6' : '1'}; border-left: 2px solid ${sId === 'HQ' ? '#aaa' : 'var(--accent-primary)'}; padding-left: 8px;">
+                            <span style="font-family: 'Orbitron'; font-size: 0.6rem; color: var(--accent-primary);">${sId}:</span> 
+                            ${msg.text ? `"${msg.text}"` : (msg.image ? '[ATTACHED MEDIA]' : '')}
+                        </div>
+                    `;
+                }).join('');
 
                 strip.innerHTML = `
                     <img src="${m.image}" alt="${m.name}" class="strip-photo">

@@ -265,7 +265,10 @@ class DataManager {
 
     static async getMessages(threadId) {
         const snapshot = await db.ref(`chats/threads/${threadId}`).once('value');
-        return snapshot.val() || [];
+        const data = snapshot.val();
+        if (!data) return [];
+        // Support both array and object structures
+        return Array.isArray(data) ? data : Object.values(data);
     }
 
     static async sendMessage(senderId, receiverId, text, image = null) {
@@ -303,8 +306,9 @@ class DataManager {
 
     static async getGlobalMessages() {
         const snapshot = await db.ref('chats/global').limitToLast(50).once('value');
-        const val = snapshot.val();
-        return val ? Object.values(val) : [];
+        const data = snapshot.val();
+        if (!data) return [];
+        return Array.isArray(data) ? data : Object.values(data);
     }
 
     static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
