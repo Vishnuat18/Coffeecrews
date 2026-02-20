@@ -38,7 +38,6 @@
      --accent-gokul: #ff00ff;
      --accent-senthil: #ff5722;
      --accent-dharani: #ffd700;
-     --accent-santhosh: #b71b4d;
      --accent-nithish: #8fd222;
      --accent-gc: #44efab;
      --accent-akshaya: #f472b6;
@@ -490,9 +489,6 @@
      color: var(--accent-dharani);
  }
 
- .active[data-color="santhosh"] .name-title {
-     color: var(--accent-santhosh);
- }
 
  .active[data-color="nithish"] .name-title {
      color: var(--accent-nithish);
@@ -534,9 +530,6 @@
      background: var(--accent-dharani);
  }
 
- .active[data-color="santhosh"] .role-badge {
-     background: var(--accent-santhosh);
- }
 
  .active[data-color="nithish"] .role-badge {
      background: var(--accent-nithish);

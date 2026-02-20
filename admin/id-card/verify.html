@@ -11,6 +11,273 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/admin/id-card/css/style.css">
     <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
+    <style>
+        .view-profile-btn {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            color: var(--accent-primary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .view-profile-btn:hover {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .chat-sub-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-sub-nav .nav-unread-dot {
+            width: 6px;
+            height: 6px;
+            background: #ff003c;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            box-shadow: 0 0 5px #ff003c;
+            display: none;
+        }
+
+        .chat-sub-nav .sub-nav-btn {
+            position: relative;
+            /* For the dot */
+            background: transparent;
+            border: 1px solid transparent;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: 'Orbitron';
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .chat-sub-nav .sub-nav-btn.active {
+            background: rgba(0, 243, 255, 0.08);
+            border-color: rgba(0, 243, 255, 0.3);
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .chat-sub-nav .sub-nav-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .chat-channel {
+            display: none;
+        }
+
+        .chat-channel.active {
+            display: block;
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Message Bubble Refinement */
+        .msg-text {
+            border-radius: 12px !important;
+            font-size: 0.85rem !important;
+            padding: 12px 16px !important;
+            line-height: 1.5 !important;
+        }
+
+        .msg-self .msg-text {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(0, 243, 255, 0.05)) !important;
+            border: 1px solid rgba(0, 243, 255, 0.2) !important;
+        }
+
+        .msg-other .msg-text {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .msg-meta {
+            font-size: 0.55rem !important;
+            margin-bottom: 6px !important;
+            opacity: 0.6 !important;
+        }
+
+        /* Modernized Chat Bar UI - High Contrast Style */
+        .chat-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: transparent;
+            padding: 5px;
+            margin-top: 15px;
+            border: none;
+        }
+
+        .chat-controls input {
+            flex: 1;
+            background: #fff !important;
+            border: none !important;
+            color: #333 !important;
+            font-size: 1.1rem !important;
+            padding: 12px 20px !important;
+            outline: none !important;
+            font-family: 'Inter', sans-serif !important;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-circle-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-circle-btn:hover {
+            background: #111;
+            color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Status Drafter Refinements - High Contrast */
+        .directive-input {
+            background: #fff !important;
+            color: #333 !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 20px !important;
+            font-size: 1.1rem !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-directive {
+            background: #d4d4d4 !important;
+            color: #111 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: 'Orbitron' !important;
+            font-size: 0.75rem !important;
+            letter-spacing: 2px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            height: 55px !important;
+            transition: 0.3s !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-directive:hover {
+            background: #fff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* Status Upload Preview Box */
+        .status-upload-preview {
+            display: none;
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--accent-primary);
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .status-upload-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-upload-preview .remove-preview {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 60, 0.8);
+            color: #fff;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .status-commit-item img.status-attachment {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .status-commit-item img.status-attachment:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Chat Image Constraint */
+        .msg-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
@@ -22,10 +289,14 @@
                 style="height: 25px; filter: drop-shadow(0 0 5px var(--accent-primary));">
             <span>COFFEECREWS</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div style="font-family: 'Orbitron'; font-size: 0.7rem; color: var(--safe-green);">
+        <div id="header-actions" style="display: flex; align-items: center; gap: 15px;">
+            <div id="sync-status" style="font-family: 'Orbitron'; font-size: 0.7rem; color: var(--safe-green);">
                 <i class="fas fa-satellite"></i> HQ ESTABLISHED
             </div>
+            <a href="../index.html" id="cockpit-btn"
+                style="display:none; text-decoration:none; background:rgba(0,243,255,0.1); border:1px solid var(--accent-primary); border-radius:30px; padding:8px 15px; color:var(--accent-primary); cursor:pointer; font-family:'Orbitron'; font-size:0.6rem; transition:0.3s;">
+                <i class="fas fa-th-large"></i> COCKPIT
+            </a>
             <button onclick="handleLogout()"
                 style="background:rgba(255,0,60,0.1); border:1px solid #ff003c; border-radius:30px; padding:8px 15px; color:#ff003c; cursor:pointer; font-family:'Orbitron'; font-size:0.6rem; transition:0.3s;">
                 TERMINATE <i class="fas fa-power-off"></i>
@@ -40,8 +311,16 @@
                     <img id="p-photo" src="" alt="Personnel">
                 </div>
                 <div class="profile-details" style="text-align: left;">
-                    <h1 id="p-name" class="name-tag">NAME</h1>
-                    <span id="p-role" class="role-tag">ROLE</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <h1 id="p-name" class="name-tag">NAME</h1>
+                            <span id="p-role" class="role-tag">ROLE</span>
+                        </div>
+                        <a id="p-view-link" href="#" target="_blank" class="view-profile-btn"
+                            title="View Public Profile">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
                     <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                         <div class="stat-pill" style="padding: 8px 12px; font-size: 0.7rem;">
                             <i class="fas fa-microchip"></i>
@@ -75,13 +354,16 @@
                     <i class="fas fa-home"></i> HOME
                 </button>
                 <button class="nav-item-btn" onclick="switchTab('chats')">
-                    <i class="fas fa-comments"></i> CREW CHATS
+                    <i class="fas fa-comments"></i> CHATS
                 </button>
                 <button class="nav-item-btn" onclick="switchTab('status')">
                     <i class="fas fa-file-signature"></i> STATUS
                 </button>
                 <button class="nav-item-btn" onclick="switchTab('attendance')">
-                    <i class="fas fa-calendar-check"></i> ATTENDANCE
+                    <i class="fas fa-calendar-check"></i> MISSION LOG
+                </button>
+                <button class="nav-item-btn" onclick="switchTab('security')">
+                    <i class="fas fa-user-shield"></i> SECURITY
                 </button>
             </nav>
 
@@ -91,42 +373,139 @@
                 <div id="home-telemetry-container"></div>
             </div>
 
-            <!-- SECTION: CREW CHATS (Individual & Global Comms) -->
+            <!-- SECTION: CREW CHATS (Multi-Channel Comms) -->
             <div id="section-chats" class="workspace-section">
-                <div id="crew-list-container" class="crew-chat-list"></div>
+                <!-- Sub-nav for channels -->
+                <div class="chat-sub-nav">
+                    <button id="btn-hq" class="sub-nav-btn active" onclick="switchChatChannel('hq')">
+                        <i class="fas fa-tower-broadcast"></i> HQ DIRECT
+                        <div class="nav-unread-dot"></div>
+                    </button>
+                    <button id="btn-global" class="sub-nav-btn" onclick="switchChatChannel('global')">
+                        <i class="fas fa-globe"></i> GLOBAL
+                        <div class="nav-unread-dot"></div>
+                    </button>
+                    <button id="btn-crew" class="sub-nav-btn" onclick="switchChatChannel('crew')">
+                        <i class="fas fa-users"></i> CREW
+                        <div class="nav-unread-dot"></div>
+                    </button>
+                </div>
 
-                <div id="active-chat-container" style="display: none; margin-top: 2rem;">
-                    <div class="section-title">
-                        <i class="fas fa-comments"></i> SECURE TRANSMISSION CHANNEL
+                <!-- HQ INTEL: Direct Thread with Admin -->
+                <div id="chat-channel-hq" class="chat-channel active">
+                    <div class="section-title" style="font-size: 0.7rem;">
+                        <i class="fas fa-shield-halved"></i> SECURE HQ DIRECT LINE
                     </div>
                     <div class="chat-container">
-                        <div id="chat-feed" class="chat-feed"></div>
+                        <div id="chat-feed-hq" class="chat-feed"></div>
                         <div class="chat-controls">
-                            <label class="media-btn" title="Share Work Image">
+                            <label class="action-circle-btn" title="Upload Intel">
                                 <i class="fas fa-image"></i>
-                                <input type="file" id="media-upload" accept="image/*" style="display: none;">
+                                <input type="file" id="media-upload-hq" accept="image/*" style="display: none;"
+                                    onchange="handleMediaUpload(event, 'hq')">
                             </label>
-                            <input type="text" id="chat-input" placeholder="Secure transmission...">
-                            <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
+                            <input type="text" id="chat-input-hq" placeholder="Report to HQ..."
+                                onkeypress="if(event.key==='Enter') sendMsg('hq')">
+                            <button class="action-circle-btn" onclick="sendMsg('hq')"><i
+                                    class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GLOBAL OPS: Broadcast Channel -->
+                <div id="chat-channel-global" class="chat-channel">
+                    <div class="section-title" style="font-size: 0.7rem;">
+                        <i class="fas fa-tower-broadcast"></i> GLOBAL MISSION BROADCAST
+                    </div>
+                    <div class="chat-container">
+                        <div id="chat-feed-global" class="chat-feed"></div>
+                        <div class="chat-controls">
+                            <label class="action-circle-btn" title="Share Mission Data">
+                                <i class="fas fa-paperclip"></i>
+                                <input type="file" id="media-upload-global" accept="image/*" style="display: none;"
+                                    onchange="handleMediaUpload(event, 'global')">
+                            </label>
+                            <input type="text" id="chat-input-global" placeholder="Transmit to all personnel..."
+                                onkeypress="if(event.key==='Enter') sendMsg('global')">
+                            <button class="action-circle-btn" onclick="sendMsg('global')"><i
+                                    class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CREW COMMS: Private Peer Threads -->
+                <div id="chat-channel-crew" class="chat-channel">
+                    <div id="crew-list-container" class="crew-chat-list"></div>
+
+                    <div id="active-peer-chat" style="display: none; margin-top: 1.5rem;">
+                        <div class="section-title"
+                            style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="fas fa-user-lock"></i> PRIVATE ENCRYPTED CHANNEL: <span
+                                    id="peer-name-label">...</span></span>
+                            <button onclick="backToCrewList()"
+                                style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-arrow-left"></i> BACK
+                            </button>
+                        </div>
+                        <div class="chat-container">
+                            <div id="chat-feed-peer" class="chat-feed"></div>
+                            <div class="chat-controls">
+                                <label class="action-circle-btn" title="Send Secure File">
+                                    <i class="fas fa-file-shield"></i>
+                                    <input type="file" id="media-upload-peer" accept="image/*" style="display: none;"
+                                        onchange="handleMediaUpload(event, 'peer')">
+                                </label>
+                                <input type="text" id="chat-input-peer" placeholder="Secure peer transmission..."
+                                    onkeypress="if(event.key==='Enter') sendMsg('peer')">
+                                <button class="action-circle-btn" onclick="sendMsg('peer')"><i
+                                        class="fas fa-paper-plane"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SECTION: DAILY STATUS -->
+            <!-- SECTION: STATUS (Daily Commit) -->
             <div id="section-status" class="workspace-section">
-                <section class="dashboard-section">
-                    <div class="section-title">
-                        <i class="fas fa-file-signature"></i> DAILY STATUS DRAFTER
+                <div class="card-glass"
+                    style="padding: 2.5rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="margin-bottom: 2rem;">
+                        <h2
+                            style="font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 10px; color: #fff;">
+                            <i class="fas fa-file-signature" style="font-size: 1.1rem; opacity: 0.8;"></i> MISSION
+                            STATUS DRAFTER
+                        </h2>
+                        <p style="font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.5px; font-weight: 300;">
+                            Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
+                            MISSION FEED.
+                        </p>
                     </div>
-                    <div class="card-glass" style="padding: 20px; border-radius: 20px;">
-                        <textarea id="drafter-input" placeholder="Draft your mission status here..."
-                            style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; padding: 15px; font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 15px;"></textarea>
-                        <button onclick="commitStatus()" class="btn-primary" style="width: 100%;">
-                            <i class="fas fa-paper-plane"></i> COMMIT TO HQ
-                        </button>
+
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div id="status-img-preview" class="status-upload-preview" style="margin-bottom: 0;">
+                            <span class="remove-preview" onclick="removeStatusImage()"><i
+                                    class="fas fa-times"></i></span>
+                            <img id="status-preview-target" src="">
+                        </div>
+
+                        <textarea id="drafter-input" class="directive-input"
+                            placeholder="Enter objectives / accomplishments / blockers..."
+                            style="min-height: 180px; width: 100%;"></textarea>
+
+                        <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
+                            <label class="action-circle-btn" title="Add Image Proof"
+                                style="width: 55px; height: 55px; background: #080808; border: 1px solid rgba(255,255,255,0.05);">
+                                <i class="fas fa-camera" style="font-size: 1.2rem; color: #00f3ff;"></i>
+                                <input type="file" id="status-media-input" accept="image/*" style="display: none;"
+                                    onchange="previewStatusImage(event)">
+                            </label>
+                            <button class="btn-directive" onclick="commitStatus()"
+                                style="flex: 1; margin: 0; width: 100%;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 1rem;"></i> COMMIT TO GLOBAL FEED
+                            </button>
+                        </div>
                     </div>
-                </section>
+                </div>
             </div>
 
             <!-- SECTION: ATTENDANCE -->
@@ -143,13 +522,66 @@
                     <div id="calendar-grid" class="calendar-grid"></div>
                 </div>
             </div>
+
+            <!-- SECTION: SECURITY (Passcode Requests) -->
+            <div id="section-security" class="workspace-section">
+                <div class="card-glass" style="padding: 2rem; border-radius: 30px; max-width: 600px; margin: 0 auto;">
+                    <div class="section-title">
+                        <i class="fas fa-key"></i> AUTHENTICATION SECURITY
+                    </div>
+                    <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 2rem;">
+                        Request a change to your CC Passcode. Your request will be reviewed and approved by HQ Command.
+                    </p>
+
+                    <div class="security-form" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="input-group-custom">
+                            <label
+                                style="font-family: 'Orbitron'; font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 8px;">CURRENT
+                                CC CODE</label>
+                            <input type="password" id="cur-pass" class="directive-input" placeholder="••••"
+                                maxlength="4" style="text-align: center; letter-spacing: 5px;">
+                        </div>
+                        <div class="input-group-custom">
+                            <label
+                                style="font-family: 'Orbitron'; font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 8px;">NEW
+                                CC CODE (4 DIGITS)</label>
+                            <input type="password" id="new-pass" class="directive-input" placeholder="••••"
+                                maxlength="4" style="text-align: center; letter-spacing: 5px;">
+                        </div>
+                        <div class="input-group-custom">
+                            <label
+                                style="font-family: 'Orbitron'; font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 8px;">CONFIRM
+                                NEW CODE</label>
+                            <input type="password" id="conf-pass" class="directive-input" placeholder="••••"
+                                maxlength="4" style="text-align: center; letter-spacing: 5px;">
+                        </div>
+
+                        <button class="btn-directive" onclick="requestPasscodeChange()"
+                            style="height: 55px; margin-top: 10px;">
+                            <i class="fas fa-shield-alt"></i> SUBMIT CHANGE REQUEST
+                        </button>
+                    </div>
+
+                    <div id="security-history" style="margin-top: 3rem;">
+                        <h4
+                            style="font-family: 'Orbitron'; font-size: 0.65rem; opacity: 0.4; margin-bottom: 1.5rem; text-transform: uppercase;">
+                            Request History</h4>
+                        <div id="req-history-list" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
     <script src="/admin/id-card/js/data.js"></script>
     <script>
-        let activeMember = null;
+        let activeMember = null; // The member whose workspace this is
+        let loggedInUser = null; // The person currently using the browser
         let currentTab = 'home';
+        let currentChatChannel = 'hq'; // hq, global, crew
+        let activePeerId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -161,8 +593,22 @@
                 location.href = 'login.html' + (id ? '?id=' + id : '');
                 return;
             }
+            loggedInUser = session;
+            console.log("Session Initialized:", loggedInUser.id, "Role:", loggedInUser.role);
 
-            // ACL Check
+            // DUAL ACCESS ENFORCEMENT (Vishnu, Prasanna, Dharani)
+            const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+
+            if (dualAccessIds.includes(session.id)) {
+                const cockpitBtn = document.getElementById('cockpit-btn');
+                if (cockpitBtn) {
+                    cockpitBtn.style.display = 'block';
+                    cockpitBtn.style.boxShadow = '0 0 15px rgba(0, 243, 255, 0.3)';
+                    cockpitBtn.onclick = () => location.href = '/admin/index.html';
+                }
+            }
+
+            // ACL Check: Crew members can only see their own workspace
             if (session.role === 'crew' && session.id !== id) {
                 location.href = `verify.html?id=${session.id}`;
                 return;
@@ -171,7 +617,7 @@
             setTimeout(() => {
                 activeMember = window.DataManager.getMemberById(id);
                 if (!activeMember) {
-                    location.href = '../../index.html';
+                    location.href = '/index.html';
                     return;
                 }
                 renderWorkspace();
@@ -179,78 +625,264 @@
                 setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
             }, 800);
 
-            document.getElementById('media-upload').addEventListener('change', shareImage);
-            document.getElementById('chat-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMsg();
-            });
+            // SYNC HANDLERS
+            const refreshActiveView = () => {
+                // Refresh Notification Indicators
+                if (currentTab !== 'chats') {
+                    // Show dots on CHATS main nav if any channel has updates (conceptual)
+                }
 
-            // REAL-TIME SYNC: Listen for HQ Directives (Cross-tab and Local)
-            const syncHandler = (e) => {
-                const updated = window.DataManager.getMemberById(id);
-                if (updated) {
-                    activeMember = updated;
-                    // Auto-refresh the current active section
-                    if (currentTab === 'home') renderHome();
-                    if (currentTab === 'chats') {
-                        // If we are in the member list, just refresh it. 
-                        // If we are in an active private chat, refresh the chat feed.
-                        if (document.getElementById('active-chat-container').style.display === 'block') {
-                            renderChat();
-                        } else {
-                            renderCrewList();
-                        }
-                    }
-                    if (currentTab === 'attendance') renderCalendar();
+                if (currentTab === 'chats') {
+                    if (currentChatChannel === 'hq') renderHQChat();
+                    else document.querySelector('#btn-hq .nav-unread-dot').style.display = 'block';
 
-                    // Specific notification for new messages
-                    if (e && e.detail && e.detail.type === 'chat') {
-                        playNotificationSound();
+                    if (currentChatChannel === 'global') renderGlobalChat();
+                    else document.querySelector('#btn-global .nav-unread-dot').style.display = 'block';
+
+                    if (currentChatChannel === 'crew') {
+                        if (activePeerId) renderPeerChat();
+                        else renderCrewList();
+                    } else {
+                        document.querySelector('#btn-crew .nav-unread-dot').style.display = 'block';
                     }
                 }
+
+                // Always refresh mission feed if on home
+                if (currentTab === 'home') renderHome();
+                else if (currentTab === 'attendance') renderCalendar();
             };
 
+            window.addEventListener('cc_chat_sync', refreshActiveView);
             window.addEventListener('storage', (e) => {
-                if (e.key === 'coffeecrews_id_cards') syncHandler();
-            });
+                const syncKeys = [
+                    DataManager.STORAGE_KEY,
+                    DataManager.CHAT_KEY,
+                    DataManager.REQUESTS_KEY,
+                    'cc_session'
+                ];
 
+                if (syncKeys.includes(e.key)) {
+                    // Re-fetch core state to avoid stale data
+                    activeMember = window.DataManager.getMemberById(id);
+                    refreshActiveView();
+                }
+            });
             window.addEventListener('coffeecrews_data_update', (e) => {
-                if (e.detail.id === id) syncHandler();
+                if (e.detail.id === id) {
+                    activeMember = window.DataManager.getMemberById(id);
+                    refreshActiveView();
+                }
             });
+            window.addEventListener('cc_security_update', refreshActiveView);
         });
-
-        function playNotificationSound() {
-            // Futuristic electronic beep (Base64)
-            const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTdvT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19vT19");
-            audio.volume = 0.5;
-            audio.play().catch(() => { });
-        }
 
         function switchTab(tabId) {
             currentTab = tabId;
-            // Update Nav Buttons
             document.querySelectorAll('.nav-item-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
             });
 
-            // Update Sections
             document.querySelectorAll('.workspace-section').forEach(section => {
                 section.classList.remove('active');
             });
             document.getElementById(`section-${tabId}`).classList.add('active');
 
-            // Specialized Rendering
             if (tabId === 'home') renderHome();
-            if (tabId === 'chats') renderCrewList();
-            if (tabId === 'attendance') renderCalendar();
+            else if (tabId === 'chats') switchChatChannel(currentChatChannel);
+            else if (tabId === 'attendance') renderCalendar();
+            else if (tabId === 'security') renderSecurity();
         }
 
+        // --- CHAT LOGIC ---
+
+        function resizeImage(base64Str, maxWidth = 100, maxHeight = 100) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = base64Str;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = maxWidth;
+                    canvas.height = maxHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, maxWidth, maxHeight);
+                    resolve(canvas.toDataURL('image/jpeg', 0.8));
+                };
+            });
+        }
+
+        function switchChatChannel(channel) {
+            currentChatChannel = channel;
+            document.querySelectorAll('.sub-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(channel)) btn.classList.add('active');
+            });
+
+            // Clear dot for this channel
+            const dot = document.querySelector(`#btn-${channel} .nav-unread-dot`);
+            if (dot) dot.style.display = 'none';
+
+            document.querySelectorAll('.chat-channel').forEach(ch => ch.classList.remove('active'));
+            document.getElementById(`chat-channel-${channel}`).classList.add('active');
+
+            if (channel === 'hq') renderHQChat();
+            else if (channel === 'global') renderGlobalChat();
+            else if (channel === 'crew') {
+                if (activePeerId) renderPeerChat();
+                else renderCrewList();
+            }
+        }
+
+        function renderHQChat() {
+            const feed = document.getElementById('chat-feed-hq');
+            const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+            const messages = window.DataManager.getMessages(threadId);
+
+            // Context: If I'm an admin, messages I sent as HQ are 'self'. If I'm a crew member, messages I sent as [ID] are 'self'.
+            const mySenderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, mySenderId)).join('');
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function renderGlobalChat() {
+            const feed = document.getElementById('chat-feed-global');
+            const messages = window.DataManager.getGlobalMessages();
+            const mySenderId = loggedInUser.id;
+
+            feed.innerHTML = messages.map(msg => renderMessageHTML({
+                sender: msg.senderId,
+                text: msg.text,
+                image: msg.image,
+                time: msg.time,
+                meta: msg.senderName
+            }, mySenderId)).join('');
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function renderCrewList() {
+            const container = document.getElementById('crew-list-container');
+            const members = window.DataManager.getAllMembers();
+
+            container.style.display = 'grid';
+            document.getElementById('active-peer-chat').style.display = 'none';
+
+            // Filter out the activeMember (self) from the peer list
+            const targets = members.filter(m => m.id !== activeMember.id);
+            container.innerHTML = targets.map(m => `
+                <div class="crew-chat-item" onclick="startPrivateChat('${m.id}')">
+                    <img src="${m.image}" alt="${m.name}">
+                    <div>
+                        <div class="crew-name">${m.name}</div>
+                        <div style="font-size: 0.5rem; opacity: 0.5;">${m.role}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="margin-left: auto; opacity: 0.3;"></i>
+                </div>
+            `).join('');
+        }
+
+        function startPrivateChat(peerId) {
+            activePeerId = peerId;
+            const peer = window.DataManager.getMemberById(peerId);
+            document.getElementById('peer-name-label').innerText = peer ? peer.name.toUpperCase() : 'CREW';
+            document.getElementById('crew-list-container').style.display = 'none';
+            document.getElementById('active-peer-chat').style.display = 'block';
+            renderPeerChat();
+        }
+
+        function backToCrewList() {
+            activePeerId = null;
+            renderCrewList();
+        }
+
+        function renderPeerChat() {
+            if (!activePeerId) return;
+            const feed = document.getElementById('chat-feed-peer');
+            const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+            const messages = window.DataManager.getMessages(threadId);
+
+            // In peer chat, I am activeMember.id
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id)).join('');
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function renderMessageHTML(msg, myId) {
+            const isSelf = msg.sender === myId || (msg.meta === loggedInUser.name && myId === loggedInUser.id);
+            const meta = msg.meta || msg.sender;
+            return `
+                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}">
+                    <span class="msg-meta">${meta} // ${msg.time}</span>
+                    <div class="msg-bubble">
+                        ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
+                        ${msg.image ? `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function sendMsg(channel) {
+            const inputId = channel === 'peer' ? 'chat-input-peer' : `chat-input-${channel}`;
+            const input = document.getElementById(inputId);
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (channel === 'hq') {
+                const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                window.DataManager.sendMessage(senderId, receiverId, text);
+            } else if (channel === 'global') {
+                window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text);
+            } else if (channel === 'peer') {
+                window.DataManager.sendMessage(activeMember.id, activePeerId, text);
+            }
+
+            input.value = '';
+            // Event sync handles rendering
+        }
+
+        async function handleMediaUpload(event, channel) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const resized = await resizeImage(e.target.result);
+                if (channel === 'hq') {
+                    const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                    const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                    window.DataManager.sendMessage(senderId, receiverId, null, resized);
+                } else if (channel === 'global') {
+                    window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, resized);
+                } else if (channel === 'peer') {
+                    window.DataManager.sendMessage(activeMember.id, activePeerId, null, resized);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- OTHER WORKSPACE LOGIC ---
+
+        function renderWorkspace() {
+            document.getElementById('p-name').innerText = activeMember.name;
+            document.getElementById('p-role').innerText = activeMember.role;
+            document.getElementById('p-photo').src = activeMember.image;
+            document.getElementById('p-dept').innerText = activeMember.role.includes("Dev") ? "ENGINEERING" : "OPERATIONS";
+            document.getElementById('p-join').innerText = activeMember.personalInfo ? activeMember.personalInfo.doj : "Jan 2024";
+            document.getElementById('p-view-link').href = `display.html?id=${activeMember.id}`;
+            const sidebarId = document.getElementById('p-id-sidebar');
+            if (sidebarId) sidebarId.innerText = `CC-${activeMember.ccCode}`;
+            switchTab('home');
+        }
+
+        let pendingStatusImage = null;
+
         function renderHome() {
-            if (!activeMember) return;
             const container = document.getElementById('home-telemetry-container');
+            const statusFeed = window.DataManager.getStatusFeed();
 
             container.innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; align-items: start;">
                     <div class="card-glass" style="padding: 20px; border-radius: 20px;">
                         <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-primary);">
                             <i class="fas fa-award"></i> MISSION ACHIEVEMENTS
@@ -264,70 +896,118 @@
                             `).join('')}
                         </div>
                     </div>
+
+                    <!-- GLOBAL MISSION FEED -->
                     <div class="card-glass" style="padding: 20px; border-radius: 20px;">
-                        <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-primary);">
-                            <i class="fas fa-chart-line"></i> ANALYTICAL DATA
+                        <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--accent-primary); display: flex; justify-content: space-between;">
+                            <span><i class="fas fa-stream"></i> GLOBAL MISSION FEED</span>
+                            <span style="font-size: 0.5rem; opacity: 0.5;">REAL-TIME SYNC</span>
                         </h3>
-                        <div style="height: 60px; display: flex; align-items: flex-end; gap: 4px;">
-                            <div style="height: 40%; width: 100%; background: var(--accent-primary); opacity: 0.3; border-radius: 2px;"></div>
-                            <div style="height: 70%; width: 100%; background: var(--accent-primary); opacity: 0.4; border-radius: 2px;"></div>
-                            <div style="height: 50%; width: 100%; background: var(--accent-primary); opacity: 0.2; border-radius: 2px;"></div>
-                            <div style="height: 90%; width: 100%; background: var(--accent-primary); opacity: 0.6; border-radius: 2px;"></div>
+                        <div id="mission-feed-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px;">
                         </div>
-                        <p style="font-size: 0.5rem; opacity: 0.5; margin-top: 10px; text-align: center;">MISSION EFFICIENCY: OPTIMAL</p>
                     </div>
                 </div>
             `;
+            renderMissionFeed();
             renderDrive();
         }
 
-        function renderCrewList() {
-            const container = document.getElementById('crew-list-container');
-            const members = DataManager.getAllMembers();
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+        function renderMissionFeed() {
+            const list = document.getElementById('mission-feed-list');
+            const statusFeed = window.DataManager.getStatusFeed();
+            if (!list) return;
 
-            // Filter out self and potentially Admins (unless user wants to chat with them)
-            const chatableMembers = members.filter(m => m.id !== session.id);
+            if (statusFeed.length === 0) {
+                list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;">No mission commits logged in the last 24h</div>';
+                return;
+            }
 
-            container.innerHTML = chatableMembers.map(m => `
-                <div class="crew-chat-item" onclick="startPrivateChat('${m.id}')">
-                    <img src="${m.image}" alt="${m.name}">
-                    <span class="crew-name">${m.name}</span>
-                    <div style="font-size: 0.5rem; opacity: 0.6; font-family: 'Orbitron';">
-                        <span class="crew-status-dot"></span> Online
+            list.innerHTML = statusFeed.map(status => `
+                <div class="status-commit-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <img src="${status.senderImage}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent-primary);">
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.7rem; font-family: 'Orbitron'; color: #fff;">${status.senderName.toUpperCase()}</div>
+                            <div style="font-size: 0.5rem; opacity: 0.5;">${status.time} // COMMITTED</div>
+                        </div>
                     </div>
+                    <div style="font-size: 0.75rem; line-height: 1.4; color: rgba(255,255,255,0.8); white-space: pre-wrap;">${status.text}</div>
+                    ${status.image ? `<img src="${status.image}" class="status-attachment" onclick="window.open(this.src)">` : ''}
                 </div>
             `).join('');
         }
 
-        function startPrivateChat(targetId) {
-            const target = DataManager.getMemberById(targetId);
-            if (!target) return;
+        function renderSecurity() {
+            const list = document.getElementById('req-history-list');
+            const requests = window.DataManager.getPasscodeRequests().filter(r => r.memberId === activeMember.id);
 
-            document.getElementById('active-chat-container').style.display = 'block';
-            document.getElementById('crew-list-container').style.display = 'none';
+            if (requests.length === 0) {
+                list.innerHTML = '<div style="font-size: 0.7rem; opacity: 0.3; text-align: center; padding: 20px;">No recent security requests found.</div>';
+                return;
+            }
 
-            // Simulation: Viewing target's chat feed
-            renderChat(targetId);
+            list.innerHTML = requests.map(req => {
+                let statusColor = '#ffb300'; // pending
+                if (req.status === 'approved') statusColor = '#0aff0a';
+                if (req.status === 'rejected') statusColor = '#ff003c';
+
+                return `
+                    <div class="stat-pill" style="justify-content: space-between; padding: 15px;">
+                        <div>
+                            <div style="font-size: 0.75rem;">CC CODE CHANGE REQUEST</div>
+                            <div style="font-size: 0.5rem; opacity: 0.5;">${req.date} // ${req.id}</div>
+                        </div>
+                        <span style="color: ${statusColor}; font-size: 0.6rem; font-family: 'Orbitron';">${req.status.toUpperCase()}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
-        function renderWorkspace() {
-            if (!activeMember) return;
+        function requestPasscodeChange() {
+            const cur = document.getElementById('cur-pass').value;
+            const next = document.getElementById('new-pass').value;
+            const conf = document.getElementById('conf-pass').value;
 
-            document.getElementById('p-name').innerText = activeMember.name;
-            document.getElementById('p-role').innerText = activeMember.role;
-            document.getElementById('p-photo').src = activeMember.image;
+            if (cur.length !== 4 || next.length !== 4) {
+                alert("CC Codes must be exactly 4 digits.");
+                return;
+            }
 
-            // Map Sidebar Data
-            document.getElementById('p-dept').innerText = activeMember.role.includes("Dev") ? "ENGINEERING" : "OPERATIONS";
-            const joinDate = activeMember.personalInfo ? activeMember.personalInfo.doj : "Jan 2024";
-            document.getElementById('p-join').innerText = joinDate;
+            if (next !== conf) {
+                alert("New codes do not match.");
+                return;
+            }
 
-            const sidebarId = document.getElementById('p-id-sidebar');
-            if (sidebarId) sidebarId.innerText = `CC-${activeMember.ccCode}`;
+            const result = window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
+            if (result.success) {
+                alert(result.message);
+                document.getElementById('cur-pass').value = '';
+                document.getElementById('new-pass').value = '';
+                document.getElementById('conf-pass').value = '';
+                renderSecurity();
+            } else {
+                alert(result.message);
+            }
+        }
 
-            // Initial render
-            switchTab('home');
+        function previewStatusImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                pendingStatusImage = await resizeImage(e.target.result);
+                document.getElementById('status-preview-target').src = pendingStatusImage;
+                document.getElementById('status-img-preview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeStatusImage() {
+            pendingStatusImage = null;
+            document.getElementById('status-img-preview').style.display = 'none';
+            document.getElementById('status-media-input').value = '';
         }
 
         function renderDrive() {
@@ -339,18 +1019,14 @@
                     <a href="${link.url}" target="_blank" class="drive-btn card-glass">
                         <i class="fab ${link.icon || 'fa-google-drive'}"></i>
                         <span>${link.title}</span>
-                    </a>
-                `;
+                    </a>`;
             });
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
+            if (!grid) return;
             const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth();
-
-            // Generate last 30 days for simplicity in mission log
             grid.innerHTML = '';
             for (let i = 29; i >= 0; i--) {
                 const date = new Date();
@@ -358,120 +1034,37 @@
                 const dateStr = date.toISOString().split('T')[0];
                 const isMarked = activeMember.attendance && activeMember.attendance.includes(dateStr);
                 const isToday = i === 0;
-
                 grid.innerHTML += `
                     <div class="calendar-day ${isMarked ? 'marked' : ''} ${isToday ? 'today' : ''}" 
-                         title="${dateStr}"
-                         ${isToday ? 'onclick="markTodayAttendance()"' : ''}>
+                         title="${dateStr}" ${isToday ? 'onclick="markTodayAttendance()"' : ''}>
                         ${date.getDate()}
-                    </div>
-                `;
+                    </div>`;
             }
         }
 
         function markTodayAttendance() {
-            if (DataManager.markAttendance(activeMember.id)) {
-                alert("MISSION ATTENDANCE LOGGED");
-                activeMember = DataManager.getMemberById(activeMember.id);
+            if (window.DataManager.markAttendance(activeMember.id)) {
+                activeMember = window.DataManager.getMemberById(activeMember.id);
                 renderCalendar();
-            } else {
-                alert("ATTENDANCE ALREADY MARKED FOR TODAY");
             }
         }
 
-        function renderChat() {
-            const feed = document.getElementById('chat-feed');
-            const history = activeMember.chatHistory || [];
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-
-            feed.innerHTML = history.map(msg => {
-                // POV Logic: If I sent it, it appears on the right
-                const isMyMessage = msg.sender === session.id.toUpperCase() || (session.role === 'admin' && msg.sender === 'HQ');
-                return `
-                    <div class="chat-msg ${isMyMessage ? 'msg-self' : 'msg-other'}">
-                        <span class="msg-meta">${msg.sender} // ${msg.time}</span>
-                        ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
-                        ${msg.image ? `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">` : ''}
-                    </div>
-                `;
-            }).join('');
-
-            feed.scrollTop = feed.scrollHeight;
+        function commitStatus() {
+            const input = document.getElementById('drafter-input');
+            const text = input.value.trim();
+            if (text || pendingStatusImage) {
+                window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
+                input.value = '';
+                removeStatusImage();
+                alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
+                switchTab('home');
+            }
         }
 
         function handleLogout() {
             if (confirm("TERMINATE SECURE SESSION?")) {
                 localStorage.removeItem('cc_session');
-                location.href = 'login.html';
-            }
-        }
-
-        function sendMsg() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-            const senderId = session.role === 'admin' ? 'HQ' : session.id.toUpperCase();
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const history = activeMember.chatHistory || [];
-            history.push({ sender: senderId, text, time });
-
-            if (window.DataManager.updateMember(activeMember.id, { chatHistory: history })) {
-                input.value = '';
-                renderChat();
-            }
-        }
-
-        function shareImage(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            if (file.size > 1024 * 512) { alert("Image too large. Max 500KB."); return; }
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-                const senderId = session.role === 'admin' ? 'HQ' : session.id.toUpperCase();
-                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const history = activeMember.chatHistory || [];
-                history.push({ sender: senderId, image: event.target.result, time });
-                if (window.DataManager.updateMember(activeMember.id, { chatHistory: history })) {
-                    renderChat();
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function addDriveLink() {
-            const url = prompt("Enter Drive/Compute Link:");
-            const label = prompt("Enter Link Label (e.g. My Workspace):");
-            if (url && label) {
-                const links = activeMember.driveLinks || [];
-                links.push({ label, url });
-                if (window.DataManager.updateMember(activeMember.id, { driveLinks: links })) {
-                    renderDriveLinks();
-                }
-            }
-        }
-        function commitStatus() {
-            const input = document.getElementById('drafter-input');
-            const text = input.value.trim();
-            if (text) {
-                const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const senderId = session.id.toUpperCase();
-
-                if (!activeMember.chatHistory) activeMember.chatHistory = [];
-                activeMember.chatHistory.push({
-                    sender: senderId,
-                    text: `[DAILY STATUS COMMIT]\n${text}`,
-                    time: time
-                });
-
-                DataManager.updateMember(activeMember.id, { chatHistory: activeMember.chatHistory });
-                input.value = '';
-                renderChat();
-                alert("MISSION STATUS COMMITTED TO HQ");
+                location.href = '/admin/id-card/login.html';
             }
         }
     </script>

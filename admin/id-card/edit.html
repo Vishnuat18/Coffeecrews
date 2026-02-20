@@ -15,7 +15,7 @@
             <img src="/assets/logo/mainlogo.jpeg" alt="CoffeeCrews Logo" class="nav-main-logo">
         </a>
         <div class="nav-links">
-            <a href="/admin/id-card/index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
+            <a href="../index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
             <span class="nav-link active"><i class="fas fa-edit"></i> EDITOR</span>
         </div>
     </nav>
@@ -117,14 +117,14 @@
             const memberId = urlParams.get('id');
 
             if (!memberId) {
-                window.location.href = 'index.html';
+                window.location.href = '/admin.html';
                 return;
             }
 
             const member = DataManager.getMemberById(memberId);
             if (!member) {
                 alert('Personnel record not found!');
-                window.location.href = 'index.html';
+                window.location.href = '/admin.html';
                 return;
             }
 
@@ -187,7 +187,7 @@
 
                 if (DataManager.updateMember(member.id, updatedData)) {
                     alert('Changes synchronized successfully!');
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }
             });
 
@@ -195,7 +195,7 @@
             document.getElementById('deleteBtn').onclick = () => {
                 if (confirm(`CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
                     if (DataManager.deleteMember(member.id)) {
-                        window.location.href = 'index.html';
+                        window.location.href = '../index.html';
                     }
                 }
             };

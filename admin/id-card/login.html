@@ -339,7 +339,11 @@
                 btn.style.color = "#000";
 
                 // Set session
-                const role = currentMember.access === 'admin' ? 'admin' : 'crew';
+                const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+                const role = (dualAccessIds.includes(currentMember.id) || currentMember.access === 'admin') ? 'admin' : 'crew';
+
+                console.log("Auth Success for:", currentMember.id, "Role assigned:", role);
+
                 localStorage.setItem('cc_session', JSON.stringify({
                     id: currentMember.id,
                     role: role,
@@ -348,10 +352,15 @@
                 }));
 
                 setTimeout(() => {
-                    if (role === 'admin') {
-                        location.href = 'index.html';
+                    // DUAL ACCESS ROUTING (Vishnu, Prasanna, Dharani)
+                    const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+
+                    if (dualAccessIds.includes(currentMember.id)) {
+                        // Land on Workspace - Switch button will handle Cockpit access
+                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
                     } else {
-                        location.href = 'verify.html?id=' + currentMember.id;
+                        // Others (Crews) land on their Workspace
+                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
                     }
                 }, 1000);
             } else {
