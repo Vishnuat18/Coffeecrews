@@ -4,12 +4,13 @@
  */
 (function () {
     const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
-    const isLoginPage = window.location.pathname.endsWith('login.html');
+    const path = window.location.pathname;
+    const isLoginPage = path.includes('login.html') || path.endsWith('/login') || path.endsWith('/login/');
+
+    console.log("[AuthGuard] Path:", path, "IsLoginPage:", isLoginPage, "SessionID:", session.id);
 
     const validateSession = () => {
         if (!session.timestamp) return false;
-
-        // Session valid for 24 hours (though sessionStorage usually dies on tab close anyway)
         const ONE_DAY = 1000 * 60 * 60 * 24;
         if (Date.now() - session.timestamp > ONE_DAY) {
             sessionStorage.removeItem('cc_session');
@@ -20,10 +21,9 @@
 
     if (!isLoginPage) {
         if (!validateSession()) {
-            console.warn("Unauthorized access detected. Redirecting to login.");
-            const currentPath = window.location.pathname;
+            console.warn("[AuthGuard] Unauthorized. Redirecting...");
             const returnTo = new URLSearchParams(window.location.search).get('id') || '';
-            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}&id=${returnTo}`;
+            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(path)}&id=${returnTo}`;
             return;
         }
 
