@@ -4,58 +4,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | CC HQ</title>
-    <script src="../../mobile-redirect.js"></script>
-    <link rel="shortcut icon" href="assets/favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Secure Auth | COFFEECREWS</title>
+    <link rel="shortcut icon" href="/assets/favicon.png">
     <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="/admin/id-card/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
     <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --accent-primary: #00f3ff;
+            --accent-red: #ff003c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Rajdhani', sans-serif;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
             overflow: hidden;
         }
 
-        .login-container {
-            width: 450px;
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
             text-align: center;
-            position: relative;
             z-index: 10;
         }
 
-        .scanner-frame {
-            width: 280px;
-            height: 350px;
-            margin: 0 auto 30px;
-            position: relative;
-            border: 2px solid rgba(0, 243, 255, 0.2);
-            border-radius: 20px;
-            padding: 10px;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.02);
+        .hq-logo {
+            height: 60px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.3));
         }
 
-        .scanner-frame::before {
-            content: '';
+        .id-scanner {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .scanner-frame {
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--accent-primary);
+            margin: 0 auto 1.5rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .scanner-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            transition: 0.3s;
+        }
+
+        .scanner-frame img.detected {
+            opacity: 1;
+            mix-blend-mode: normal;
+        }
+
+        .scanner-line {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(to right, transparent, var(--accent-primary), transparent);
+            height: 2px;
+            background: var(--accent-primary);
             box-shadow: 0 0 15px var(--accent-primary);
-            z-index: 5;
-            animation: scan-line 3s infinite linear;
+            animation: scan 2s linear infinite;
         }
 
-        @keyframes scan-line {
+        @keyframes scan {
             0% {
                 top: 0;
             }
@@ -69,211 +106,155 @@
             }
         }
 
-        .scanned-photo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-            opacity: 0.3;
-            filter: grayscale(1) contrast(1.2);
-            transition: all 0.5s ease;
-        }
-
-        .scanned-photo.detected {
-            opacity: 0.8;
-            filter: grayscale(0) contrast(1);
-        }
-
-        .detection-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
-            z-index: 3;
-        }
-
-        .status-msg {
+        #status-text {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             letter-spacing: 2px;
             color: var(--accent-primary);
             text-transform: uppercase;
-            margin-top: 10px;
         }
 
         .input-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 20px;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: 0.5s ease;
+            display: none;
+            margin-top: 1.5rem;
+            animation: slideUp 0.5s ease forwards;
         }
 
         .input-card.show {
-            transform: translateY(0);
-            opacity: 1;
+            display: block;
         }
 
-        .person-name {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: #fff;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .person-role {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.8rem;
-            opacity: 0.5;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .cc-input {
+        input {
             width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(0, 243, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
             padding: 15px;
+            border-radius: 10px;
+            color: #fff;
             text-align: center;
-            color: var(--accent-primary);
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            border-radius: 12px;
-            margin-bottom: 20px;
             letter-spacing: 5px;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
         }
 
-        .cc-input::placeholder {
-            letter-spacing: 1px;
-            font-size: 0.8rem;
-            opacity: 0.3;
-        }
-
-        .cc-input:focus {
+        input:focus {
             outline: none;
             border-color: var(--accent-primary);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
         }
 
-        .scan-anim-overlay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        .btn-auth {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.6rem;
-            color: rgba(0, 243, 255, 0.4);
-            text-align: right;
-            pointer-events: none;
-        }
-
-        .manual-select {
-            margin-top: 20px;
-            font-family: 'Orbitron';
-            font-size: 0.6rem;
-            opacity: 0.4;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 10px;
             cursor: pointer;
             transition: 0.3s;
         }
 
-        .manual-select:hover {
-            opacity: 1;
-            color: var(--accent-primary);
+        .btn-auth:hover {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-primary);
+        }
+
+        .manual-trigger {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
         }
 
         .member-dropdown {
-            background: #0a0a0a;
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 15px;
             display: none;
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.05) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
     </style>
 </head>
 
 <body>
+    <div class="bg-glow"></div>
+    <div class="auth-container">
+        <img src="/assets/favicon.png" class="hq-logo" alt="CoffeeCrews Logo">
 
-    <div class="scan-anim-overlay">
-        SYS_VER: 4.8.0<br>
-        SAT_LINK: ACTIVE<br>
-        LOC: HQ_MAIN
-    </div>
+        <div class="id-scanner">
+            <div class="scanner-frame">
+                <img src="/assets/crews/placeholder.png" id="scanned-id" alt="ID Card">
+                <div class="scanner-line"></div>
+            </div>
+            <div id="status-text">Scanning Personnel...</div>
 
-    <div class="login-container">
-        <div class="scanner-frame">
-            <img id="scanned-id" src="/assets/favicon.png" class="scanned-photo" alt="Personnel">
-            <div class="detection-overlay">
-                <i class="fas fa-fingerprint fa-2x" style="color: var(--accent-primary); opacity: 0.5;"></i>
-                <div id="status-text" class="status-msg">Scanning Personnel...</div>
+            <div id="person-info" style="margin-top: 1.5rem; display: none;">
+                <h2 id="person-name" style="margin:0; font-family:'Orbitron'; font-size: 1.4rem;"></h2>
+                <p id="person-role"
+                    style="opacity: 0.5; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;"></p>
+            </div>
+
+            <div class="input-card" id="input-card">
+                <input type="password" id="cc-code" placeholder="ENTER CC-CODE" maxlength="8">
+                <button onclick="handleAuth()" class="btn-auth" id="auth-btn">Authorize Access</button>
             </div>
         </div>
 
-        <div id="input-card" class="input-card">
-            <h2 id="person-name" class="person-name">IDENTIFYING...</h2>
-            <div id="person-role" class="person-role">Awaiting Verification</div>
-
-            <select id="member-select" class="member-dropdown">
-                <!-- Populated via JS -->
-            </select>
-
-            <input type="password" id="cc-code" class="cc-input" placeholder="ENTER CC-CODE" maxlength="5">
-            <button id="auth-btn" class="btn-primary" style="width: 100%; border-radius: 12px;"
-                onclick="handleAuth()">AUTHORIZE ACCESS</button>
-            <div class="manual-select" onclick="toggleManual()">MANUAL OVERRIDE</div>
-        </div>
+        <select id="member-select" class="member-dropdown" onchange="detectPersonFromSelect(this.value)">
+            <option value="">Select Identity...</option>
+        </select>
+        <div class="manual-trigger" onclick="toggleManual()">Manual Identifier Override</div>
     </div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <script src="/admin/id-card/js/data.js"></script>
+    <script src="/admin/js/tactical-notifications.js"></script>
+
     <script>
         let members = [];
         let currentMember = null;
-        let scanInterval;
+        let scanInterval = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Updated to be async
             members = await DataManager.getAllMembers();
-            populateDropdown();
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const rawId = urlParams.get('return_to') || urlParams.get('id');
-            const targetId = rawId ? rawId.toLowerCase() : null;
-
-            if (targetId) {
-                console.log("Attempting to detect personnel ID:", targetId);
-                const target = members.find(m => m.id.toLowerCase() === targetId);
-                if (target) {
-                    detectPerson(target);
-                } else {
-                    console.warn("Personnel ID not found in database:", targetId);
-                    startScanning();
-                }
-            } else {
-                startScanning();
-            }
-
-            document.getElementById('cc-code').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleAuth();
-            });
+            populateSelect();
+            startScanning();
         });
 
-        function populateDropdown() {
+        function populateSelect() {
             const select = document.getElementById('member-select');
             members.forEach(m => {
                 const opt = document.createElement('option');
@@ -281,38 +262,38 @@
                 opt.textContent = m.name;
                 select.appendChild(opt);
             });
-
-            select.addEventListener('change', (e) => {
-                const member = members.find(m => m.id === e.target.value);
-                detectPerson(member);
-            });
         }
 
         function startScanning() {
-            let index = 0;
+            let i = 0;
+            const photo = document.getElementById('scanned-id');
             scanInterval = setInterval(() => {
-                const m = members[index];
-                document.getElementById('scanned-id').src = m.image;
-                index = (index + 1) % members.length;
-            }, 600); // Slightly slower to be viewable
+                photo.src = members[i % members.length].image;
+                i++;
+            }, 300);
+        }
+
+        function detectPersonFromSelect(id) {
+            const member = members.find(m => m.id === id);
+            if (member) detectPerson(member);
         }
 
         function detectPerson(member) {
             if (scanInterval) clearInterval(scanInterval);
             currentMember = member;
-            const photo = document.getElementById('scanned-id');
-            const status = document.getElementById('status-text');
-            const inputCard = document.getElementById('input-card');
 
+            const photo = document.getElementById('scanned-id');
             photo.src = member.image;
             photo.classList.add('detected');
-            status.innerHTML = "Personnel Identified";
-            status.style.color = "#0aff0a";
 
+            document.getElementById('status-text').innerHTML = "Personnel Identified";
+            document.getElementById('status-text').style.color = "#0aff0a";
+
+            document.getElementById('person-info').style.display = "block";
             document.getElementById('person-name').innerText = member.name;
             document.getElementById('person-role').innerText = member.role;
 
-            inputCard.classList.add('show');
+            document.getElementById('input-card').classList.add('show');
             document.getElementById('cc-code').focus();
         }
 
@@ -320,23 +301,14 @@
             const dropdown = document.getElementById('member-select');
             const isVisible = dropdown.style.display === 'block';
             dropdown.style.display = isVisible ? 'none' : 'block';
-
-            if (isVisible) {
-                startScanning();
-                document.getElementById('input-card').classList.remove('show');
-                document.getElementById('scanned-id').classList.remove('detected');
-                document.getElementById('status-text').innerHTML = "Scanning Personnel...";
-                document.getElementById('status-text').style.color = "var(--accent-primary)";
-            }
         }
 
-        function handleAuth() {
+        async function handleAuth() {
             const codeInput = document.getElementById('cc-code').value;
             const btn = document.getElementById('auth-btn');
 
             if (!currentMember) return;
 
-            // Normalize code (check if they entered CC-XXXX or just XXXX)
             const cleanCode = codeInput.toUpperCase().replace('CC-', '');
 
             if (cleanCode === currentMember.ccCode) {
@@ -344,11 +316,8 @@
                 btn.style.background = "#0aff0a";
                 btn.style.color = "#000";
 
-                // Set session
                 const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
                 const role = (dualAccessIds.includes(currentMember.id) || currentMember.access === 'admin') ? 'admin' : 'crew';
-
-                console.log("Auth Success for:", currentMember.id, "Role assigned:", role);
 
                 localStorage.setItem('cc_session', JSON.stringify({
                     id: currentMember.id,
@@ -357,30 +326,18 @@
                     timestamp: Date.now()
                 }));
 
-                setTimeout(() => {
-                    // DUAL ACCESS ROUTING (Vishnu, Prasanna, Dharani)
-                    const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+                showTacticalNotification(`AUTHORIZATION SUCCESS: Welcome Commander ${currentMember.name}`, 'success');
 
-                    if (dualAccessIds.includes(currentMember.id)) {
-                        // Land on Workspace - Switch button will handle Cockpit access
-                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                setTimeout(() => {
+                    if (role === 'admin') {
+                        location.href = '/admin/index.html';
                     } else {
-                        // Others (Crews) land on their Workspace
-                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                        location.href = `/admin/id-card/verify.html?id=${currentMember.id}`;
                     }
-                }, 1000);
+                }, 1500);
             } else {
-                btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";
-                btn.style.background = "#ff003c";
-                btn.style.color = "#fff";
-
-                gsap.to('.input-card', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
-
-                setTimeout(() => {
-                    btn.innerHTML = "AUTHORIZE ACCESS";
-                    btn.style.background = "transparent";
-                    btn.style.color = "var(--accent-primary)";
-                }, 2000);
+                showTacticalNotification('INVALID CC CODE: Personnel record not match', 'error');
+                gsap.to('.id-scanner', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
             }
         }
     </script>

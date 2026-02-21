@@ -642,6 +642,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script src="/admin/id-card/js/data.js"></script>
+    <script src="/admin/js/tactical-notifications.js"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
         let loggedInUser = null; // The person currently using the browser
@@ -1084,24 +1085,24 @@
             const conf = document.getElementById('conf-pass').value;
 
             if (cur.length !== 4 || next.length !== 4) {
-                alert("CC Codes must be exactly 4 digits.");
+                showTacticalNotification("INVALID FORMAT: CC Codes must be exactly 4 digits", "warning");
                 return;
             }
 
             if (next !== conf) {
-                alert("New codes do not match.");
+                showTacticalNotification("MISMATCH: High-security authentication codes do not match", "error");
                 return;
             }
 
             const result = await window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
             if (result.success) {
-                alert(result.message);
+                showTacticalNotification(result.message, "success");
                 document.getElementById('cur-pass').value = '';
                 document.getElementById('new-pass').value = '';
                 document.getElementById('conf-pass').value = '';
                 await renderSecurity();
             } else {
-                alert(result.message);
+                showTacticalNotification(result.message, "error");
             }
         }
 
@@ -1171,7 +1172,7 @@
                 await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
                 input.value = '';
                 removeStatusImage();
-                alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
+                showTacticalNotification("MISSION STATUS COMMITTED TO GLOBAL FEED", "success");
                 await switchTab('home');
             }
         }
