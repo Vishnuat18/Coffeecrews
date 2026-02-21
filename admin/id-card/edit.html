@@ -80,11 +80,10 @@
                     <input type="text" id="editPortfolio">
                 </div>
 
-                <div
+                <div id="blockActionContainer"
                     style="display: flex; gap: 15px; margin-top: 4rem; position: sticky; bottom: 0; background: var(--bg-color); padding: 20px 0; border-top: 1px solid var(--glass-border);">
                     <button type="submit" class="btn-primary" style="flex: 1;">Save Configuration</button>
-                    <button type="button" id="deleteBtn" class="btn-primary"
-                        style="border-color: #ff003c; color: #ff003c;">Delete</button>
+                    <!-- Buttons injected via JS -->
                 </div>
             </form>
         </div>
@@ -203,14 +202,40 @@
                 }
             });
 
-            // Delete logic
-            document.getElementById('deleteBtn').onclick = async () => {
-                if (confirm(`CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
-                    if (await DataManager.deleteMember(member.id)) {
-                        window.location.href = '/admin/index.html';
-                    }
+            // Block/Unblock logic
+            const updateBlockButtons = () => {
+                const isBlocked = member.blockedUntil && member.blockedUntil > Date.now();
+                const container = document.getElementById('blockActionContainer');
+
+                if (isBlocked) {
+                    container.innerHTML = `
+                        <button type="button" id="unblockBtn" class="btn-primary" style="border-color: #3cff7d; color: #3cff7d; flex: 1;">Restore Access</button>
+                    `;
+                    document.getElementById('unblockBtn').onclick = async () => {
+                        if (confirm("Authorize access restoration?")) {
+                            if (await DataManager.unblockMember(member.id)) {
+                                alert("Access restored.");
+                                location.reload();
+                            }
+                        }
+                    };
+                } else {
+                    container.innerHTML = `
+                        <button type="button" id="blockBtn" class="btn-primary" style="border-color: #ff003c; color: #ff003c; flex: 1;">Block Personnel</button>
+                    `;
+                    document.getElementById('blockBtn').onclick = async () => {
+                        const days = prompt("SUSPEND ACCESS: Enter duration (in days):", "7");
+                        if (days && !isNaN(days)) {
+                            if (await DataManager.blockMember(member.id, parseInt(days))) {
+                                alert(`Access suspended for ${days} days.`);
+                                location.reload();
+                            }
+                        }
+                    };
                 }
             };
+
+            updateBlockButtons();
         }
 
         function updatePreview() {

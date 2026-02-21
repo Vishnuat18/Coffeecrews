@@ -322,6 +322,15 @@ class DataManager {
         return false;
     }
 
+    static async blockMember(id, days) {
+        const until = Date.now() + (days * 24 * 60 * 60 * 1000);
+        return this.updateMember(id, { blockedUntil: until });
+    }
+
+    static async unblockMember(id) {
+        return this.updateMember(id, { blockedUntil: null });
+    }
+
     static async deleteMember(id) {
         const members = await this.getAllMembers();
         const filtered = members.filter(m => m.id !== id);

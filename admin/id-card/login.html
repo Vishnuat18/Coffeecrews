@@ -401,6 +401,29 @@
             const validPass = currentMember.passcode || currentMember.ccCode;
 
             if (cleanCode === validPass) {
+                // CHECK IF BLOCKED
+                if (currentMember.blockedUntil && currentMember.blockedUntil > Date.now()) {
+                    const remainingMs = currentMember.blockedUntil - Date.now();
+                    const days = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+                    const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
+
+                    btn.innerHTML = "<i class='fas fa-lock'></i> ACCESS SUSPENDED";
+                    btn.style.background = "var(--accent-gold)";
+                    btn.style.color = "#000";
+
+                    const timeMsg = days > 1 ? `${days} DAYS` : `${hours} HOURS`;
+                    showToast(`ACCESS PRIVILEGES SUSPENDED FOR ${timeMsg}.`, "error");
+
+                    gsap.to('.input-card', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
+
+                    setTimeout(() => {
+                        btn.innerHTML = "AUTHORIZE ACCESS";
+                        btn.style.background = "transparent";
+                        btn.style.color = "var(--accent-primary)";
+                    }, 3000);
+                    return;
+                }
+
                 btn.innerHTML = "<i class='fas fa-check'></i> ACCESS GRANTED";
                 btn.style.background = "#0aff0a";
                 btn.style.color = "#000";

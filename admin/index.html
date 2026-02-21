@@ -774,9 +774,12 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(member => `
-                <div class="member-item glass">
+            container.innerHTML = filtered.map(member => {
+                const isBlocked = member.blockedUntil && member.blockedUntil > Date.now();
+                return `
+                <div class="member-item glass" style="${isBlocked ? 'filter: grayscale(0.8);' : ''}">
                     <img src="${member.image}" alt="${member.name}" class="member-img">
+                    ${isBlocked ? `<div style="position: absolute; top: 15px; left: 15px; background: var(--accent-red); color: #fff; font-family: 'Orbitron'; font-size: 0.6rem; padding: 4px 10px; border-radius: 4px; z-index: 5; box-shadow: 0 0 15px var(--accent-red);">BLOCKED</div>` : ''}
                     <div class="member-overlay">
                         <div class="member-name">${member.name}</div>
                         <div class="member-role-badge" style="background: ${member.accent || 'var(--accent-primary)'}">${member.role.toUpperCase()}</div>
@@ -787,13 +790,19 @@
                             <a href="/admin/id-card/display.html?id=${member.id}" target="_blank" class="btn-action">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <button onclick="deleteMember('${member.id}')" class="btn-action" style="border-color: var(--accent-red); color: var(--accent-red);">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            ${isBlocked ? `
+                                <button onclick="unblockMember('${member.id}')" class="btn-action" style="border-color: #3cff7d; color: #3cff7d;">
+                                    <i class="fas fa-unlock"></i>
+                                </button>
+                            ` : `
+                                <button onclick="blockMemberPrompt('${member.id}')" class="btn-action" style="border-color: var(--accent-red); color: var(--accent-red);">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            `}
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderApplicationsUI(apps) {
@@ -843,11 +852,21 @@
             document.getElementById('sync-time').textContent = `LIVE SYNC // ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
         }
 
-        async function deleteMember(id) {
-            showToast("Verifying authorization...", "info");
-            if (confirm('Authorize termination of this crew record?')) {
-                if (await DataManager.deleteMember(id)) {
-                    showToast("Crew record purged from HQ.", "success");
+        async function blockMemberPrompt(id) {
+            const days = prompt("SUSPEND ACCESS: Enter duration (in days):", "7");
+            if (days && !isNaN(days)) {
+                showToast(`Applying protocol: ${days} day suspension...`, "info");
+                if (await DataManager.blockMember(id, parseInt(days))) {
+                    showToast("Access restricted and logged.", "success");
+                }
+            }
+        }
+
+        async function unblockMember(id) {
+            if (confirm("RESTORE ACCESS PROTOCOL: Authorize reconnection?")) {
+                showToast("Restoring access...", "info");
+                if (await DataManager.unblockMember(id)) {
+                    showToast("Access restored.", "success");
                 }
             }
         }
