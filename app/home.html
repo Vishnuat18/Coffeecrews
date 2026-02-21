@@ -15,8 +15,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/public-mobile.css">
+    <link rel="stylesheet" href="/app/css/mobile.css">
+    <link rel="stylesheet" href="/app/css/public-mobile.css">
 </head>
 
 <body>
@@ -37,7 +37,7 @@
             <h1 class="hero-title orbitron">FORCE<br>MULTIPLIER</h1>
             <p class="hero-subtitle">Innovative software solutions for the next generation of global impact.</p>
             <div style="display: flex; gap: 15px; justify-content: center;">
-                <button onclick="location.href='portfolio.html'" class="btn-directive"
+                <button onclick="location.href='/app/portfolio.html'" class="btn-directive"
                     style="padding: 15px 25px;">EXPLORE PORTFOLIO</button>
             </div>
         </section>
@@ -79,19 +79,19 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav glass">
-        <a href="home.html" class="nav-item active">
+        <a href="/app/home.html" class="nav-item active">
             <i class="fas fa-home"></i>
             <span>START</span>
         </a>
-        <a href="portfolio.html" class="nav-item">
+        <a href="/app/portfolio.html" class="nav-item">
             <i class="fas fa-layer-group"></i>
             <span>WORK</span>
         </a>
-        <a href="services.html" class="nav-item">
+        <a href="/app/services.html" class="nav-item">
             <i class="fas fa-ghost"></i>
             <span>MIND</span>
         </a>
-        <a href="login.html" class="nav-item">
+        <a href="/app/login.html" class="nav-item">
             <i class="fas fa-lock"></i>
             <span>PORTAL</span>
         </a>
@@ -99,11 +99,11 @@
 
     <!-- Fullscreen Menu -->
     <div id="mobile-menu" class="mobile-menu">
-        <a href="home.html" class="menu-link active">HOME</a>
-        <a href="about.html" class="menu-link">ABOUT</a>
-        <a href="portfolio.html" class="menu-link">PORTFOLIO</a>
-        <a href="services.html" class="menu-link">SERVICES</a>
-        <a href="contact.html" class="menu-link">CONTACT</a>
+        <a href="/app/home.html" class="menu-link active">HOME</a>
+        <a href="/app/about.html" class="menu-link">ABOUT</a>
+        <a href="/app/portfolio.html" class="menu-link">PORTFOLIO</a>
+        <a href="/app/services.html" class="menu-link">SERVICES</a>
+        <a href="/app/contact.html" class="menu-link">CONTACT</a>
         <div style="height: 50px;"></div>
         <i class="fas fa-times" onclick="toggleMenu()" style="font-size: 2rem; color: var(--accent-secondary);"></i>
     </div>
@@ -111,8 +111,8 @@
     <!-- Logic -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="../admin/id-card/js/data.js"></script>
-    <script src="main.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
+    <script src="/app/main.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {

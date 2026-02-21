@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/public-mobile.css">
+    <link rel="stylesheet" href="/app/css/mobile.css">
+    <link rel="stylesheet" href="/app/css/public-mobile.css">
 </head>
 
 <body>
@@ -44,7 +44,7 @@
             <!-- Driven by DataManager -->
             <div class="glass"
                 style="padding: 20px; border-radius: 20px; display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
-                <img src="../admin/id-card/assets/vishnu.png"
+                <img src="/admin/id-card/assets/vishnu.png"
                     style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-primary);">
                 <div>
                     <div class="orbitron" style="font-size: 0.9rem;">VISHNU</div>
@@ -62,19 +62,19 @@
     </main>
 
     <nav class="bottom-nav glass">
-        <a href="home.html" class="nav-item">
+        <a href="/app/home.html" class="nav-item">
             <i class="fas fa-home"></i>
             <span>START</span>
         </a>
-        <a href="portfolio.html" class="nav-item">
+        <a href="/app/portfolio.html" class="nav-item">
             <i class="fas fa-layer-group"></i>
             <span>WORK</span>
         </a>
-        <a href="services.html" class="nav-item">
+        <a href="/app/services.html" class="nav-item">
             <i class="fas fa-ghost"></i>
             <span>MIND</span>
         </a>
-        <a href="login.html" class="nav-item">
+        <a href="/app/login.html" class="nav-item">
             <i class="fas fa-lock"></i>
             <span>PORTAL</span>
         </a>
@@ -82,8 +82,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="../admin/id-card/js/data.js"></script>
-    <script src="main.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
+    <script src="/app/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const members = await window.DataManager.getAllMembers();

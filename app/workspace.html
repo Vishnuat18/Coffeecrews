@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <!-- Mobile Logic & Styles -->
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="/app/css/mobile.css">
     <style>
         .page-screen {
             display: none;
@@ -70,7 +70,7 @@
 <body>
     <div id="loader" class="glass"
         style="position:fixed; inset:0; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
-        <img src="../admin/id-card/assets/favicon.png" style="width:50px; animation: pulse 1.5s infinite;" alt="CC">
+        <img src="/admin/id-card/assets/favicon.png" style="width:50px; animation: pulse 1.5s infinite;" alt="CC">
         <div class="orbitron" style="font-size: 0.6rem; letter-spacing: 2px;">SYNCING OPERATIVE DATA...</div>
     </div>
 
@@ -183,8 +183,7 @@
                             <span><i class="fas fa-key"></i> Passcode Request</span>
                             <i class="fas fa-chevron-right"></i>
                         </button>
-                        <button onclick="window.open('../admin/id-card/display.html?id=' + activeMember.id)"
-                            class="glass"
+                        <button onclick="window.open('/admin/id-card/display.html?id=' + activeMember.id)" class="glass"
                             style="padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
                             <span><i class="fas fa-id-card"></i> View Digital ID</span>
                             <i class="fas fa-chevron-right"></i>
@@ -222,7 +221,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="../admin/id-card/js/data.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
 
     <script>
         let activeMember = null;
@@ -236,13 +235,13 @@
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
 
             if (!session.id || session.id !== id) {
-                location.href = 'login.html';
+                location.href = '/app/login.html';
                 return;
             }
 
             activeMember = await window.DataManager.getMemberById(id);
             if (!activeMember) {
-                location.href = 'login.html';
+                location.href = '/app/login.html';
                 return;
             }
 
@@ -264,11 +263,11 @@
             const session = JSON.parse(localStorage.getItem('cc_session'));
             if (session.role === 'admin') {
                 nav.innerHTML += `
-                    <a href="reports.html" class="nav-item">
+                    <a href="/app/reports.html" class="nav-item">
                         <i class="fas fa-tower-broadcast"></i>
                         <span>REPORTS</span>
                     </a>
-                    <a href="admin.html" class="nav-item">
+                    <a href="/app/admin.html" class="nav-item">
                         <i class="fas fa-th-large"></i>
                         <span>COCKPIT</span>
                     </a>
@@ -417,7 +416,7 @@
         function logout() {
             if (confirm("TERMINATE CONNECTION?")) {
                 localStorage.removeItem('cc_session');
-                location.href = 'login.html';
+                location.href = '/app/login.html';
             }
         }
     </script>

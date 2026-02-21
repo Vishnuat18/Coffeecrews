@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="/app/css/mobile.css">
     <style>
         .report-card {
             margin: 15px;
@@ -73,7 +73,7 @@
 
     <!-- Bottom Nav -->
     <nav class="bottom-nav glass" id="mobile-nav">
-        <a href="workspace.html" class="nav-item">
+        <a href="/app/workspace.html" class="nav-item">
             <i class="fas fa-home"></i>
             <span>MY UNIT</span>
         </a>
@@ -95,7 +95,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="../admin/id-card/js/data.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
 
     <script>
         let currentTargetId = null;
@@ -103,7 +103,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
             if (session.role !== 'admin') {
-                location.href = 'login.html';
+                location.href = '/app/login.html';
                 return;
             }
 
@@ -128,11 +128,11 @@
                     <i class="fas fa-comments"></i>
                     <span>CHATS</span>
                 </a>
-                <a href="reports.html" class="nav-item active">
+                <a href="/app/reports.html" class="nav-item active">
                     <i class="fas fa-tower-broadcast"></i>
                     <span>REPORTS</span>
                 </a>
-                <a href="admin.html" class="nav-item">
+                <a href="/app/admin.html" class="nav-item">
                     <i class="fas fa-th-large"></i>
                     <span>COCKPIT</span>
                 </a>
@@ -141,7 +141,7 @@
 
         function navTo(tab) {
             const session = JSON.parse(localStorage.getItem('cc_session'));
-            location.href = `workspace.html?id=${session.id}#${tab}`;
+            location.href = `/app/workspace.html?id=${session.id}#${tab}`;
         }
 
         async function renderReportsUI(members, threads) {

@@ -559,7 +559,7 @@
                     <span class="section-label">Incoming Talent</span>
                     <h2 class="section-title" style="margin-bottom: 0;">Recruitment Pipeline</h2>
                 </div>
-                <a href="applications.html" class="btn-action">
+                <a href="/admin/applications.html" class="btn-action">
                     <i class="fas fa-external-link-alt"></i> FULL PAGE VIEW
                 </a>
             </div>
@@ -797,7 +797,7 @@
                 // Using a more structured popup for "detailed view" if needed, 
                 // but for now, simple toast to confirm identity and redirect to full page
                 showToast(`Viewing dossier for ${app.name}`, "info");
-                setTimeout(() => location.href = 'applications.html', 1000);
+                setTimeout(() => location.href = '/admin/applications.html', 1000);
             }
         }
 

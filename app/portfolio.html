@@ -14,13 +14,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-    <link rel="stylesheet" href="css/mobile.css">
-    <link rel="stylesheet" href="css/public-mobile.css">
+    <link rel="stylesheet" href="/app/css/mobile.css">
+    <link rel="stylesheet" href="/app/css/public-mobile.css">
 </head>
 
 <body>
     <header class="header-mobile glass">
-        <div style="display: flex; align-items: center; gap: 10px;" onclick="location.href='home.html'">
+        <div style="display: flex; align-items: center; gap: 10px;" onclick="location.href='/app/home.html'">
             <i class="fas fa-arrow-left" style="color: var(--accent-primary);"></i>
             <span class="header-title">TECH REPOSITORY</span>
         </div>
@@ -37,14 +37,14 @@
         <h3 class="orbitron" style="font-size: 0.6rem; margin: 20px 20px 0; opacity: 0.4;">FLAGSHIP PRODUCTS</h3>
         <div class="swipe-container" id="products-swipe">
             <div class="portfolio-card-mobile glass">
-                <img src="../assets/products/chitly.jpg" class="portfolio-img" alt="Chitly">
+                <img src="/assets/products/chitly.jpg" class="portfolio-img" alt="Chitly">
                 <div class="portfolio-info">
                     <div class="orbitron" style="font-size: 0.8rem; color: var(--accent-primary);">CHITLY</div>
                     <div style="font-size: 0.6rem; opacity: 0.6;">ADVANCED COMMUNICATION</div>
                 </div>
             </div>
             <div class="portfolio-card-mobile glass">
-                <img src="../assets/products/ix.jpg" class="portfolio-img" alt="IX">
+                <img src="/assets/products/ix.jpg" class="portfolio-img" alt="IX">
                 <div class="portfolio-info">
                     <div class="orbitron" style="font-size: 0.8rem; color: var(--accent-primary);">IX PLATFORM</div>
                     <div style="font-size: 0.6rem; opacity: 0.6;">ECOSYSTEM CONTROL</div>
@@ -77,25 +77,25 @@
     </main>
 
     <nav class="bottom-nav glass">
-        <a href="home.html" class="nav-item">
+        <a href="/app/home.html" class="nav-item">
             <i class="fas fa-home"></i>
             <span>START</span>
         </a>
-        <a href="portfolio.html" class="nav-item active">
+        <a href="/app/portfolio.html" class="nav-item active">
             <i class="fas fa-layer-group"></i>
             <span>WORK</span>
         </a>
-        <a href="services.html" class="nav-item">
+        <a href="/app/services.html" class="nav-item">
             <i class="fas fa-ghost"></i>
             <span>MIND</span>
         </a>
-        <a href="login.html" class="nav-item">
+        <a href="/app/login.html" class="nav-item">
             <i class="fas fa-lock"></i>
             <span>PORTAL</span>
         </a>
     </nav>
 
-    <script src="main.js"></script>
+    <script src="/app/main.js"></script>
     <script>
         gsap.from('.portfolio-card-mobile', { x: 50, opacity: 0, stagger: 0.2, duration: 0.8 });
     </script>

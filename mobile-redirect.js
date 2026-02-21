@@ -1,10 +1,17 @@
 (function () {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 900;
-    const isAppPath = window.location.pathname.includes('/app/');
+    const pathname = window.location.pathname.toLowerCase();
+    const isAppPath = pathname.includes('/app/');
 
     if (isMobile && !isAppPath) {
-        const pathParts = window.location.pathname.split('/');
-        const page = pathParts.pop() || 'index.html';
+        // Normalize: Get the last part of the path, removing trailing slashes
+        let page = pathname.split('/').filter(Boolean).pop() || 'index.html';
+
+        // If it doesn't have an extension, assume .html for mapping purposes
+        if (!page.includes('.')) {
+            page += '.html';
+        }
+
         const map = {
             'index.html': 'app/home.html',
             'about.html': 'app/about.html',
@@ -20,16 +27,8 @@
         };
 
         if (map[page]) {
-            // Calculate depth to find root
-            const depth = pathParts.length - (window.location.host === "" ? 0 : 0); // Simplified for local dev
-            // Actually, since it's a relative path to the root, we can just use the map directly if we know where we are.
-            // But a more robust way is to just find the 'app' folder relative to current.
-
-            let prefix = "";
-            if (window.location.pathname.includes('/admin/id-card/')) prefix = "../../";
-            else if (window.location.pathname.includes('/admin/')) prefix = "../";
-
-            window.location.href = prefix + map[page];
+            // Use root-relative path for redirection
+            window.location.href = '/' + map[page];
         }
     }
 })();

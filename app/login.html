@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <!-- Mobile Logic & Styles -->
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="/app/css/mobile.css">
     <style>
         .login-screen {
             height: 100vh;
@@ -67,7 +67,7 @@
 
 <body>
     <div class="login-screen">
-        <img src="../admin/id-card/assets/favicon.png" class="auth-logo" alt="CC">
+        <img src="/admin/id-card/assets/favicon.png" class="auth-logo" alt="CC">
 
         <h2 class="orbitron" style="font-size: 0.8rem; margin-bottom: 0.5rem; opacity: 0.6;">PERSONNEL IDENTIFICATION
         </h2>
@@ -99,7 +99,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="../admin/id-card/js/data.js"></script>
+    <script src="/admin/id-card/js/data.js"></script>
 
     <script>
         let code = "";
@@ -141,7 +141,7 @@
 
                 gsap.to('body', {
                     opacity: 0, duration: 0.5, onComplete: () => {
-                        location.href = `workspace.html?id=${member.id}`;
+                        location.href = `/app/workspace.html?id=${member.id}`;
                     }
                 });
             } else {
