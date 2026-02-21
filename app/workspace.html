@@ -235,8 +235,7 @@
             const id = urlParams.get('id');
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
 
-            if (!session.id || session.id.toLowerCase() !== id.toLowerCase()) {
-                console.warn("Mobile Workspace Auth Failure. Redirecting to mobile login.");
+            if (!session.id || session.id !== id) {
                 location.href = 'login.html';
                 return;
             }
