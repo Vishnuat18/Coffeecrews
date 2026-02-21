@@ -1083,31 +1083,31 @@
             const conf = document.getElementById('conf-pass').value;
 
             if (cur.length !== 4 || next.length !== 4) {
-                alert("CC Codes must be exactly 4 digits.");
+                await tacticalAlert("CC Codes must be exactly 4 digits.", "INVALID ENTRY");
                 return;
             }
 
             if (next !== conf) {
-                alert("New codes do not match.");
+                await tacticalAlert("New codes do not match.", "SECURITY MISMATCH");
                 return;
             }
 
             const result = await window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
             if (result.success) {
-                alert(result.message);
+                await tacticalAlert(result.message, "REQUEST UPLOADED");
                 document.getElementById('cur-pass').value = '';
                 document.getElementById('new-pass').value = '';
                 document.getElementById('conf-pass').value = '';
                 await renderSecurity();
             } else {
-                alert(result.message);
+                await tacticalAlert(result.message, 'SECURITY ERROR');
             }
         }
 
-        function previewStatusImage(event) {
+        async function previewStatusImage(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
+            if (file.size > 1024 * 1024 * 5) { await tacticalAlert("Max size 5MB", "PAYLOAD ERROR"); return; }
 
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -1170,13 +1170,14 @@
                 await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
                 input.value = '';
                 removeStatusImage();
-                alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
+                await tacticalAlert("MISSION STATUS COMMITTED TO GLOBAL FEED", "DATA UPLOADED");
                 await switchTab('home');
             }
         }
 
-        function handleLogout() {
-            if (confirm("TERMINATE SECURE SESSION?")) {
+        async function handleLogout() {
+            if (await tacticalConfirm("TERMINATE SECURE SESSION?", "LOGOUT SEQUENCE")) {
+                sessionStorage.removeItem('cc_session');
                 localStorage.removeItem('cc_session');
                 location.href = '/admin/id-card/login.html';
             }

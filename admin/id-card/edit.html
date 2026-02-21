@@ -134,7 +134,7 @@
 
             const member = await DataManager.getMemberById(memberId);
             if (!member) {
-                alert('Personnel record not found!');
+                await tacticalAlert('Personnel record not found!', 'SYSTEM ERROR');
                 window.location.href = '/admin/index.html';
                 return;
             }
@@ -197,7 +197,7 @@
                 };
 
                 if (await DataManager.updateMember(member.id, updatedData)) {
-                    alert('Changes synchronized successfully!');
+                    await tacticalAlert('Changes synchronized successfully!', 'UPLOAD COMPLETE');
                     window.location.href = '/admin/index.html';
                 }
             });
@@ -212,9 +212,9 @@
                         <button type="button" id="unblockBtn" class="btn-primary" style="border-color: #3cff7d; color: #3cff7d; flex: 1;">Restore Access</button>
                     `;
                     document.getElementById('unblockBtn').onclick = async () => {
-                        if (confirm("Authorize access restoration?")) {
+                        if (await tacticalConfirm("Authorize access restoration?", "SECURITY OVERRIDE")) {
                             if (await DataManager.unblockMember(member.id)) {
-                                alert("Access restored.");
+                                await tacticalAlert("Access restored.", "RESTORE COMPLETE");
                                 location.reload();
                             }
                         }
@@ -224,10 +224,10 @@
                         <button type="button" id="blockBtn" class="btn-primary" style="border-color: #ff003c; color: #ff003c; flex: 1;">Block Personnel</button>
                     `;
                     document.getElementById('blockBtn').onclick = async () => {
-                        const days = prompt("SUSPEND ACCESS: Enter duration (in days):", "7");
+                        const days = await tacticalPrompt("SUSPEND ACCESS: Enter duration (in days):", "7", "SECURITY PROTOCOL");
                         if (days && !isNaN(days)) {
                             if (await DataManager.blockMember(member.id, parseInt(days))) {
-                                alert(`Access suspended for ${days} days.`);
+                                await tacticalAlert(`Access suspended for ${days} days.`, "SUSPENSION ACTIVE");
                                 location.reload();
                             }
                         }

@@ -97,6 +97,123 @@ class ToastManager {
 }
 window.showToast = (msg, type, dur) => ToastManager.show(msg, type, dur);
 
+/**
+ * ModalManager
+ * Premium tactical dialog system for confirmations and inputs
+ */
+class ModalManager {
+    static init() {
+        if (document.getElementById('cc-modal-overlay')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'cc-modal-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani', sans-serif;
+        `;
+        overlay.innerHTML = `
+            <div id="cc-modal" class="cc-modal">
+                <div id="cc-modal-title" class="cc-modal-title">SYSTEM ALERT</div>
+                <div id="cc-modal-msg" class="cc-modal-msg">Initializing secure terminal...</div>
+                <div id="cc-modal-input-container" style="display: none;">
+                    <input type="text" id="cc-modal-input" class="cc-modal-input">
+                </div>
+                <div class="cc-modal-actions">
+                    <button id="cc-modal-cancel" class="cc-modal-btn btn-cancel">CANCEL</button>
+                    <button id="cc-modal-ok" class="cc-modal-btn btn-confirm">CONFIRM</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .cc-modal {
+                background: rgba(15, 23, 42, 0.95);
+                border: 1px solid rgba(0, 243, 255, 0.3);
+                width: 90%;
+                max-width: 450px;
+                padding: 35px;
+                border-radius: 24px;
+                box-shadow: 0 0 60px rgba(0, 243, 255, 0.15);
+                transform: translateY(20px);
+                opacity: 0;
+                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .cc-modal.show { transform: translateY(0); opacity: 1; }
+            .cc-modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #00f3ff; margin-bottom: 20px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
+            .cc-modal-msg { font-size: 1rem; color: #cbd5e1; margin-bottom: 30px; line-height: 1.6; }
+            .cc-modal-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 15px; border-radius: 12px; margin-bottom: 25px; outline: none; font-family: 'Orbitron'; font-size: 0.9rem; }
+            .cc-modal-input:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+            .cc-modal-actions { display: flex; gap: 15px; justify-content: flex-end; }
+            .cc-modal-btn { padding: 12px 28px; border-radius: 50px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; cursor: pointer; transition: 0.3s; font-weight: 700; letter-spacing: 1px; }
+            .btn-confirm { background: rgba(0, 243, 255, 0.1); border: 1px solid #00f3ff; color: #00f3ff; }
+            .btn-confirm:hover { background: #00f3ff; color: #000; box-shadow: 0 0 25px rgba(0,243,255,0.4); }
+            .btn-cancel { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
+            .btn-cancel:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    static async show(config) {
+        this.init();
+        const overlay = document.getElementById('cc-modal-overlay');
+        const modal = document.getElementById('cc-modal');
+        const title = document.getElementById('cc-modal-title');
+        const msg = document.getElementById('cc-modal-msg');
+        const inputContainer = document.getElementById('cc-modal-input-container');
+        const input = document.getElementById('cc-modal-input');
+        const okBtn = document.getElementById('cc-modal-ok');
+        const cancelBtn = document.getElementById('cc-modal-cancel');
+
+        title.textContent = config.title || 'SYSTEM NOTIFICATION';
+        msg.textContent = config.message;
+        inputContainer.style.display = config.showInput ? 'block' : 'none';
+        if (config.showInput) input.value = config.defaultValue || '';
+        cancelBtn.style.display = config.showCancel ? 'block' : 'none';
+        okBtn.textContent = config.okText || 'CONFIRM';
+
+        overlay.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+
+        return new Promise((resolve) => {
+            const cleanup = (value) => {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    resolve(value);
+                }, 400);
+            };
+
+            okBtn.onclick = () => cleanup(config.showInput ? input.value : true);
+            cancelBtn.onclick = () => cleanup(null);
+            overlay.onclick = (e) => { if (e.target === overlay && !config.forceResponse) cleanup(null); };
+        });
+    }
+
+    static alert(message, title = 'SYSTEM ALERT') {
+        return this.show({ message, title, showCancel: false, okText: 'ACKNOWLEDGE' });
+    }
+
+    static confirm(message, title = 'SYSTEM CONFIRMATION') {
+        return this.show({ message, title, showCancel: true, okText: 'AUTHORIZE' });
+    }
+
+    static prompt(message, defaultValue = '', title = 'DATA INPUT REQUIRED') {
+        return this.show({ message, title, showCancel: true, showInput: true, defaultValue, okText: 'SUBMIT' });
+    }
+}
+
+window.tacticalAlert = (msg, title) => ModalManager.alert(msg, title);
+window.tacticalConfirm = (msg, title) => ModalManager.confirm(msg, title);
+window.tacticalPrompt = (msg, def, title) => ModalManager.prompt(msg, def, title);
+
 const INITIAL_MEMBERS = [
     {
         id: "vishnu",

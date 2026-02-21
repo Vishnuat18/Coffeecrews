@@ -853,7 +853,7 @@
         }
 
         async function blockMemberPrompt(id) {
-            const days = prompt("SUSPEND ACCESS: Enter duration (in days):", "7");
+            const days = await tacticalPrompt("SUSPEND ACCESS: Enter duration (in days):", "7", "SECURITY PROTOCOL");
             if (days && !isNaN(days)) {
                 showToast(`Applying protocol: ${days} day suspension...`, "info");
                 if (await DataManager.blockMember(id, parseInt(days))) {
@@ -863,7 +863,7 @@
         }
 
         async function unblockMember(id) {
-            if (confirm("RESTORE ACCESS PROTOCOL: Authorize reconnection?")) {
+            if (await tacticalConfirm("RESTORE ACCESS PROTOCOL: Authorize reconnection?", "SECURITY OVERRIDE")) {
                 showToast("Restoring access...", "info");
                 if (await DataManager.unblockMember(id)) {
                     showToast("Access restored.", "success");
@@ -872,7 +872,7 @@
         }
 
         async function deleteApp(id) {
-            if (!confirm('Authorize deletion of this recruitment record?')) return;
+            if (!await tacticalConfirm('Authorize deletion of this recruitment record?', 'RECRUITMENT PURGE')) return;
             await DataManager.deleteApplication(id);
             showToast("Recruitment record purged.", "success");
         }
@@ -922,19 +922,19 @@
         }
 
         async function approveRequest(id) {
-            if (!confirm('Approve passcode change and update database?')) return;
+            if (!await tacticalConfirm('Approve passcode change and update database?', 'SECURITY AUTHORIZATION')) return;
             const result = await DataManager.approvePasscodeRequest(id);
             showToast(result.message, result.success ? "success" : "error");
         }
 
         async function rejectRequest(id) {
-            if (!confirm('Reject this passcode change request?')) return;
+            if (!await tacticalConfirm('Reject this passcode change request?', 'TERMINATE REQUEST')) return;
             const result = await DataManager.rejectPasscodeRequest(id);
             showToast(result.message, "info");
         }
 
-        function handleLogout() {
-            if (confirm("TERMINATE SECURE SESSION?")) {
+        async function handleLogout() {
+            if (await tacticalConfirm("TERMINATE SECURE SESSION?", "LOGOUT SEQUENCE")) {
                 sessionStorage.removeItem('cc_session');
                 localStorage.removeItem('cc_session'); // Clear legacy
                 location.href = '/admin/id-card/login.html';
@@ -943,7 +943,7 @@
 
         async function openGlobalConfig() {
             const members = await DataManager.getAllMembers();
-            alert(`Global Configuration: ${members.length} personnel records active.`);
+            await tacticalAlert(`Global Configuration: ${members.length} personnel records active.`, "SYSTEM DATA");
         }
     </script>
 </body>
