@@ -27,24 +27,34 @@
             return;
         }
 
-        // --- ID LOCKDOWN PROTOCOL (Security Update v2.9) ---
+        // --- NEW: Parameter Hijacking Protection ---
         const urlParams = new URLSearchParams(window.location.search);
         const urlId = urlParams.get('id');
-        const currentFile = window.location.pathname.split('/').pop() || 'index.html';
 
-        // 1. Enforce ID matching for non-admins (Prevent URL parameters tampering)
-        if (session.role !== 'admin' && urlId && urlId.toLowerCase() !== session.id.toLowerCase()) {
-            console.error(`ID Lockdown: Security breach blocked. ${session.id} attempted to access ${urlId}.`);
-            window.location.href = window.location.pathname + '?id=' + session.id;
-            return;
+        if (urlId && urlId.toLowerCase() !== (session.id || '').toLowerCase()) {
+            // Permission check: only 'admin' role can view other IDs on specific management pages
+            const isManagementPage =
+                window.location.pathname.includes('/admin/id-card/edit.html') ||
+                window.location.pathname.includes('/admin/id-card/display.html');
+
+            const isAuthorized = session.role === 'admin' && isManagementPage;
+
+            if (!isAuthorized) {
+                console.error("Session integrity violation: Identity mismatch.");
+                // Boot to login for re-authentication
+                window.location.href = `/admin/id-card/login.html?error=integrity_violation&id=${urlId}`;
+                return;
+            }
         }
 
-        // 2. Enforce Sector Access (Prevent URL jumping to Admin Tools)
-        const adminSectors = ['index.html', 'applications.html', 'reports.html'];
-        if (session.role !== 'admin' && adminSectors.includes(currentFile)) {
-            console.error("Sector Lockdown: Insufficient clearance for administrative HQ.");
-            window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-            return;
+        // Specific page role requirements
+        if (window.location.pathname.includes('/admin/index.html') ||
+            window.location.pathname.includes('/admin/applications.html') ||
+            window.location.pathname.includes('/admin/id-card/reports.html')) {
+            if (session.role !== 'admin') {
+                console.error("Insufficient clearance for this sector.");
+                window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
+            }
         }
     }
 })();
