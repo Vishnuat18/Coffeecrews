@@ -254,7 +254,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/id-card/js/data.js?v=3.0"></script>
+    <script src="/admin/id-card/js/data.js?v=2.9"></script>
     <script>
         let members = [];
         let currentMember = null;
@@ -263,7 +263,23 @@
         document.addEventListener('DOMContentLoaded', async () => {
             members = await DataManager.getAllMembers();
             populateDropdown();
-            startScanning();
+
+            if (urlParams.get('error') === 'session_mismatch') {
+                setTimeout(() => showToast("Security Protocol: Session mismatch. Please re-authenticate.", "info"), 1000);
+            }
+
+            const rawId = urlParams.get('id') || urlParams.get('return_to');
+            const targetId = rawId ? rawId.split('?')[0].split('/').pop().replace('.html', '').toLowerCase() : null;
+
+            if (targetId) {
+                const target = members.find(m => m.id.toLowerCase() === targetId);
+                if (target) {
+                    currentMember = target;
+                    detectPerson(target);
+                }
+            } else {
+                startScanning();
+            }
 
             document.getElementById('username-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleIdentify();

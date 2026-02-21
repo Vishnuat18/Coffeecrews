@@ -7,51 +7,45 @@
     const isLoginPage = window.location.pathname.endsWith('login.html');
 
     const validateSession = () => {
-        if (!session.timestamp || !session.id) return false;
+        if (!session.timestamp) return false;
+
+        // Session valid for 24 hours (though sessionStorage usually dies on tab close anyway)
         const ONE_DAY = 1000 * 60 * 60 * 24;
-        return (Date.now() - session.timestamp <= ONE_DAY);
+        if (Date.now() - session.timestamp > ONE_DAY) {
+            sessionStorage.removeItem('cc_session');
+            return false;
+        }
+        return true;
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetId = urlParams.get('id');
-
-    if (isLoginPage) {
-        // If already logged in, skip login page
-        if (validateSession()) {
-            if (session.role === 'admin') {
-                window.location.href = '/admin/index.html';
-            } else {
-                window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-            }
-        }
-    } else {
-        // Enforce valid session
+    if (!isLoginPage) {
         if (!validateSession()) {
-            console.warn("Unauthorized access. Redirecting to login.");
+            console.warn("Unauthorized access detected. Redirecting to login.");
             const currentPath = window.location.pathname;
-            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}`;
+            const returnTo = new URLSearchParams(window.location.search).get('id') || '';
+            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}&id=${returnTo}`;
             return;
         }
 
-        // --- STRICT ACL ENFORCEMENT ---
+        // --- NEW: Security ID Enforcement ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlId = urlParams.get('id');
 
-        // 1. Crew members are locked to their own ID
-        if (session.role === 'crew') {
-            // If on verify.html, ensure ?id matches session.id
-            if (window.location.pathname.includes('verify.html')) {
-                if (targetId && targetId !== session.id) {
-                    console.error("Security violation: Identity mismatch.");
-                    window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-                    return;
-                }
-            }
+        // If an ID is present in URL, it MUST match the session ID
+        if (urlId && session.id && urlId.toLowerCase() !== session.id.toLowerCase()) {
+            console.error("Session mismatch. Redirecting for re-authentication.");
+            sessionStorage.removeItem('cc_session');
+            window.location.href = `/admin/id-card/login.html?id=${urlId}&error=session_mismatch`;
+            return;
+        }
 
-            // Block crew from admin-only tools
-            const adminTools = ['/admin/index.html', '/admin/applications.html', '/admin/id-card/reports.html', '/admin/id-card/edit.html'];
-            if (adminTools.some(tool => window.location.pathname.includes(tool))) {
-                console.error("Clearance denied.");
+        // Specific page role requirements
+        if (window.location.pathname.includes('/admin/index.html') ||
+            window.location.pathname.includes('/admin/applications.html') ||
+            window.location.pathname.includes('/admin/id-card/reports.html')) {
+            if (session.role !== 'admin') {
+                console.error("Insufficient clearance for this sector.");
                 window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-                return;
             }
         }
     }
