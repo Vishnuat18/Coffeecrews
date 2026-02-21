@@ -47,7 +47,7 @@ class FBOParticles {
     async loadAssets() {
         const loader = new THREE.TextureLoader();
         return new Promise(resolve => {
-            loader.load('/assets/favicon.png', (texture) => {
+            loader.load('assets/favicon.png', (texture) => {
                 this.faviconTexture = texture;
                 this.processFavicon(texture);
                 resolve();
