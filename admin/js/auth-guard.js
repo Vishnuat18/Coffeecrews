@@ -4,10 +4,16 @@
  */
 (function () {
     const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
-    const isLoginPage = window.location.pathname.endsWith('login.html');
+    const path = window.location.pathname;
+    const isLoginPage = path.includes('login.html') || path.endsWith('/login') || path.endsWith('/login/');
+
+    console.log("[CC-AUTH] Sectors initialized. Path:", path, "Session Active:", !!session.id);
 
     const validateSession = () => {
-        if (!session.timestamp) return false;
+        if (!session.id || !session.timestamp) {
+            console.warn("[CC-AUTH] No valid session identity found.");
+            return false;
+        }
 
         // Session valid for 24 hours (though sessionStorage usually dies on tab close anyway)
         const ONE_DAY = 1000 * 60 * 60 * 24;
@@ -26,21 +32,23 @@
 
         // STRICK LOCKDOWN: If URL ID does not match Session ID
         if (urlId !== session.id) {
+            console.warn(`[CC-AUTH] ID Mismatch Detected! URL(${urlId}) vs Session(${session.id})`);
 
             // Allow Admins to navigate purely administrative management tools (edit, reports)
-            const isAdminTool = window.location.pathname.includes('/edit.html') ||
-                window.location.pathname.includes('/applications.html') ||
-                window.location.pathname.includes('/reports.html');
+            const isAdminTool = path.includes('/edit.html') ||
+                path.includes('/applications.html') ||
+                path.includes('/reports.html');
 
             if (session.role === 'admin' && isAdminTool) {
-                return true; // Admins can manage others
+                console.log("[CC-AUTH] Admin override granted for HQ Management Tool.");
+                return true;
             }
 
             // RED ALERT: Identity mismatch in private workspace or unauthorized access
-            console.error("IDENTITY MISMATCH DETECTED. SECURITY LOCKDOWN INITIATED.");
+            console.error("[CC-AUTH] SECURITY VIOLATION: IDENTITY HIJACK ATTEMPT.");
             sessionStorage.removeItem('cc_session');
             localStorage.removeItem('cc_session');
-            window.location.href = `/admin/id-card/login.html?security_alert=identity_mismatch&from=${encodeURIComponent(window.location.pathname)}`;
+            window.location.href = `/admin/id-card/login.html?security_alert=identity_mismatch&from=${encodeURIComponent(path)}`;
             return false;
         }
         return true;
