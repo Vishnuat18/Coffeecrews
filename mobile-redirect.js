@@ -4,7 +4,9 @@
 
     if (isMobile && !isAppPath) {
         const pathParts = window.location.pathname.split('/');
-        const page = pathParts.pop() || 'index.html';
+        const page = (pathParts.pop() || 'index.html').toLowerCase();
+        const cleanPage = page.endsWith('.html') ? page : page + '.html';
+
         const map = {
             'index.html': 'app/home.html',
             'about.html': 'app/about.html',
@@ -19,7 +21,7 @@
             'apply.html': 'app/apply.html'
         };
 
-        if (map[page]) {
+        if (map[cleanPage]) {
             // Calculate depth to find root
             const depth = pathParts.length - (window.location.host === "" ? 0 : 0); // Simplified for local dev
             // Actually, since it's a relative path to the root, we can just use the map directly if we know where we are.

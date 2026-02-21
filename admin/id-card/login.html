@@ -418,12 +418,19 @@
                 }));
 
                 // --- NEW: TACTICAL ATTENDANCE LOGGING ---
-                await DataManager.markAttendance(currentMember.id);
+                try {
+                    await DataManager.markAttendance(currentMember.id);
+                } catch (e) {
+                    console.error("Attendance Logging Failed:", e);
+                }
+
                 showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
 
                 setTimeout(() => {
-                    location.href = 'verify.html?id=' + currentMember.id;
-                }, 1000);
+                    const targetUrl = new URL('verify.html', window.location.href);
+                    targetUrl.searchParams.set('id', currentMember.id);
+                    location.href = targetUrl.toString();
+                }, 800);
             } else {
                 btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";
                 btn.style.background = "#ff003c";
