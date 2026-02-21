@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports | CC HQ</title>
     <script src="../../mobile-redirect.js"></script>
-    <link rel="stylesheet" href="/admin/id-card/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="shortcut icon" href="assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -113,13 +113,13 @@
 
 <body>
     <nav class="top-nav">
-        <a href="/index.html" class="nav-brand">
-            <img src="/assets/favicon.png" alt="Logo" class="nav-main-logo" style="height: 40px;">
+        <a href="../../index.html" class="nav-brand">
+            <img src="../../assets/favicon.png" alt="Logo" class="nav-main-logo" style="height: 40px;">
             <span>COFFEECREWS</span>
         </a>
         <div class="nav-links">
-            <a href="/admin/index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
-            <a href="/admin/id-card/reports.html" class="nav-link active"><i class="fas fa-tower-broadcast"></i> COMMAND
+            <a href="../index.html" class="nav-link"><i class="fas fa-th-large"></i> COCKPIT</a>
+            <a href="reports.html" class="nav-link active"><i class="fas fa-tower-broadcast"></i> COMMAND
                 CENTER</a>
         </div>
     </nav>
@@ -150,7 +150,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/id-card/js/data.js"></script>
+    <script src="js/data.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // AUTH CHECK
@@ -159,7 +159,7 @@
 
             if (session.role !== 'admin') {
                 console.warn("Unauthorized Role for Reports. Redirecting...");
-                location.href = '/admin/id-card/login.html';
+                location.href = 'login.html';
                 return;
             }
 
@@ -197,7 +197,7 @@
         function handleLogout() {
             if (confirm("TERMINATE SECURE SESSION?")) {
                 localStorage.removeItem('cc_session');
-                location.href = '/admin/id-card/login.html';
+                location.href = 'login.html';
             }
         }
 

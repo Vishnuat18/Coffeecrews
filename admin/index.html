@@ -407,8 +407,8 @@
 
 <body>
     <nav class="top-nav">
-        <a href="/index.html" class="nav-brand">
-            <img src="/assets/favicon.png" alt="Logo" style="height: 35px;">
+        <a href="../index.html" class="nav-brand">
+            <img src="../assets/favicon.png" alt="Logo" style="height: 35px;">
             COFFEECREWS // HQ
         </a>
         <div class="nav-links">
@@ -420,7 +420,7 @@
                     class="fas fa-file-invoice"></i> APPLICATIONS</a>
             <a href="#" class="nav-link tab-link" onclick="showSection('security', event)"><i
                     class="fas fa-shield-halved"></i> SECURITY</a>
-            <a href="/admin/id-card/reports.html" class="nav-link"><i class="fas fa-tower-broadcast"></i> BROADCAST</a>
+            <a href="id-card/reports.html" class="nav-link"><i class="fas fa-tower-broadcast"></i> BROADCAST</a>
             <button onclick="handleLogout()" class="nav-link" style="color:var(--accent-red);">
                 <i class="fas fa-power-off"></i> LOGOUT
             </button>
@@ -528,15 +528,15 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="/admin/id-card/js/data.js"></script>
-    <script src="/admin/js/tactical-notifications.js"></script>
+    <script src="id-card/js/data.js"></script>
+    <script src="js/tactical-notifications.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Auth Check
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
             if (session.role !== 'admin') {
-                location.href = '/admin/id-card/login.html';
+                location.href = 'id-card/login.html';
                 return;
             }
 
@@ -602,7 +602,7 @@
                         <div class="member-name">${member.name}</div>
                         <div class="member-role-badge" style="background: ${member.accent || 'var(--accent-primary)'}">${member.role.toUpperCase()}</div>
                         <div class="d-flex gap-2 mt-4">
-                            <a href="/admin/id-card/edit.html?id=${member.id}" class="btn-directive flex-grow-1">EDIT RECORD</a>
+                            <a href="id-card/edit.html?id=${member.id}" class="btn-directive flex-grow-1">EDIT RECORD</a>
                             <button onclick="deleteMember('${member.id}')" class="btn-directive" style="border-color: var(--accent-red); color: var(--accent-red);">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -721,7 +721,7 @@
         function handleLogout() {
             if (confirm("TERMINATE SECURE HQ SESSION?")) {
                 localStorage.removeItem('cc_session');
-                location.href = '/admin/id-card/login.html';
+                location.href = 'id-card/login.html';
             }
         }
     </script>

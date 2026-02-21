@@ -11,8 +11,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="/admin/id-card/css/style.css">
-    <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/workspace-refinements.css">
     <style>
         .view-profile-btn {
             background: rgba(0, 243, 255, 0.1);
@@ -347,7 +347,7 @@
 
     <header class="workspace-header">
         <div class="brand-sec">
-            <img src="/assets/favicon.png" alt="Logo"
+            <img src="../../assets/favicon.png" alt="Logo"
                 style="height: 25px; filter: drop-shadow(0 0 5px var(--accent-primary));">
             <span>COFFEECREWS</span>
         </div>
@@ -641,7 +641,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/id-card/js/data.js"></script>
+    <script src="js/data.js"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
         let loggedInUser = null; // The person currently using the browser
@@ -656,7 +656,7 @@
             // AUTH CHECK
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
             if (!session.timestamp || (Date.now() - session.timestamp > 1000 * 60 * 60 * 24)) {
-                location.href = '/admin/id-card/login.html' + (id ? '?id=' + id : '');
+                location.href = 'login.html' + (id ? '?id=' + id : '');
                 return;
             }
             loggedInUser = session;
@@ -670,13 +670,13 @@
                 if (cockpitBtn) {
                     cockpitBtn.style.display = 'block';
                     cockpitBtn.style.boxShadow = '0 0 15px rgba(0, 243, 255, 0.3)';
-                    cockpitBtn.onclick = () => location.href = '/admin/index.html';
+                    cockpitBtn.onclick = () => location.href = '../index.html';
                 }
             }
 
             // ACL Check: Crew members can only see their own workspace
             if (session.role === 'crew' && session.id !== id) {
-                location.href = `/admin/id-card/verify.html?id=${session.id}`;
+                location.href = `verify.html?id=${session.id}`;
                 return;
             }
 
