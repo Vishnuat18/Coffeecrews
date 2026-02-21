@@ -422,7 +422,7 @@
                 showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
 
                 setTimeout(() => {
-                    location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                    location.href = 'verify.html?id=' + currentMember.id;
                 }, 1000);
             } else {
                 btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";

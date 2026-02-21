@@ -656,7 +656,7 @@
             // AUTH CHECK
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
             if (!session.timestamp || (Date.now() - session.timestamp > 1000 * 60 * 60 * 24)) {
-                location.href = '/admin/id-card/login.html' + (id ? '?id=' + id : '');
+                location.href = 'login.html' + (id ? '?id=' + id : '');
                 return;
             }
             loggedInUser = session;
@@ -670,7 +670,7 @@
                 if (cockpitBtn) {
                     cockpitBtn.style.display = 'block';
                     cockpitBtn.style.boxShadow = '0 0 15px rgba(0, 243, 255, 0.3)';
-                    cockpitBtn.onclick = () => location.href = '/admin/index.html';
+                    cockpitBtn.onclick = () => location.href = '../index.html';
                 }
             }
 
@@ -683,7 +683,7 @@
             // Refactored to use await
             activeMember = await window.DataManager.getMemberById(id);
             if (!activeMember) {
-                location.href = '/index.html';
+                location.href = '../../index.html';
                 return;
             }
             renderWorkspace();

@@ -29,7 +29,7 @@
             if (window.location.pathname.includes('/admin/id-card/')) prefix = "../../";
             else if (window.location.pathname.includes('/admin/')) prefix = "../";
 
-            window.location.href = prefix + map[page];
+            window.location.href = prefix + map[page] + window.location.search;
         }
     }
 })();
