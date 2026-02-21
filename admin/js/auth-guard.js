@@ -28,25 +28,28 @@
             return;
         }
 
-        // --- Parameter Hijacking Protection (v3.0) ---
+        // --- Parameter Hijacking Protection (v3.1) ---
         const urlParams = new URLSearchParams(window.location.search);
         const urlId = urlParams.get('id');
 
-        if (urlId && urlId.toLowerCase() !== session.id.toLowerCase()) {
-            // Permission check: only 'admin' role can view other IDs on specific management pages
-            const isManagementPage =
-                path.includes('edit.html') ||
-                path.includes('display.html') ||
-                path.includes('reports.html') ||
-                path.includes('index.html');
+        if (urlId) {
+            const normalizedUrlId = urlId.toLowerCase();
+            const normalizedSessionId = (session.id || '').toLowerCase();
 
-            const isAuthorized = session.role === 'admin' && isManagementPage;
+            if (normalizedUrlId !== normalizedSessionId) {
+                // Identity check: Only permit ID switching on specific Administrative Management tools
+                const isAdminTool =
+                    path.includes('edit.html') ||
+                    path.includes('display.html');
 
-            if (!isAuthorized) {
-                console.error("[SECURITY] Identity mismatch detected.", { session: session.id, requested: urlId });
-                // Boot to login for re-authentication
-                window.location.href = `/admin/id-card/login.html?error=integrity_violation&id=${urlId}`;
-                return;
+                const isAuthorized = session.role === 'admin' && isAdminTool;
+
+                if (!isAuthorized) {
+                    console.error("[SECURITY] Identity mismatch or unauthorized override attempt.", { session: session.id, requested: urlId });
+                    // Immediate revocation and redirect
+                    window.location.href = `/admin/id-card/login.html?error=integrity_violation&id=${urlId}`;
+                    return;
+                }
             }
         }
 
