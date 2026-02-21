@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>COMMAND CENTER | CoffeeCrews Mobile</title>
-    <link rel="shortcut icon" href="../admin/id-card/assets/favicon.png">
+    <link rel="shortcut icon" href="/assets/favicon.png">
 
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap"
@@ -108,12 +108,17 @@
             }
 
             setupDynamicNav();
-            initLiveSync();
+
+            // --- REAL-TIME REACTIVE SYNC ---
+            DataManager.subscribeToMembers((members) => {
+                DataManager.subscribeToAllThreads((threads) => {
+                    renderReportsUI(members, threads);
+                });
+            });
 
             // GSAP Entrance
             gsap.from('.header-mobile', { y: -50, opacity: 0, duration: 0.8, ease: 'power3.out' });
             gsap.from('.bottom-nav', { y: 100, opacity: 0, duration: 0.8, ease: 'power3.out' });
-            gsap.from('.report-card', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power3.out' });
         });
 
         function setupDynamicNav() {
@@ -139,29 +144,20 @@
             location.href = `workspace.html?id=${session.id}#${tab}`;
         }
 
-        function initLiveSync() {
-            // Re-render when any thread updates
-            const db = firebase.database();
-            db.ref('chats/threads').on('value', async () => {
-                await refreshReports();
-            });
-        }
-
-        async function refreshReports() {
-            const members = await window.DataManager.getAllMembers();
+        async function renderReportsUI(members, threads) {
             const container = document.getElementById('reports-list');
             let pending = 0;
 
-            const cards = [];
-            for (const m of members) {
+            const cards = members.map(m => {
                 const threadId = window.DataManager.getThreadId(m.id, 'HQ');
-                const history = await window.DataManager.getMessages(threadId);
+                const messagesData = threads[threadId] || {};
+                const history = Object.values(messagesData);
                 const lastMsg = history.length > 0 ? history[history.length - 1] : null;
                 const needsReply = lastMsg && lastMsg.senderId !== 'HQ';
 
                 if (needsReply) pending++;
 
-                cards.push(`
+                return `
                     <div class="glass report-card" onclick="openReply('${m.id}', '${m.name}')">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <img src="${m.image}" class="profile-img-mobile">
@@ -175,11 +171,12 @@
                             ${lastMsg ? `"${lastMsg.text}"` : 'No active transmissions'}
                         </div>
                     </div>
-                `);
-            }
+                `;
+            });
 
             container.innerHTML = cards.join('');
             document.getElementById('pending-count').innerText = `${pending} PENDING`;
+            gsap.from('.report-card', { opacity: 0, y: 10, stagger: 0.05, duration: 0.4 });
         }
 
         function openReply(id, name) {

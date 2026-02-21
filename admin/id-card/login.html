@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | CC HQ</title>
     <script src="../../mobile-redirect.js"></script>
-    <link rel="shortcut icon" href="assets/favicon.png">
+    <link rel="shortcut icon" href="/assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
@@ -221,18 +221,32 @@
             </div>
         </div>
 
-        <div id="input-card" class="input-card">
-            <h2 id="person-name" class="person-name">IDENTIFYING...</h2>
-            <div id="person-role" class="person-role">Awaiting Verification</div>
+        <div id="input-card" class="input-card show">
+            <!-- Step 1: Identification -->
+            <div id="step-identify">
+                <h2 class="person-name">HQ ACCESS</h2>
+                <div class="person-role">IDENTIFY PERSONNEL</div>
+                <input type="text" id="username-input" class="cc-input" style="letter-spacing: 2px;"
+                    placeholder="ENTER USERNAME / ID">
+                <button id="identify-btn" class="btn-primary" style="width: 100%; border-radius: 12px;"
+                    onclick="handleIdentify()">IDENTIFY PERSON</button>
+                <div class="manual-select" onclick="toggleManual()">MANUAL OVERRIDE</div>
+            </div>
 
-            <select id="member-select" class="member-dropdown">
-                <!-- Populated via JS -->
-            </select>
+            <!-- Step 2: Authentication (Hidden Initially) -->
+            <div id="step-auth" style="display: none;">
+                <h2 id="person-name" class="person-name">IDENTIFYING...</h2>
+                <div id="person-role" class="person-role">Awaiting Verification</div>
 
-            <input type="password" id="cc-code" class="cc-input" placeholder="ENTER CC-CODE" maxlength="5">
-            <button id="auth-btn" class="btn-primary" style="width: 100%; border-radius: 12px;"
-                onclick="handleAuth()">AUTHORIZE ACCESS</button>
-            <div class="manual-select" onclick="toggleManual()">MANUAL OVERRIDE</div>
+                <select id="member-select" class="member-dropdown">
+                    <!-- Populated via JS -->
+                </select>
+
+                <input type="password" id="cc-code" class="cc-input" placeholder="ENTER CC-CODE" maxlength="5">
+                <button id="auth-btn" class="btn-primary" style="width: 100%; border-radius: 12px;"
+                    onclick="handleAuth()">AUTHORIZE ACCESS</button>
+                <div class="manual-select" onclick="resetLogin()">BACK TO IDENTIFICATION</div>
+            </div>
         </div>
     </div>
 
@@ -247,7 +261,6 @@
         let scanInterval;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Updated to be async
             members = await DataManager.getAllMembers();
             populateDropdown();
 
@@ -256,17 +269,18 @@
             const targetId = rawId ? rawId.toLowerCase() : null;
 
             if (targetId) {
-                console.log("Attempting to detect personnel ID:", targetId);
                 const target = members.find(m => m.id.toLowerCase() === targetId);
                 if (target) {
+                    currentMember = target;
                     detectPerson(target);
-                } else {
-                    console.warn("Personnel ID not found in database:", targetId);
-                    startScanning();
                 }
             } else {
                 startScanning();
             }
+
+            document.getElementById('username-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleIdentify();
+            });
 
             document.getElementById('cc-code').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleAuth();
@@ -291,10 +305,29 @@
         function startScanning() {
             let index = 0;
             scanInterval = setInterval(() => {
+                if (members.length === 0) return;
                 const m = members[index];
                 document.getElementById('scanned-id').src = m.image;
                 index = (index + 1) % members.length;
-            }, 600); // Slightly slower to be viewable
+            }, 600);
+        }
+
+        async function handleIdentify() {
+            const input = document.getElementById('username-input').value.trim().toLowerCase();
+            if (!input) return;
+
+            const target = members.find(m =>
+                m.id.toLowerCase() === input ||
+                m.name.toLowerCase().includes(input)
+            );
+
+            if (target) {
+                currentMember = target;
+                detectPerson(target);
+            } else {
+                showToast("PERSONNEL NOT FOUND", "error");
+                gsap.to('#username-input', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
+            }
         }
 
         function detectPerson(member) {
@@ -302,7 +335,6 @@
             currentMember = member;
             const photo = document.getElementById('scanned-id');
             const status = document.getElementById('status-text');
-            const inputCard = document.getElementById('input-card');
 
             photo.src = member.image;
             photo.classList.add('detected');
@@ -312,25 +344,53 @@
             document.getElementById('person-name').innerText = member.name;
             document.getElementById('person-role').innerText = member.role;
 
-            inputCard.classList.add('show');
-            document.getElementById('cc-code').focus();
+            gsap.to('#step-identify', {
+                opacity: 0, duration: 0.3, onComplete: () => {
+                    document.getElementById('step-identify').style.display = 'none';
+                    document.getElementById('step-auth').style.display = 'block';
+                    gsap.from('#step-auth', { opacity: 0, y: 10, duration: 0.3 });
+                    document.getElementById('cc-code').focus();
+                }
+            });
+        }
+
+        function resetLogin() {
+            if (scanInterval) clearInterval(scanInterval);
+            startScanning();
+
+            currentTargetId = null;
+            currentMember = null;
+
+            document.getElementById('step-auth').style.display = 'none';
+            document.getElementById('step-identify').style.display = 'block';
+            document.getElementById('step-identify').style.opacity = '1';
+
+            document.getElementById('scanned-id').classList.remove('detected');
+            document.getElementById('status-text').innerHTML = "Scanning Personnel...";
+            document.getElementById('status-text').style.color = "var(--accent-primary)";
+            document.getElementById('member-select').style.display = 'none';
+            document.getElementById('username-input').value = '';
+            document.getElementById('username-input').focus();
         }
 
         function toggleManual() {
             const dropdown = document.getElementById('member-select');
             const isVisible = dropdown.style.display === 'block';
-            dropdown.style.display = isVisible ? 'none' : 'block';
 
             if (isVisible) {
-                startScanning();
-                document.getElementById('input-card').classList.remove('show');
-                document.getElementById('scanned-id').classList.remove('detected');
-                document.getElementById('status-text').innerHTML = "Scanning Personnel...";
-                document.getElementById('status-text').style.color = "var(--accent-primary)";
+                resetLogin();
+            } else {
+                if (scanInterval) clearInterval(scanInterval);
+                document.getElementById('step-identify').style.display = 'none';
+                document.getElementById('step-auth').style.display = 'block';
+                document.getElementById('step-auth').style.opacity = '1';
+                dropdown.style.display = 'block';
+                document.getElementById('status-text').innerHTML = "Manual Selection Active";
+                document.getElementById('status-text').style.color = "var(--accent-gold)";
             }
         }
 
-        function handleAuth() {
+        async function handleAuth() {
             const codeInput = document.getElementById('cc-code').value;
             const btn = document.getElementById('auth-btn');
 
@@ -357,22 +417,18 @@
                     timestamp: Date.now()
                 }));
 
-                setTimeout(() => {
-                    // DUAL ACCESS ROUTING (Vishnu, Prasanna, Dharani)
-                    const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+                // --- NEW: TACTICAL ATTENDANCE LOGGING ---
+                await DataManager.markAttendance(currentMember.id);
+                showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
 
-                    if (dualAccessIds.includes(currentMember.id)) {
-                        // Land on Workspace - Switch button will handle Cockpit access
-                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
-                    } else {
-                        // Others (Crews) land on their Workspace
-                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
-                    }
+                setTimeout(() => {
+                    location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
                 }, 1000);
             } else {
                 btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";
                 btn.style.background = "#ff003c";
                 btn.style.color = "#fff";
+                showToast("INVALID ACCESS CODE.", "error");
 
                 gsap.to('.input-card', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
 
