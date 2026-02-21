@@ -27,14 +27,24 @@
             return;
         }
 
-        // Specific page role requirements (optional but recommended)
-        if (window.location.pathname.includes('/admin/index.html') ||
-            window.location.pathname.includes('/admin/applications.html') ||
-            window.location.pathname.includes('/admin/id-card/reports.html')) {
-            if (session.role !== 'admin') {
-                console.error("Insufficient clearance for this sector.");
-                window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-            }
+        // --- ID LOCKDOWN PROTOCOL (Security Update v2.9) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlId = urlParams.get('id');
+        const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+
+        // 1. Enforce ID matching for non-admins (Prevent URL parameters tampering)
+        if (session.role !== 'admin' && urlId && urlId.toLowerCase() !== session.id.toLowerCase()) {
+            console.error(`ID Lockdown: Security breach blocked. ${session.id} attempted to access ${urlId}.`);
+            window.location.href = window.location.pathname + '?id=' + session.id;
+            return;
+        }
+
+        // 2. Enforce Sector Access (Prevent URL jumping to Admin Tools)
+        const adminSectors = ['index.html', 'applications.html', 'reports.html'];
+        if (session.role !== 'admin' && adminSectors.includes(currentFile)) {
+            console.error("Sector Lockdown: Insufficient clearance for administrative HQ.");
+            window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
+            return;
         }
     }
 })();
