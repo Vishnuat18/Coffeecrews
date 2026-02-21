@@ -209,7 +209,7 @@
 
                 if (isBlocked) {
                     container.innerHTML = `
-                        <button type="button" id="unblockBtn" class="btn-primary" style="border-color: #3cff7d; color: #3cff7d; flex: 1;">Restore Access</button>
+                        <button type="button" id="unblockBtn" class="btn-primary" style="border-color: var(--accent-primary); color: var(--accent-primary); flex: 1;">Restore Access</button>
                     `;
                     document.getElementById('unblockBtn').onclick = async () => {
                         if (await tacticalConfirm("Authorize access restoration?", "SECURITY OVERRIDE")) {
@@ -221,7 +221,7 @@
                     };
                 } else {
                     container.innerHTML = `
-                        <button type="button" id="blockBtn" class="btn-primary" style="border-color: #ff003c; color: #ff003c; flex: 1;">Block Personnel</button>
+                        <button type="button" id="blockBtn" class="btn-primary" style="border-color: var(--accent-gold); color: var(--accent-gold); flex: 1;">Block Personnel</button>
                     `;
                     document.getElementById('blockBtn').onclick = async () => {
                         const days = await tacticalPrompt("SUSPEND ACCESS: Enter duration (in days):", "7", "SECURITY PROTOCOL");

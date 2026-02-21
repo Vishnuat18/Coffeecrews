@@ -324,18 +324,21 @@
 
         .search-input {
             width: 100%;
-            background: var(--glass-bg);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--glass-border);
             padding: 15px 50px;
             border-radius: 12px;
             color: #fff;
             transition: 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
         }
 
         .search-input:focus {
             outline: none;
             border-color: var(--accent-primary);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+            background: rgba(0, 0, 0, 0.6);
         }
 
         .search-icon {
@@ -344,6 +347,8 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--accent-primary);
+            font-size: 1rem;
+            opacity: 0.8;
         }
 
         footer {
@@ -672,8 +677,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <!-- Path updated to relative from admin/ -->
-    <script src="/admin/js/auth-guard.js?v=2.4"></script>
-    <script src="/admin/id-card/js/data.js?v=2.4"></script>
+    <script src="/admin/js/auth-guard.js?v=2.5"></script>
+    <script src="/admin/id-card/js/data.js?v=2.5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Role Check (Auth check is handled by auth-guard.js)
@@ -760,45 +765,42 @@
             filterMembers(document.getElementById('memberSearch').value.toLowerCase());
         }
 
-        function filterMembers(query) {
-            const container = document.getElementById('memberList');
-            const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
-
+        function filterMembers(query = '') {
             const filtered = cachedMembers.filter(m =>
-                (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
-                && m.access !== 'admin'
+                m.name.toLowerCase().includes(query) ||
+                m.id.toLowerCase().includes(query) ||
+                m.role.toLowerCase().includes(query)
             );
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-5 text-center w-100 opacity-50">No crew members found.</div>`;
-                return;
-            }
-
+            const container = document.getElementById('memberList'); /* Changed from membersGrid to memberList to match existing HTML */
             container.innerHTML = filtered.map(member => {
                 const isBlocked = member.blockedUntil && member.blockedUntil > Date.now();
                 return `
-                <div class="member-item glass" style="${isBlocked ? 'filter: grayscale(0.8);' : ''}">
+                <div class="member-item glass" style="${isBlocked ? 'filter: grayscale(0.5);' : ''}">
                     <img src="${member.image}" alt="${member.name}" class="member-img">
-                    ${isBlocked ? `<div style="position: absolute; top: 15px; left: 15px; background: var(--accent-red); color: #fff; font-family: 'Orbitron'; font-size: 0.6rem; padding: 4px 10px; border-radius: 4px; z-index: 5; box-shadow: 0 0 15px var(--accent-red);">BLOCKED</div>` : ''}
                     <div class="member-overlay">
                         <div class="member-name">${member.name}</div>
                         <div class="member-role-badge" style="background: ${member.accent || 'var(--accent-primary)'}">${member.role.toUpperCase()}</div>
-                        <div class="d-flex gap-2 mt-4">
-                            <a href="/admin/id-card/edit.html?id=${member.id}" class="btn-action flex-grow-1">
+                        ${isBlocked ? `<div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.55rem; margin-top: 8px; letter-spacing: 1px;"><i class="fas fa-lock me-1"></i> ACCESS RESTRICTED</div>` : ''}
+                        
+                        <div class="d-flex gap-2 mt-4 w-100">
+                            <a href="/admin/id-card/edit.html?id=${member.id}" class="btn-action flex-grow-1" style="border-color: var(--accent-primary); color: var(--accent-primary);">
                                 <i class="fas fa-edit"></i> EDIT
                             </a>
-                            <a href="/admin/id-card/display.html?id=${member.id}" target="_blank" class="btn-action">
-                                <i class="fas fa-eye"></i>
-                            </a>
+                            
                             ${isBlocked ? `
-                                <button onclick="unblockMember('${member.id}')" class="btn-action" style="border-color: #3cff7d; color: #3cff7d;">
-                                    <i class="fas fa-unlock"></i>
+                                <button onclick="unblockMember('${member.id}')" class="btn-action flex-grow-1" style="border-color: var(--accent-primary); color: var(--accent-primary);">
+                                    <i class="fas fa-unlock"></i> UNBLOCK
                                 </button>
                             ` : `
-                                <button onclick="blockMemberPrompt('${member.id}')" class="btn-action" style="border-color: var(--accent-red); color: var(--accent-red);">
-                                    <i class="fas fa-ban"></i>
+                                <button onclick="blockMemberPrompt('${member.id}')" class="btn-action flex-grow-1" style="border-color: var(--accent-gold); color: var(--accent-gold);">
+                                    <i class="fas fa-ban"></i> BLOCK
                                 </button>
                             `}
+                            
+                            <a href="/admin/id-card/display.html?id=${member.id}" target="_blank" class="btn-action" style="border-color: var(--accent-primary); color: var(--accent-primary);">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -855,9 +857,9 @@
         async function blockMemberPrompt(id) {
             const days = await tacticalPrompt("SUSPEND ACCESS: Enter duration (in days):", "7", "SECURITY PROTOCOL");
             if (days && !isNaN(days)) {
-                showToast(`Applying protocol: ${days} day suspension...`, "info");
+                showToast(`Access restricted for ${days} days`, "info");
                 if (await DataManager.blockMember(id, parseInt(days))) {
-                    showToast("Access restricted and logged.", "success");
+                    // Update successfully
                 }
             }
         }

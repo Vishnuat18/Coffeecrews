@@ -45,31 +45,33 @@ class ToastManager {
         const style = document.createElement('style');
         style.textContent = `
             .cc-toast {
-                background: rgba(15, 23, 42, 0.9);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(0, 243, 255, 0.3);
+                background: rgba(10, 10, 15, 0.95);
+                backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.05);
                 color: #fff;
-                padding: 12px 20px;
-                border-radius: 10px;
+                padding: 15px 25px;
+                border-radius: 12px;
                 font-family: 'Rajdhani', sans-serif;
                 font-size: 0.9rem;
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                transform: translateX(100%);
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                gap: 15px;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+                transform: translateY(-20px);
+                opacity: 0;
+                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                 pointer-events: auto;
-                min-width: 250px;
+                min-width: 280px;
+                border-left: 3px solid #00f3ff;
             }
-            .cc-toast.show { transform: translateX(0); }
-            .cc-toast i { font-size: 1.1rem; }
-            .cc-toast.success { border-color: #3cff7d; }
+            .cc-toast.show { transform: translateY(0); opacity: 1; }
+            .cc-toast i { font-size: 1.2rem; }
+            .cc-toast.success { border-left-color: #3cff7d; }
             .cc-toast.success i { color: #3cff7d; }
-            .cc-toast.error { border-color: #ff003c; }
+            .cc-toast.error { border-left-color: #ff003c; }
             .cc-toast.error i { color: #ff003c; }
-            .cc-toast.info { border-color: #00f3ff; }
-            .cc-toast.info i { color: #00f3ff; }
+            .cc-toast.info { border-left-color: #ffd700; }
+            .cc-toast.info i { color: #ffd700; }
         `;
         document.head.appendChild(style);
     }
@@ -83,8 +85,9 @@ class ToastManager {
         let icon = 'fa-info-circle';
         if (type === 'success') icon = 'fa-check-circle';
         if (type === 'error') icon = 'fa-exclamation-triangle';
+        if (message.toLowerCase().includes('restricted') || message.toLowerCase().includes('blocked')) icon = 'fa-lock';
 
-        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span style="letter-spacing: 0.5px;">${message}</span>`;
         container.appendChild(toast);
 
         setTimeout(() => toast.classList.add('show'), 10);
@@ -175,7 +178,10 @@ class ModalManager {
         title.textContent = config.title || 'SYSTEM NOTIFICATION';
         msg.textContent = config.message;
         inputContainer.style.display = config.showInput ? 'block' : 'none';
-        if (config.showInput) input.value = config.defaultValue || '';
+        if (config.showInput) {
+            input.value = '';
+            input.placeholder = config.placeholder || config.defaultValue || '';
+        }
         cancelBtn.style.display = config.showCancel ? 'block' : 'none';
         okBtn.textContent = config.okText || 'CONFIRM';
 
@@ -191,7 +197,13 @@ class ModalManager {
                 }, 400);
             };
 
-            okBtn.onclick = () => cleanup(config.showInput ? input.value : true);
+            okBtn.onclick = () => {
+                let val = config.showInput ? input.value : true;
+                if (config.showInput && !val && (config.placeholder || config.defaultValue)) {
+                    val = config.placeholder || config.defaultValue;
+                }
+                cleanup(val);
+            };
             cancelBtn.onclick = () => cleanup(null);
             overlay.onclick = (e) => { if (e.target === overlay && !config.forceResponse) cleanup(null); };
         });

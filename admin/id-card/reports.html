@@ -150,8 +150,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/js/auth-guard.js?v=2.4"></script>
-    <script src="/admin/id-card/js/data.js?v=2.4"></script>
+    <script src="/admin/js/auth-guard.js?v=2.7"></script>
+    <script src="/admin/id-card/js/data.js?v=2.7"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Role Check (Auth check is handled by auth-guard.js)
@@ -191,11 +191,11 @@
 
                 const recentHistory = history.slice(-2);
                 const historyHtml = recentHistory.map(msg => {
-                    const sId = msg.senderId || 'UNKNOWN';
+                    const isHQ = msg.senderId === 'HQ';
                     return `
-                        <div style="font-size: 0.8rem; margin-top: 5px; opacity: ${sId === 'HQ' ? '0.6' : '1'}; border-left: 2px solid ${sId === 'HQ' ? '#aaa' : 'var(--accent-primary)'}; padding-left: 8px;">
-                            <span style="font-family: 'Orbitron'; font-size: 0.6rem; color: var(--accent-primary);">${sId}:</span> 
-                            ${msg.text ? `"${msg.text}"` : (msg.image ? '[ATTACHED MEDIA]' : '')}
+                        <div style="background: ${isHQ ? 'rgba(255,255,255,0.03)' : 'rgba(0,243,255,0.05)'}; padding: 8px 12px; border-radius: 8px; margin-top: 5px; border-left: 2px solid ${isHQ ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)'};">
+                            <div style="font-family: 'Orbitron'; font-size: 0.55rem; color: ${isHQ ? '#888' : 'var(--accent-primary)'}; margin-bottom: 2px;">${isHQ ? 'HQ COMMAND' : 'AGENT TRANSMISSION'}:</div>
+                            <div style="font-size: 0.85rem; color: #e2e8f0; line-height: 1.4;">${msg.text || '[MEDIA LOG]'}</div>
                         </div>
                     `;
                 }).join('');

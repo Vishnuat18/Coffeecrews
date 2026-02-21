@@ -407,9 +407,10 @@
                     const days = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
                     const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
 
-                    btn.innerHTML = "<i class='fas fa-lock'></i> ACCESS SUSPENDED";
-                    btn.style.background = "var(--accent-gold)";
-                    btn.style.color = "#000";
+                    btn.innerHTML = "<i class='fas fa-lock'></i> ACCESS REVOKED";
+                    btn.style.border = "1px solid var(--accent-gold)";
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--accent-gold)";
 
                     const timeMsg = days > 1 ? `${days} DAYS` : `${hours} HOURS`;
                     showToast(`ACCESS PRIVILEGES SUSPENDED FOR ${timeMsg}.`, "error");
