@@ -254,7 +254,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/id-card/js/data.js?v=3.0"></script>
+    <script src="/admin/id-card/js/data.js?v=2.9"></script>
     <script>
         let members = [];
         let currentMember = null;
@@ -265,8 +265,8 @@
             populateDropdown();
 
             const urlParams = new URLSearchParams(window.location.search);
-            const idParam = urlParams.get('id');
-            const targetId = idParam ? idParam.toLowerCase() : null;
+            const rawId = urlParams.get('return_to') || urlParams.get('id');
+            const targetId = rawId ? rawId.toLowerCase() : null;
 
             if (targetId) {
                 const target = members.find(m => m.id.toLowerCase() === targetId);
