@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Management Cockpit | COFFEECREWS Admin</title>
     <!-- Standardized Fonts & Icons -->
-    <link rel="shortcut icon" href="assets/favicon.png">
+    <link rel="shortcut icon" href="/assets/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap"
         rel="stylesheet">
@@ -478,6 +478,27 @@
                 <div class="stat-value" id="stat-roles">0</div>
                 <div class="stat-label">Active Roles</div>
             </div>
+            <div class="stat-card glass" style="border-color: var(--accent-gold);">
+                <div class="stat-value" id="stat-attendance">0</div>
+                <div class="stat-label">Agents On-Duty</div>
+            </div>
+        </section>
+
+        <!-- Attendance Tracker -->
+        <section class="animate-up mb-5" style="animation-delay: 0.15s;">
+            <div class="glass p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="section-label">Roll Call</span>
+                        <h3 class="orbitron m-0" style="font-size: 1rem;">Daily Attendance Tracker</h3>
+                    </div>
+                    <div id="attendance-date" class="opacity-50 small orbitron">2026-02-21</div>
+                </div>
+                <div id="attendance-list" class="d-flex flex-wrap gap-2">
+                    <!-- Injected via JS -->
+                    <span class="opacity-30 small">No agents clocked in yet today.</span>
+                </div>
+            </div>
         </section>
 
         <!-- Ecosystem Navigation -->
@@ -538,6 +559,9 @@
                     <span class="section-label">Incoming Talent</span>
                     <h2 class="section-title" style="margin-bottom: 0;">Recruitment Pipeline</h2>
                 </div>
+                <a href="applications.html" class="btn-action">
+                    <i class="fas fa-external-link-alt"></i> FULL PAGE VIEW
+                </a>
             </div>
             <div class="table-container glass p-0">
                 <div class="table-responsive">
@@ -603,14 +627,12 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Auth Check
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-            console.log("Cockpit Auth Check - ID:", session.id, "Role:", session.role);
-
             if (session.role !== 'admin') {
-                console.warn("Unauthorized Role for Cockpit. Redirecting to login...");
                 location.href = '/admin/id-card/login.html';
                 return;
             }
 
+            // Dual Access Link
             const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
             if (dualAccessIds.includes(session.id)) {
                 const navLinks = document.querySelector('.nav-links');
@@ -621,72 +643,71 @@
                 navLinks.insertBefore(workspaceLink, navLinks.firstChild);
             }
 
-            await refreshDashboard();
+            // --- REAL-TIME REACTIVE SUBSCRIPTIONS ---
+
+            // 1. Members & Stats
+            DataManager.subscribeToMembers((members) => {
+                renderMembersUI(members);
+                updateStatsUI(members);
+                updateSyncTime();
+            });
+
+            // 2. Applications
+            DataManager.subscribeToApplications((apps) => {
+                renderApplicationsUI(apps);
+                document.getElementById('stat-apps').textContent = apps.length;
+                updateSyncTime();
+            });
+
+            // 3. Attendance
+            DataManager.subscribeToDailyAttendance((list) => {
+                renderAttendanceUI(list);
+                document.getElementById('stat-attendance').textContent = list.length;
+                updateSyncTime();
+            });
+
+            // 4. Security Requests
+            DataManager.subscribeToPasscodeRequests((requests) => {
+                renderSecurityRequestsUI(requests);
+                updateSyncTime();
+            });
 
             // Search Listener
-            document.getElementById('memberSearch').addEventListener('input', async (e) => {
-                await renderMembers(e.target.value.toLowerCase());
-            });
-
-            // Storage event for real-time updates
-            window.addEventListener('storage', async (e) => {
-                if (e.key === 'coffeecrews_id_cards' || e.key === 'cc_applications' || e.key === 'coffeecrews_passcode_requests') {
-                    await refreshDashboard();
-                }
-            });
-
-            // Listen for custom security event
-            window.addEventListener('cc_security_update', async () => {
-                await refreshDashboard();
-            });
-
-            // Listen for chat sync (also affects status/members)
-            window.addEventListener('cc_chat_sync', async () => {
-                await refreshDashboard();
+            document.getElementById('memberSearch').addEventListener('input', (e) => {
+                filterMembers(e.target.value.toLowerCase());
             });
         });
 
-        async function refreshDashboard() {
-            await updateStats();
-            await renderMembers();
-            renderApplications();
-            await renderSecurityRequests();
-            updateSyncTime();
-        }
+        // Global cache for filtering
+        let cachedMembers = [];
 
-        function updateSyncTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('sync-time').textContent = `SYNCED // ${timeStr}`;
-        }
-
-        async function updateStats() {
-            const members = await DataManager.getAllMembers();
-            const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
-            const roles = [...new Set(members.map(m => m.role))];
-
+        function updateStatsUI(members) {
             document.getElementById('stat-total').textContent = members.length;
-            document.getElementById('stat-apps').textContent = apps.length;
+            const roles = [...new Set(members.map(m => m.role))];
             document.getElementById('stat-roles').textContent = roles.length;
         }
 
-        async function renderMembers(query = '') {
+        async function renderMembersUI(members) {
+            cachedMembers = members;
+            filterMembers(document.getElementById('memberSearch').value.toLowerCase());
+        }
+
+        function filterMembers(query) {
             const container = document.getElementById('memberList');
-            const members = await DataManager.getAllMembers();
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
 
-            const filtered = members.filter(m =>
+            const filtered = cachedMembers.filter(m =>
                 (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
                 && m.id !== session.id
             );
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-5 text-center w-100 opacity-50">No crew members found matching search.</div>`;
+                container.innerHTML = `<div class="p-5 text-center w-100 opacity-50">No crew members found.</div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(member => `
-                <div class="member-item glass animate-up">
+                <div class="member-item glass">
                     <img src="${member.image}" alt="${member.name}" class="member-img">
                     <div class="member-overlay">
                         <div class="member-name">${member.name}</div>
@@ -705,23 +726,12 @@
                     </div>
                 </div>
             `).join('');
-
-            // GSAP stagger effect
-            gsap.from("#memberList .member-item", {
-                duration: 0.8,
-                y: 30,
-                opacity: 0,
-                stagger: 0.1,
-                ease: "power2.out"
-            });
         }
 
-        function renderApplications() {
+        function renderApplicationsUI(apps) {
             const container = document.getElementById('appsList');
-            const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
-
             if (apps.length === 0) {
-                container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No applications received yet.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No applications received.</td></tr>`;
                 return;
             }
 
@@ -732,9 +742,7 @@
                         <div class="small opacity-50">${app.email}</div>
                     </td>
                     <td><span class="badge-role">${app.role}</span></td>
-                    <td>
-                        <div class="small"><i class="fas fa-phone me-2"></i>${app.phone || 'N/A'}</div>
-                    </td>
+                    <td><div class="small"><i class="fas fa-phone me-2"></i>${app.phone || 'N/A'}</div></td>
                     <td class="small opacity-50 text-nowrap">${app.timestamp}</td>
                     <td class="text-end text-nowrap">
                         <button onclick="viewApp('${app.id}')" class="btn btn-sm btn-outline-info rounded-pill px-3 me-2">View</button>
@@ -744,33 +752,57 @@
             `).join('');
         }
 
+        function renderAttendanceUI(list) {
+            const container = document.getElementById('attendance-list');
+            document.getElementById('attendance-date').textContent = new Date().toISOString().split('T')[0];
+
+            if (list.length === 0) {
+                container.innerHTML = '<span class="opacity-30 small italic">Waiting for agents...</span>';
+                return;
+            }
+
+            container.innerHTML = list.map(entry => `
+                <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
+                    <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
+                    <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
+                    <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateSyncTime() {
+            const now = new Date();
+            document.getElementById('sync-time').textContent = `LIVE SYNC // ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+        }
+
         async function deleteMember(id) {
+            showToast("Verifying authorization...", "info");
             if (confirm('Authorize termination of this crew record?')) {
                 if (await DataManager.deleteMember(id)) {
-                    await refreshDashboard();
+                    showToast("Crew record purged from HQ.", "success");
                 }
             }
         }
 
-        function deleteApp(id) {
+        async function deleteApp(id) {
             if (!confirm('Authorize deletion of this recruitment record?')) return;
-            let apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
-            apps = apps.filter(app => app.id !== id);
-            localStorage.setItem('cc_applications', JSON.stringify(apps));
-            refreshDashboard();
+            await DataManager.deleteApplication(id);
+            showToast("Recruitment record purged.", "success");
         }
 
-        function viewApp(id) {
-            const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+        async function viewApp(id) {
+            const apps = await DataManager.getApplications();
             const app = apps.find(a => a.id === id);
             if (app) {
-                alert(`Commander: ${app.name}\nRole: ${app.role}\nEmail: ${app.email}\nPhone: ${app.phone}\nStack: ${app.stack}\nPortfolio: ${app.portfolio}`);
+                // Using a more structured popup for "detailed view" if needed, 
+                // but for now, simple toast to confirm identity and redirect to full page
+                showToast(`Viewing dossier for ${app.name}`, "info");
+                setTimeout(() => location.href = 'applications.html', 1000);
             }
         }
 
-        async function renderSecurityRequests() {
+        async function renderSecurityRequestsUI(requests) {
             const container = document.getElementById('requestsList');
-            const requests = await DataManager.getPasscodeRequests();
 
             if (requests.length === 0) {
                 container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No security requests pending.</td></tr>`;
@@ -805,15 +837,13 @@
         async function approveRequest(id) {
             if (!confirm('Approve passcode change and update database?')) return;
             const result = await DataManager.approvePasscodeRequest(id);
-            alert(result.message);
-            await refreshDashboard();
+            showToast(result.message, result.success ? "success" : "error");
         }
 
         async function rejectRequest(id) {
             if (!confirm('Reject this passcode change request?')) return;
             const result = await DataManager.rejectPasscodeRequest(id);
-            alert(result.message);
-            await refreshDashboard();
+            showToast(result.message, "info");
         }
 
         function handleLogout() {

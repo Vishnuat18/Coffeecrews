@@ -4,10 +4,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Coffee crews | Apply</title>
+    <title>Apply | CoffeeCrews</title>
+    <script src="mobile-redirect.js"></script>
     <link href="css/style.css" rel="stylesheet">
     <link href="css/apply.css" rel="stylesheet">
-    <link rel="shortcut icon" href="assets/favicon.png">
+    <link rel="shortcut icon" href="/assets/favicon.png">
     <!-- Theme Initialization -->
     <script>
         (function () {
@@ -21,6 +22,11 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="admin/id-card/js/data.js"></script>
 </head>
 
 <body>
@@ -302,12 +308,10 @@
                 timestamp: new Date().toLocaleString()
             };
 
-            // 1. Save to LocalStorage for local Admin Hub demo
-            const existingApps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
-            existingApps.unshift(applicationData);
-            localStorage.setItem('cc_applications', JSON.stringify(existingApps));
+            // 1. Save to Central Firebase Database
+            DataManager.submitApplication(applicationData);
 
-            // 2. Broadcast Signal to coffeecrewsoffl@gmail.com via Formspree
+            // 2. Broadcast Signal via Formspree (Optional legacy fallback)
             // Note: We use the AJAX approach to keep the premium success UI
             const formspreeEndpoint = "https://formspree.io/f/mqaevepk"; // This is a placeholder, User should replace with their own ID
 

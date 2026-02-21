@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CoffeeCrews | Mobile Hub</title>
+    <link rel="shortcut icon" href="/assets/favicon.png">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/public-mobile.css">
+</head>
+
+<body>
+    <header class="header-mobile glass">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/assets/favicon.png" style="width: 30px;" alt="CC">
+            <span class="header-title">COFFEECREWS</span>
+        </div>
+        <div onclick="toggleMenu()" style="font-size: 1.2rem; color: var(--accent-primary);">
+            <i class="fas fa-bars" id="menu-icon"></i>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- Hero Section -->
+        <section class="hero-mobile">
+            <span class="section-label">GLOBAL TECH COALITION</span>
+            <h1 class="hero-title orbitron">FORCE<br>MULTIPLIER</h1>
+            <p class="hero-subtitle">Innovative software solutions for the next generation of global impact.</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="location.href='portfolio.html'" class="btn-directive"
+                    style="padding: 15px 25px;">EXPLORE PORTFOLIO</button>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px;">
+            <div class="glass" style="padding: 20px; border-radius: 15px; text-align: center;">
+                <div class="orbitron" style="font-size: 1.2rem; color: var(--accent-primary);">12+</div>
+                <div style="font-size: 0.5rem; opacity: 0.5; margin-top: 5px;">ACTIVE PRODUCTS</div>
+            </div>
+            <div class="glass" style="padding: 20px; border-radius: 15px; text-align: center;">
+                <div class="orbitron" style="font-size: 1.2rem; color: var(--accent-secondary);">50M+</div>
+                <div style="font-size: 0.5rem; opacity: 0.5; margin-top: 5px;">USER IMPACT</div>
+            </div>
+        </div>
+
+        <!-- Dynamic Mission Feed (Preview) -->
+        <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 class="orbitron" style="font-size: 0.7rem;">GLOBAL OPS FEED</h3>
+                <span style="font-size: 0.5rem; color: var(--accent-primary);">LIVE SYNC</span>
+            </div>
+            <div id="mini-feed" class="feature-stack" style="padding: 0; gap: 10px;">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+
+        <!-- Ecosystem Section -->
+        <section style="padding: 40px 20px;">
+            <span class="section-label">THE ECOSYSTEM</span>
+            <div class="glass feature-card-mobile">
+                <i class="fas fa-network-wired feature-icon"></i>
+                <h4 class="orbitron" style="font-size: 0.8rem; margin-bottom: 10px;">UNIFIED NETWORK</h4>
+                <p style="font-size: 0.75rem; opacity: 0.7; line-height: 1.6;">Integrated platforms designed to work
+                    seamlessly across banking, retail, and social impact sectors.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav glass">
+        <a href="home.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>START</span>
+        </a>
+        <a href="portfolio.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>WORK</span>
+        </a>
+        <a href="services.html" class="nav-item">
+            <i class="fas fa-ghost"></i>
+            <span>MIND</span>
+        </a>
+        <a href="login.html" class="nav-item">
+            <i class="fas fa-lock"></i>
+            <span>PORTAL</span>
+        </a>
+    </nav>
+
+    <!-- Fullscreen Menu -->
+    <div id="mobile-menu" class="mobile-menu">
+        <a href="home.html" class="menu-link active">HOME</a>
+        <a href="about.html" class="menu-link">ABOUT</a>
+        <a href="portfolio.html" class="menu-link">PORTFOLIO</a>
+        <a href="services.html" class="menu-link">SERVICES</a>
+        <a href="contact.html" class="menu-link">CONTACT</a>
+        <div style="height: 50px;"></div>
+        <i class="fas fa-times" onclick="toggleMenu()" style="font-size: 2rem; color: var(--accent-secondary);"></i>
+    </div>
+
+    <!-- Logic -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="../admin/id-card/js/data.js"></script>
+    <script src="main.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Hero Animations
+            gsap.from('.hero-title', { opacity: 0, y: 30, duration: 1, ease: 'power3.out' });
+            gsap.from('.hero-subtitle', { opacity: 0, y: 20, delay: 0.5, duration: 1 });
+
+            // Dynamic Mini-Feed
+            const feed = await window.DataManager.getStatusFeed();
+            const container = document.getElementById('mini-feed');
+            container.innerHTML = feed.slice(0, 3).map(item => `
+                <div class="glass" style="padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px;">
+                    <img src="${item.memberImage}" style="width: 30px; height: 30px; border-radius: 50%;">
+                    <div style="font-size: 0.7rem;">${item.text.substring(0, 60)}...</div>
+                </div>
+             `).join('');
+        });
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            if (menu.style.display === 'flex') {
+                gsap.to(menu, { opacity: 0, scale: 1.1, duration: 0.4, onComplete: () => menu.style.display = 'none' });
+                icon.className = 'fas fa-bars';
+            } else {
+                menu.style.display = 'flex';
+                gsap.fromTo(menu, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4 });
+                icon.className = 'fas fa-times';
+            }
+        }
+    </script>
+</body>
+
+</html>
