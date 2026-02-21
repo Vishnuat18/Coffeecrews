@@ -198,7 +198,7 @@
         }
 
         async function deleteApp(id) {
-            if (confirm("Permanently purge this recruitment record?")) {
+            if (await ccConfirm("Terminate Record", "Permanently purge this recruitment record?")) {
                 await DataManager.deleteApplication(id);
                 showToast("Application record purged.", "success");
             }

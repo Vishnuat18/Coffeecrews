@@ -39,8 +39,8 @@
     }
 })();
 
-window.handleLogout = function () {
-    if (confirm("TERMINATE SECURE SESSION?")) {
+window.handleLogout = async function () {
+    if (await ccConfirm("Termination Signal", "TERMINATE SECURE SESSION?")) {
         sessionStorage.removeItem('cc_session');
         // Clear localStorage version just in case of old data
         localStorage.removeItem('cc_session');

@@ -135,7 +135,7 @@
 
             const member = await DataManager.getMemberById(memberId);
             if (!member) {
-                alert('Personnel record not found!');
+                await ccAlert("Dossier Error", 'Personnel record not found!');
                 window.location.href = '/admin/index.html';
                 return;
             }
@@ -198,14 +198,14 @@
                 };
 
                 if (await DataManager.updateMember(member.id, updatedData)) {
-                    alert('Changes synchronized successfully!');
+                    await ccAlert("Sync Successful", 'Changes synchronized successfully!');
                     window.location.href = '/admin/index.html';
                 }
             });
 
             // Delete logic
             document.getElementById('deleteBtn').onclick = async () => {
-                if (confirm(`CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
+                if (await ccConfirm("Critical Action", `CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
                     if (await DataManager.deleteMember(member.id)) {
                         window.location.href = '/admin/index.html';
                     }

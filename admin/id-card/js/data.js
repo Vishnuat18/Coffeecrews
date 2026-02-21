@@ -22,80 +22,245 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 
 /**
- * ToastManager
- * Premium notification system for tactical feedback
+ * TacticalUI
+ * Premium UI system for notifications and confirmation modals
  */
-class ToastManager {
+class TacticalUI {
     static init() {
-        if (document.getElementById('cc-toast-container')) return;
+        if (document.getElementById('cc-ui-container')) return;
+
         const container = document.createElement('div');
-        container.id = 'cc-toast-container';
-        container.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        `;
+        container.id = 'cc-ui-container';
         document.body.appendChild(container);
 
         const style = document.createElement('style');
         style.textContent = `
+            #cc-ui-container {
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 99999;
+                font-family: 'Rajdhani', sans-serif;
+            }
+            .cc-toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
             .cc-toast {
-                background: rgba(15, 23, 42, 0.9);
+                background: rgba(15, 23, 42, 0.95);
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(0, 243, 255, 0.3);
                 color: #fff;
                 padding: 12px 20px;
                 border-radius: 10px;
-                font-family: 'Rajdhani', sans-serif;
                 font-size: 0.9rem;
                 display: flex;
                 align-items: center;
                 gap: 12px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                transform: translateX(100%);
+                transform: translateX(120%);
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 pointer-events: auto;
-                min-width: 250px;
+                min-width: 280px;
             }
             .cc-toast.show { transform: translateX(0); }
-            .cc-toast i { font-size: 1.1rem; }
             .cc-toast.success { border-color: #3cff7d; }
             .cc-toast.success i { color: #3cff7d; }
             .cc-toast.error { border-color: #ff003c; }
             .cc-toast.error i { color: #ff003c; }
-            .cc-toast.info { border-color: #00f3ff; }
-            .cc-toast.info i { color: #00f3ff; }
+            .cc-toast.warning { border-color: #ffb300; }
+            .cc-toast.warning i { color: #ffb300; }
+
+            .cc-modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(5px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: auto;
+                opacity: 0;
+                transition: 0.3s;
+            }
+            .cc-modal-overlay.show { opacity: 1; }
+            .cc-modal {
+                background: #0f172a;
+                border: 1px solid rgba(0, 243, 255, 0.2);
+                border-radius: 20px;
+                padding: 30px;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
+                transform: scale(0.8);
+                transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .cc-modal-overlay.show .cc-modal { transform: scale(1); }
+            .cc-modal-title {
+                font-family: 'Orbitron';
+                font-size: 1rem;
+                color: var(--accent-primary, #00f3ff);
+                margin-bottom: 15px;
+                letter-spacing: 2px;
+            }
+            .cc-modal-content {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-bottom: 25px;
+            }
+            .cc-modal-actions {
+                display: flex;
+                gap: 15px;
+                justify-content: flex-end;
+            }
+            .cc-btn {
+                padding: 10px 25px;
+                border-radius: 8px;
+                font-family: 'Orbitron';
+                font-size: 0.7rem;
+                cursor: pointer;
+                transition: 0.3s;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: transparent;
+                color: #fff;
+            }
+            .cc-btn-primary {
+                background: var(--accent-primary, #00f3ff);
+                color: #000;
+                border: none;
+            }
+            .cc-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
         `;
         document.head.appendChild(style);
+
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'cc-toast-container';
+        container.appendChild(toastContainer);
     }
 
-    static show(message, type = 'info', duration = 4000) {
+    static toast(message, type = 'info', duration = 4000) {
         this.init();
-        const container = document.getElementById('cc-toast-container');
+        const container = document.querySelector('.cc-toast-container');
         const toast = document.createElement('div');
         toast.className = `cc-toast ${type}`;
 
         let icon = 'fa-info-circle';
         if (type === 'success') icon = 'fa-check-circle';
         if (type === 'error') icon = 'fa-exclamation-triangle';
+        if (type === 'warning') icon = 'fa-lock';
 
         toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
         container.appendChild(toast);
 
         setTimeout(() => toast.classList.add('show'), 10);
-
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);
         }, duration);
     }
+
+    static async confirm(title, message, confirmText = "CONFIRM", cancelText = "CANCEL") {
+        this.init();
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'cc-modal-overlay';
+            overlay.innerHTML = `
+                <div class="cc-modal">
+                    <div class="cc-modal-title">${title.toUpperCase()}</div>
+                    <div class="cc-modal-content">${message}</div>
+                    <div class="cc-modal-actions">
+                        <button class="cc-btn" id="modal-cancel">${cancelText}</button>
+                        <button class="cc-btn cc-btn-primary" id="modal-confirm">${confirmText}</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cc-ui-container').appendChild(overlay);
+            setTimeout(() => overlay.classList.add('show'), 10);
+
+            const cleanup = (result) => {
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.remove(), 300);
+                resolve(result);
+            };
+
+            overlay.querySelector('#modal-confirm').onclick = () => cleanup(true);
+            overlay.querySelector('#modal-cancel').onclick = () => cleanup(false);
+        });
+    }
+
+    static async alert(title, message, btnText = "UNDERSTOOD") {
+        this.init();
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'cc-modal-overlay';
+            overlay.innerHTML = `
+                <div class="cc-modal">
+                    <div class="cc-modal-title">${title.toUpperCase()}</div>
+                    <div class="cc-modal-content">${message}</div>
+                    <div class="cc-modal-actions">
+                        <button class="cc-btn cc-btn-primary" id="modal-ok">${btnText}</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cc-ui-container').appendChild(overlay);
+            setTimeout(() => overlay.classList.add('show'), 10);
+
+            overlay.querySelector('#modal-ok').onclick = () => {
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.remove(), 300);
+                resolve();
+            };
+        });
+    }
+    static async prompt(title, message, placeholder = "", btnText = "SUBMIT") {
+        this.init();
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'cc-modal-overlay';
+            overlay.innerHTML = `
+                <div class="cc-modal">
+                    <div class="cc-modal-title">${title.toUpperCase()}</div>
+                    <div class="cc-modal-content">${message}</div>
+                    <input type="text" id="modal-input" class="cc-input" placeholder="${placeholder}" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-family: 'Rajdhani'; outline: none;">
+                    <div class="cc-modal-actions">
+                        <button class="cc-btn" id="modal-cancel">CANCEL</button>
+                        <button class="cc-btn cc-btn-primary" id="modal-submit">${btnText}</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('cc-ui-container').appendChild(overlay);
+            const input = overlay.querySelector('#modal-input');
+            setTimeout(() => {
+                overlay.classList.add('show');
+                input.focus();
+            }, 10);
+
+            const cleanup = (result) => {
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.remove(), 300);
+                resolve(result);
+            };
+
+            overlay.querySelector('#modal-submit').onclick = () => cleanup(input.value);
+            overlay.querySelector('#modal-cancel').onclick = () => cleanup(null);
+            input.onkeypress = (e) => { if (e.key === 'Enter') cleanup(input.value); };
+        });
+    }
 }
-window.showToast = (msg, type, dur) => ToastManager.show(msg, type, dur);
+
+// Global Exports
+window.showToast = (msg, type, dur) => TacticalUI.toast(msg, type, dur);
+window.ccConfirm = (title, msg, conf, canc) => TacticalUI.confirm(title, msg, conf, canc);
+window.ccAlert = (title, msg, btn) => TacticalUI.alert(title, msg, btn);
+window.ccPrompt = (title, msg, placeholder, btn) => TacticalUI.prompt(title, msg, placeholder, btn);
 
 const INITIAL_MEMBERS = [
     {
@@ -320,6 +485,15 @@ class DataManager {
             return true;
         }
         return false;
+    }
+
+    static async blockMember(id, days) {
+        const until = Date.now() + (days * 24 * 60 * 60 * 1000);
+        return await this.updateMember(id, { blockedUntil: until });
+    }
+
+    static async unblockMember(id) {
+        return await this.updateMember(id, { blockedUntil: null });
     }
 
     static async deleteMember(id) {

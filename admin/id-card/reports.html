@@ -233,7 +233,7 @@
         // COMMAND ACTIONS
         async function triggerGlobalBroadcast() {
             const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
-            const msg = prompt("ENTER GLOBAL MISSION DIRECTIVE (Will be sent to ALL crew members):");
+            const msg = await ccPrompt("HQ DIRECTIVE", "ENTER GLOBAL MISSION DIRECTIVE (Will be sent to ALL crew members):", "Directive text...");
             if (msg && msg.trim()) {
                 await window.DataManager.sendBroadcast(session.name, msg.trim());
                 showToast("GLOBAL TRANSMISSION SUCCESSFUL", "success");
@@ -241,8 +241,8 @@
             }
         }
 
-        function handleLogout() {
-            if (confirm("TERMINATE SECURE SESSION?")) {
+        async function handleLogout() {
+            if (await ccConfirm("Termination Signal", "TERMINATE SECURE SESSION?")) {
                 sessionStorage.removeItem('cc_session');
                 localStorage.removeItem('cc_session'); // Clear legacy
                 location.href = '/admin/id-card/login.html';

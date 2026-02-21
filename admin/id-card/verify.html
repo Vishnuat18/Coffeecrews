@@ -941,7 +941,7 @@
         async function handleMediaUpload(event, channel) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
+            if (file.size > 1024 * 1024 * 5) { await ccAlert("File Size Error", "Max size 5MB"); return; }
 
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -1083,31 +1083,31 @@
             const conf = document.getElementById('conf-pass').value;
 
             if (cur.length !== 4 || next.length !== 4) {
-                alert("CC Codes must be exactly 4 digits.");
+                await ccAlert("Input Error", "CC Codes must be exactly 4 digits.");
                 return;
             }
 
             if (next !== conf) {
-                alert("New codes do not match.");
+                await ccAlert("Validation Error", "New codes do not match.");
                 return;
             }
 
             const result = await window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
             if (result.success) {
-                alert(result.message);
+                await ccAlert("Security Request", result.message);
                 document.getElementById('cur-pass').value = '';
                 document.getElementById('new-pass').value = '';
                 document.getElementById('conf-pass').value = '';
                 await renderSecurity();
             } else {
-                alert(result.message);
+                await ccAlert("Security Error", result.message);
             }
         }
 
-        function previewStatusImage(event) {
+        async function previewStatusImage(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
+            if (file.size > 1024 * 1024 * 5) { await ccAlert("File Size Error", "Max size 5MB"); return; }
 
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -1170,13 +1170,14 @@
                 await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
                 input.value = '';
                 removeStatusImage();
-                alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
+                showToast("MISSION STATUS COMMITTED TO GLOBAL FEED", "success");
                 await switchTab('home');
             }
         }
 
-        function handleLogout() {
-            if (confirm("TERMINATE SECURE SESSION?")) {
+        async function handleLogout() {
+            if (await ccConfirm("Termination Signal", "TERMINATE SECURE SESSION?")) {
+                sessionStorage.removeItem('cc_session');
                 localStorage.removeItem('cc_session');
                 location.href = '/admin/id-card/login.html';
             }
