@@ -108,17 +108,12 @@
             }
 
             setupDynamicNav();
-
-            // --- REAL-TIME REACTIVE SYNC ---
-            DataManager.subscribeToMembers((members) => {
-                DataManager.subscribeToAllThreads((threads) => {
-                    renderReportsUI(members, threads);
-                });
-            });
+            initLiveSync();
 
             // GSAP Entrance
             gsap.from('.header-mobile', { y: -50, opacity: 0, duration: 0.8, ease: 'power3.out' });
             gsap.from('.bottom-nav', { y: 100, opacity: 0, duration: 0.8, ease: 'power3.out' });
+            gsap.from('.report-card', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power3.out' });
         });
 
         function setupDynamicNav() {
@@ -144,20 +139,29 @@
             location.href = `workspace.html?id=${session.id}#${tab}`;
         }
 
-        async function renderReportsUI(members, threads) {
+        function initLiveSync() {
+            // Re-render when any thread updates
+            const db = firebase.database();
+            db.ref('chats/threads').on('value', async () => {
+                await refreshReports();
+            });
+        }
+
+        async function refreshReports() {
+            const members = await window.DataManager.getAllMembers();
             const container = document.getElementById('reports-list');
             let pending = 0;
 
-            const cards = members.map(m => {
+            const cards = [];
+            for (const m of members) {
                 const threadId = window.DataManager.getThreadId(m.id, 'HQ');
-                const messagesData = threads[threadId] || {};
-                const history = Object.values(messagesData);
+                const history = await window.DataManager.getMessages(threadId);
                 const lastMsg = history.length > 0 ? history[history.length - 1] : null;
                 const needsReply = lastMsg && lastMsg.senderId !== 'HQ';
 
                 if (needsReply) pending++;
 
-                return `
+                cards.push(`
                     <div class="glass report-card" onclick="openReply('${m.id}', '${m.name}')">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <img src="${m.image}" class="profile-img-mobile">
@@ -171,12 +175,11 @@
                             ${lastMsg ? `"${lastMsg.text}"` : 'No active transmissions'}
                         </div>
                     </div>
-                `;
-            });
+                `);
+            }
 
             container.innerHTML = cards.join('');
             document.getElementById('pending-count').innerText = `${pending} PENDING`;
-            gsap.from('.report-card', { opacity: 0, y: 10, stagger: 0.05, duration: 0.4 });
         }
 
         function openReply(id, name) {

@@ -627,12 +627,14 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Auth Check
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            console.log("Cockpit Auth Check - ID:", session.id, "Role:", session.role);
+
             if (session.role !== 'admin') {
+                console.warn("Unauthorized Role for Cockpit. Redirecting to login...");
                 location.href = '/admin/id-card/login.html';
                 return;
             }
 
-            // Dual Access Link
             const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
             if (dualAccessIds.includes(session.id)) {
                 const navLinks = document.querySelector('.nav-links');
@@ -643,71 +645,93 @@
                 navLinks.insertBefore(workspaceLink, navLinks.firstChild);
             }
 
-            // --- REAL-TIME REACTIVE SUBSCRIPTIONS ---
-
-            // 1. Members & Stats
-            DataManager.subscribeToMembers((members) => {
-                renderMembersUI(members);
-                updateStatsUI(members);
-                updateSyncTime();
-            });
-
-            // 2. Applications
-            DataManager.subscribeToApplications((apps) => {
-                renderApplicationsUI(apps);
-                document.getElementById('stat-apps').textContent = apps.length;
-                updateSyncTime();
-            });
-
-            // 3. Attendance
-            DataManager.subscribeToDailyAttendance((list) => {
-                renderAttendanceUI(list);
-                document.getElementById('stat-attendance').textContent = list.length;
-                updateSyncTime();
-            });
-
-            // 4. Security Requests
-            DataManager.subscribeToPasscodeRequests((requests) => {
-                renderSecurityRequestsUI(requests);
-                updateSyncTime();
-            });
+            await refreshDashboard();
 
             // Search Listener
-            document.getElementById('memberSearch').addEventListener('input', (e) => {
-                filterMembers(e.target.value.toLowerCase());
+            document.getElementById('memberSearch').addEventListener('input', async (e) => {
+                await renderMembers(e.target.value.toLowerCase());
+            });
+
+            // Storage event for real-time updates
+            window.addEventListener('storage', async (e) => {
+                if (e.key === 'coffeecrews_id_cards' || e.key === 'cc_applications' || e.key === 'coffeecrews_passcode_requests') {
+                    await refreshDashboard();
+                }
+            });
+
+            // Listen for custom security event
+            window.addEventListener('cc_security_update', async () => {
+                await refreshDashboard();
+            });
+
+            // Listen for chat sync (also affects status/members)
+            window.addEventListener('cc_chat_sync', async () => {
+                await refreshDashboard();
             });
         });
 
-        // Global cache for filtering
-        let cachedMembers = [];
+        async function refreshDashboard() {
+            await updateStats();
+            await renderMembers();
+            await renderApplications();
+            await renderAttendance();
+            await renderSecurityRequests();
+            updateSyncTime();
+        }
 
-        function updateStatsUI(members) {
-            document.getElementById('stat-total').textContent = members.length;
+        async function renderAttendance() {
+            const list = await DataManager.getDailyAttendance();
+            const container = document.getElementById('attendance-list');
+            document.getElementById('stat-attendance').textContent = list.length;
+            document.getElementById('attendance-date').textContent = new Date().toISOString().split('T')[0];
+
+            if (list.length === 0) {
+                container.innerHTML = '<span class="opacity-30 small italic">Waiting for agents to clock in...</span>';
+                return;
+            }
+
+            container.innerHTML = list.map(entry => `
+                <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
+                    <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
+                    <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
+                    <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateSyncTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('sync-time').textContent = `SYNCED // ${timeStr}`;
+        }
+
+        async function updateStats() {
+            const members = await DataManager.getAllMembers();
+            const apps = await DataManager.getApplications();
             const roles = [...new Set(members.map(m => m.role))];
+
+            document.getElementById('stat-total').textContent = members.length;
+            document.getElementById('stat-apps').textContent = apps.length;
             document.getElementById('stat-roles').textContent = roles.length;
         }
 
-        async function renderMembersUI(members) {
-            cachedMembers = members;
-            filterMembers(document.getElementById('memberSearch').value.toLowerCase());
-        }
-
-        function filterMembers(query) {
+        async function renderMembers(query = '') {
             const container = document.getElementById('memberList');
+            const members = await DataManager.getAllMembers();
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
 
-            const filtered = cachedMembers.filter(m =>
+            const filtered = members.filter(m =>
                 (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
                 && m.id !== session.id
             );
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-5 text-center w-100 opacity-50">No crew members found.</div>`;
+                container.innerHTML = `<div class="p-5 text-center w-100 opacity-50">No crew members found matching search.</div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(member => `
-                <div class="member-item glass">
+                <div class="member-item glass animate-up">
                     <img src="${member.image}" alt="${member.name}" class="member-img">
                     <div class="member-overlay">
                         <div class="member-name">${member.name}</div>
@@ -726,12 +750,23 @@
                     </div>
                 </div>
             `).join('');
+
+            // GSAP stagger effect
+            gsap.from("#memberList .member-item", {
+                duration: 0.8,
+                y: 30,
+                opacity: 0,
+                stagger: 0.1,
+                ease: "power2.out"
+            });
         }
 
-        function renderApplicationsUI(apps) {
+        function renderApplications() {
             const container = document.getElementById('appsList');
+            const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+
             if (apps.length === 0) {
-                container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No applications received.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No applications received yet.</td></tr>`;
                 return;
             }
 
@@ -742,7 +777,9 @@
                         <div class="small opacity-50">${app.email}</div>
                     </td>
                     <td><span class="badge-role">${app.role}</span></td>
-                    <td><div class="small"><i class="fas fa-phone me-2"></i>${app.phone || 'N/A'}</div></td>
+                    <td>
+                        <div class="small"><i class="fas fa-phone me-2"></i>${app.phone || 'N/A'}</div>
+                    </td>
                     <td class="small opacity-50 text-nowrap">${app.timestamp}</td>
                     <td class="text-end text-nowrap">
                         <button onclick="viewApp('${app.id}')" class="btn btn-sm btn-outline-info rounded-pill px-3 me-2">View</button>
@@ -752,34 +789,12 @@
             `).join('');
         }
 
-        function renderAttendanceUI(list) {
-            const container = document.getElementById('attendance-list');
-            document.getElementById('attendance-date').textContent = new Date().toISOString().split('T')[0];
-
-            if (list.length === 0) {
-                container.innerHTML = '<span class="opacity-30 small italic">Waiting for agents...</span>';
-                return;
-            }
-
-            container.innerHTML = list.map(entry => `
-                <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
-                    <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
-                    <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
-                    <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
-                </div>
-            `).join('');
-        }
-
-        function updateSyncTime() {
-            const now = new Date();
-            document.getElementById('sync-time').textContent = `LIVE SYNC // ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
-        }
-
         async function deleteMember(id) {
             showToast("Verifying authorization...", "info");
             if (confirm('Authorize termination of this crew record?')) {
                 if (await DataManager.deleteMember(id)) {
                     showToast("Crew record purged from HQ.", "success");
+                    await refreshDashboard();
                 }
             }
         }
@@ -788,6 +803,7 @@
             if (!confirm('Authorize deletion of this recruitment record?')) return;
             await DataManager.deleteApplication(id);
             showToast("Recruitment record purged.", "success");
+            await refreshDashboard();
         }
 
         async function viewApp(id) {
@@ -801,8 +817,9 @@
             }
         }
 
-        async function renderSecurityRequestsUI(requests) {
+        async function renderSecurityRequests() {
             const container = document.getElementById('requestsList');
+            const requests = await DataManager.getPasscodeRequests();
 
             if (requests.length === 0) {
                 container.innerHTML = `<tr><td colspan="5" class="text-center py-5 opacity-50">No security requests pending.</td></tr>`;
@@ -837,13 +854,15 @@
         async function approveRequest(id) {
             if (!confirm('Approve passcode change and update database?')) return;
             const result = await DataManager.approvePasscodeRequest(id);
-            showToast(result.message, result.success ? "success" : "error");
+            alert(result.message);
+            await refreshDashboard();
         }
 
         async function rejectRequest(id) {
             if (!confirm('Reject this passcode change request?')) return;
             const result = await DataManager.rejectPasscodeRequest(id);
-            showToast(result.message, "info");
+            alert(result.message);
+            await refreshDashboard();
         }
 
         function handleLogout() {

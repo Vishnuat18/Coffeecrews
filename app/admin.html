@@ -57,12 +57,7 @@
             <i class="fas fa-microchip" style="color: var(--accent-primary); font-size: 1.2rem;"></i>
             <span class="header-title">MANAGEMENT COCKPIT</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 5px;">
-            <div id="sync-indicator"
-                style="width: 6px; height: 6px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;">
-            </div>
-            <span id="sync-time" style="font-size: 0.5rem; opacity: 0.4; font-family: 'Orbitron';">LIVE</span>
-        </div>
+        <i class="fas fa-sync" onclick="location.reload()" style="opacity: 0.4;"></i>
     </header>
 
     <div class="app-container" style="padding-top: 70px;">
@@ -109,44 +104,17 @@
             }
 
             setupDynamicNav();
-
-            // --- REAL-TIME SUBSCRIBERS ---
-
-            // 1. Members & Stats
-            DataManager.subscribeToMembers((members) => {
-                renderRoster(members);
-                document.getElementById('stat-total').innerText = members.length;
-                updateSync();
-            });
-
-            // 2. Applications
-            DataManager.subscribeToApplications((apps) => {
-                document.getElementById('stat-apps').innerText = apps.length;
-                updateSync();
-            });
-
-            // 3. Attendance
-            DataManager.subscribeToDailyAttendance((list) => {
-                document.getElementById('stat-attendance').innerText = list.length;
-                updateSync();
-            });
-
-            // 4. Security Requests
-            DataManager.subscribeToPasscodeRequests((requests) => {
-                renderRequests(requests);
-                updateSync();
-            });
+            refreshCockpit();
 
             // GSAP entrance
             gsap.from('.header-mobile', { y: -50, opacity: 0, duration: 0.8, ease: 'power3.out' });
             gsap.from('.bottom-nav', { y: 100, opacity: 0, duration: 0.8, ease: 'power3.out' });
-        });
+            gsap.from('.cockpit-card', { opacity: 0, x: -20, stagger: 0.1, duration: 0.6, ease: 'power3.out' });
 
-        function updateSync() {
-            const now = new Date();
-            document.getElementById('sync-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            gsap.fromTo('#sync-indicator', { opacity: 0.2 }, { opacity: 1, duration: 0.5 });
-        }
+            // Firebase Auto-Sync
+            firebase.database().ref('requests').on('value', refreshCockpit);
+            firebase.database().ref('members').on('value', refreshCockpit);
+        });
 
         function setupDynamicNav() {
             const nav = document.getElementById('mobile-nav');
@@ -167,35 +135,43 @@
             `;
         }
 
-        async function renderRequests(requests) {
+        async function refreshCockpit() {
+            const members = await window.DataManager.getAllMembers();
+            const requests = await window.DataManager.getPasscodeRequests();
+            const apps = await window.DataManager.getApplications();
+            const attendance = await window.DataManager.getDailyAttendance();
+
+            document.getElementById('stat-total').innerText = members.length;
+            document.getElementById('stat-apps').innerText = apps.length;
+            document.getElementById('stat-attendance').innerText = attendance.length;
+
+            // Render Requests
             const reqList = document.getElementById('requests-list');
             const pendingReqs = requests.filter(r => r.status === 'pending');
 
             if (pendingReqs.length === 0) {
                 reqList.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.3; font-size:0.7rem;">CLEARED: NO PENDING REQUESTS</div>';
-                return;
+            } else {
+                reqList.innerHTML = pendingReqs.map(r => `
+                    <div class="glass cockpit-card">
+                        <div style="font-family:'Orbitron'; font-size:0.7rem; margin-bottom:10px;">AUTH REQUEST: ${r.memberName}</div>
+                        <div style="font-size:0.6rem; opacity:0.6; margin-bottom:15px;">Target CC Code: ${r.newPass}</div>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="approve('${r.id}')" class="action-chip chip-approve">APPROVE</button>
+                            <button onclick="reject('${r.id}')" class="action-chip chip-reject">REJECT</button>
+                        </div>
+                    </div>
+                `).join('');
             }
 
-            reqList.innerHTML = pendingReqs.map(r => `
-                <div class="glass cockpit-card">
-                    <div style="font-family:'Orbitron'; font-size:0.7rem; margin-bottom:10px;">AUTH REQUEST: ${r.memberName}</div>
-                    <div style="font-size:0.6rem; opacity:0.6; margin-bottom:15px;">Target CC Code: ${r.newPass}</div>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="approve('${r.id}')" class="action-chip chip-approve">APPROVE</button>
-                        <button onclick="reject('${r.id}')" class="action-chip chip-reject">REJECT</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function renderRoster(members) {
+            // Render Roster
             const roster = document.getElementById('roster-list');
             roster.innerHTML = members.map(m => `
                 <div class="glass cockpit-card" style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
                     <img src="${m.image}" class="profile-img-mobile">
                     <div>
-                        <div class="orbitron" style="font-size:0.75rem;">${m.name}</div>
-                        <div style="font-size:0.6rem; opacity:0.5;">${m.role.toUpperCase()} // CC-${m.ccCode}</div>
+                        <div class="orbitron" style="font-size:0.7rem;">${m.name}</div>
+                        <div style="font-size:0.5rem; opacity:0.5;">${m.role.toUpperCase()} // CC-${m.ccCode}</div>
                     </div>
                     <i class="fas fa-ellipsis-v" style="margin-left:auto; opacity:0.3;"></i>
                 </div>

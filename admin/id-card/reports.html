@@ -155,42 +155,82 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // AUTH CHECK
             const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            console.log("Reports Auth Check - ID:", session.id, "Role:", session.role);
+
             if (session.role !== 'admin') {
+                console.warn("Unauthorized Role for Reports. Redirecting...");
                 location.href = '/admin/id-card/login.html';
                 return;
             }
 
-            // Real-time Reactive Sync
-            DataManager.subscribeToMembers((members) => {
-                cachedMembers = members;
-                DataManager.subscribeToAllThreads((threads) => {
-                    renderReportsUI(members, threads);
-                });
+            await refreshReports();
+
+            await refreshReports();
+
+            // REAL-TIME SYNC (Firebase)
+            const chatsRef = firebase.database().ref('chats/threads');
+            chatsRef.on('value', async () => {
+                await refreshReports();
             });
 
-            window.addEventListener('storage', (e) => {
+            const globalChatRef = firebase.database().ref('chats/global');
+            globalChatRef.on('value', async () => {
+                // Potential notification or indicator refresh
+            });
+
+            window.addEventListener('storage', async (e) => {
                 if (e.key === 'cc_session') location.reload();
             });
         });
 
-        let cachedMembers = [];
+        // COMMAND ACTIONS
+        async function triggerGlobalBroadcast() {
+            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            const msg = prompt("ENTER GLOBAL MISSION DIRECTIVE (Will be sent to ALL crew members):");
+            if (msg && msg.trim()) {
+                await window.DataManager.sendBroadcast(session.name, msg.trim());
+                showToast("GLOBAL TRANSMISSION SUCCESSFUL", "success");
+                await refreshReports();
+            }
+        }
 
-        async function renderReportsUI(members, threads) {
+        function handleLogout() {
+            if (confirm("TERMINATE SECURE SESSION?")) {
+                localStorage.removeItem('cc_session');
+                location.href = '/admin/id-card/login.html';
+            }
+        }
+
+        let refreshTimeout;
+        async function refreshReports() {
+            if (refreshTimeout) clearTimeout(refreshTimeout);
+            refreshTimeout = setTimeout(async () => {
+                await executeRefresh();
+            }, 300);
+        }
+
+        async function executeRefresh() {
+            const members = await window.DataManager.getAllMembers();
             const feed = document.getElementById('reports-feed');
             let pending = 0;
+
             feed.innerHTML = '';
 
-            members.forEach(m => {
-                const threadId = DataManager.getThreadId(m.id, 'HQ');
-                const messagesData = threads[threadId] || {};
-                const history = Object.values(messagesData);
+            for (const m of members) {
+                const threadId = window.DataManager.getThreadId(m.id, 'HQ');
+                const history = await window.DataManager.getMessages(threadId);
 
                 const needsReply = history.length > 0 && history[history.length - 1].senderId !== 'HQ';
                 if (needsReply) pending++;
 
+                const strip = document.createElement('div');
+                strip.className = 'report-strip glass';
+                strip.style.opacity = '0';
+
+                // Get last 2 messages for context
                 const recentHistory = history.slice(-2);
                 const historyHtml = recentHistory.map(msg => {
-                    const sId = msg.senderId || 'UNKNOWN';
+                    const sId = msg.senderId || msg.sender || 'UNKNOWN';
                     return `
                         <div style="font-size: 0.8rem; margin-top: 5px; opacity: ${sId === 'HQ' ? '0.6' : '1'}; border-left: 2px solid ${sId === 'HQ' ? '#aaa' : 'var(--accent-primary)'}; padding-left: 8px;">
                             <span style="font-family: 'Orbitron'; font-size: 0.6rem; color: var(--accent-primary);">${sId}:</span> 
@@ -199,8 +239,6 @@
                     `;
                 }).join('');
 
-                const strip = document.createElement('div');
-                strip.className = 'report-strip glass';
                 strip.innerHTML = `
                     <img src="${m.image}" alt="${m.name}" class="strip-photo">
                     <div class="report-main-content">
@@ -223,30 +261,18 @@
                     </div>
                 `;
                 feed.appendChild(strip);
-            });
+            }
 
             document.getElementById('pending-count').textContent = pending;
-            gsap.from('.report-strip', { opacity: 0, y: 10, stagger: 0.05, duration: 0.4 });
-        }
 
-        // COMMAND ACTIONS
-        async function triggerGlobalBroadcast() {
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
-            const msg = prompt("ENTER GLOBAL MISSION DIRECTIVE (Will be sent to ALL crew members):");
-            if (msg && msg.trim()) {
-                await window.DataManager.sendBroadcast(session.name, msg.trim());
-                showToast("GLOBAL TRANSMISSION SUCCESSFUL", "success");
-                await refreshReports();
-            }
+            gsap.to('.report-strip', {
+                opacity: 1,
+                y: 0,
+                stagger: 0.1,
+                duration: 0.6,
+                startAt: { y: 20 }
+            });
         }
-
-        function handleLogout() {
-            if (confirm("TERMINATE SECURE SESSION?")) {
-                localStorage.removeItem('cc_session');
-                location.href = '/admin/id-card/login.html';
-            }
-        }
-
 
         async function sendDirective(id) {
             const input = document.getElementById(`reply-${id}`);
@@ -263,6 +289,9 @@
                 btn.style.borderColor = '#0aff0a';
                 showToast(`Directive transmitted to ${id.toUpperCase()}`, "success");
 
+                setTimeout(async () => {
+                    await refreshReports();
+                }, 1000);
             } else {
                 btn.innerHTML = originalHtml;
                 showToast("Transmission failed. Check network.", "error");

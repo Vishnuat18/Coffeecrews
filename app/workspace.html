@@ -309,10 +309,9 @@
             if (type === 'crew') renderCrewList();
         }
 
-        // Renamed and modified to be a UI rendering function, called by subscriber
-        function renderHomeTelemetryUI(feed) {
+        async function renderHomeTelemetry() {
+            const feed = await window.DataManager.getStatusFeed();
             const container = document.getElementById('home-telemetry');
-            if (!container) return;
             container.innerHTML = feed.slice(0, 5).map(item => `
                 <div class="glass mission-item">
                     <div style="font-size: 0.6rem; color: var(--accent-primary); font-family: 'Orbitron'; margin-bottom: 5px;">${item.senderName} // ${item.time || ''}</div>
@@ -322,29 +321,15 @@
         }
 
         function initSync() {
-            // 1. Live HQ Chat
+            // Live HQ Chat
             const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
             window.DataManager.subscribeToChat(threadId, (messages) => {
                 renderMessagesHTML('feed-hq', messages, activeMember.id, { HQ: 'HQ COMMAND', [activeMember.id]: activeMember.name });
             });
 
-            // 2. Live Global Chat
+            // Live Global
             window.DataManager.subscribeToGlobalChat((messages) => {
                 renderMessagesHTML('feed-global', messages, activeMember.id);
-            });
-
-            // 3. Live Mission Telemetry (Status Feed)
-            window.DataManager.subscribeToStatusFeed((feed) => {
-                renderHomeTelemetryUI(feed);
-            });
-
-            // 4. Live Profile Sync
-            window.DataManager.subscribeToMembers((members) => {
-                const me = members.find(m => m.id === activeMember.id);
-                if (me) {
-                    activeMember = me;
-                    renderBaseInfo();
-                }
             });
         }
 
@@ -409,7 +394,7 @@
             if (!text) return;
             if (await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image)) {
                 document.getElementById('status-input').value = '';
-                showToast("SYCHRONIZED TO GLOBAL OPS", "success");
+                alert("SYCHRONIZED TO GLOBAL OPS");
                 nav('home');
             }
         }

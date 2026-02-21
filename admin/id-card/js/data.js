@@ -437,7 +437,7 @@ class DataManager {
         };
 
         await db.ref(`attendance/${today}/${id}`).set(log);
-        // Firebase listeners will handle the UI update
+        window.dispatchEvent(new CustomEvent('cc_attendance_update'));
         return true;
     }
 
@@ -460,7 +460,7 @@ class DataManager {
             epoch: Date.now()
         };
         await db.ref(`applications/${id}`).set(application);
-        // Update local only for legacy support
+        // Also keep in localStorage for backward compatibility if needed by old UI
         const local = JSON.parse(localStorage.getItem('cc_applications') || '[]');
         local.push(application);
         localStorage.setItem('cc_applications', JSON.stringify(local));
@@ -585,66 +585,11 @@ class DataManager {
     }
 
     static subscribeToStatusFeed(callback) {
-        const ref = db.ref('chats/statusFeed');
+        const ref = db.ref('statusFeed');
         const listener = (snapshot) => {
             const data = snapshot.val();
             const feed = data ? Object.values(data).reverse() : [];
             callback(feed);
-        };
-        ref.on('value', listener);
-        return () => ref.off('value', listener);
-    }
-
-    static subscribeToMembers(callback) {
-        const ref = db.ref('members');
-        const listener = (snapshot) => {
-            const data = snapshot.val();
-            const list = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-            callback(list);
-        };
-        ref.on('value', listener);
-        return () => ref.off('value', listener);
-    }
-
-    static subscribeToApplications(callback) {
-        const ref = db.ref('applications');
-        const listener = (snapshot) => {
-            const data = snapshot.val();
-            const list = data ? Object.values(data).sort((a, b) => b.epoch - a.epoch) : [];
-            callback(list);
-        };
-        ref.on('value', listener);
-        return () => ref.off('value', listener);
-    }
-
-    static subscribeToDailyAttendance(callback, date = null) {
-        const today = date || new Date().toISOString().split('T')[0];
-        const ref = db.ref(`attendance/${today}`);
-        const listener = (snapshot) => {
-            const data = snapshot.val();
-            const list = data ? Object.values(data) : [];
-            callback(list);
-        };
-        ref.on('value', listener);
-        return () => ref.off('value', listener);
-    }
-
-    static subscribeToPasscodeRequests(callback) {
-        const ref = db.ref('requests');
-        const listener = (snapshot) => {
-            const data = snapshot.val();
-            const list = data ? Object.values(data).reverse() : [];
-            callback(list);
-        };
-        ref.on('value', listener);
-        return () => ref.off('value', listener);
-    }
-
-    static subscribeToAllThreads(callback) {
-        const ref = db.ref('chats/threads');
-        const listener = (snapshot) => {
-            const data = snapshot.val();
-            callback(data || {});
         };
         ref.on('value', listener);
         return () => ref.off('value', listener);
