@@ -464,6 +464,56 @@
             </div>
         </header>
 
+        <!-- Commander Profile Section -->
+        <section id="commander-profile" class="animate-up mb-5" style="animation-delay: 0.05s; display: none;">
+            <div class="glass p-4" style="border-left: 4px solid var(--accent-primary);">
+                <div class="row align-items-center">
+                    <div class="col-md-auto text-center mb-3 mb-md-0">
+                        <div class="position-relative d-inline-block">
+                            <img id="admin-p-img" src="" alt="Commander" class="glass"
+                                style="width: 120px; height: 120px; object-fit: cover; border-radius: 15px;">
+                            <div
+                                style="position: absolute; bottom: -5px; right: -5px; width: 12px; height: 12px; background: #3cff7d; border-radius: 50%; border: 2px solid var(--bg-color); box-shadow: 0 0 10px #3cff7d;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md px-md-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="section-label"
+                                    style="font-size: 0.55rem; color: var(--accent-gold);">ACTIVE COMMANDER</span>
+                                <h1 id="admin-p-name" class="orbitron m-0"
+                                    style="font-size: 1.8rem; letter-spacing: 2px;">--</h1>
+                                <p id="admin-p-role" class="text-secondary small mb-3" style="letter-spacing: 1px;">--
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <a id="admin-p-link" href="#" class="btn-action"
+                                    style="padding: 8px 15px; font-size: 0.6rem;">
+                                    <i class="fas fa-id-card"></i> SYSTEM PROFILE
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-auto">
+                                <div class="glass px-3 py-1"
+                                    style="font-size: 0.7rem; border-color: rgba(255,255,255,0.05);">
+                                    <span class="opacity-50">STATUS:</span> <span
+                                        style="color: var(--accent-primary);">AUTHORIZED</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="glass px-3 py-1"
+                                    style="font-size: 0.7rem; border-color: rgba(255,255,255,0.05);">
+                                    <span class="opacity-50">LOCATION:</span> HQ COCKPIT
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Stats Overview -->
         <section class="stats-bar animate-up" style="animation-delay: 0.1s;">
             <div class="stat-card glass">
@@ -677,14 +727,31 @@
             document.getElementById('memberSearch').addEventListener('input', (e) => {
                 filterMembers(e.target.value.toLowerCase());
             });
+
+            // Render Self Profile
+            renderAdminProfile(session.id);
         });
+
+        async function renderAdminProfile(id) {
+            const member = await DataManager.getMemberById(id);
+            if (!member) return;
+
+            document.getElementById('commander-profile').style.display = 'block';
+            document.getElementById('admin-p-img').src = member.image;
+            document.getElementById('admin-p-name').textContent = member.name.toUpperCase();
+            document.getElementById('admin-p-role').textContent = member.role.toUpperCase();
+            document.getElementById('admin-p-link').href = `/admin/id-card/verify.html?id=${member.id}`;
+
+            gsap.from("#commander-profile", { opacity: 0, x: -20, duration: 0.8, ease: "power2.out" });
+        }
 
         // Global cache for filtering
         let cachedMembers = [];
 
         function updateStatsUI(members) {
-            document.getElementById('stat-total').textContent = members.length;
-            const roles = [...new Set(members.map(m => m.role))];
+            const totalCrew = members.filter(m => m.access !== 'admin').length;
+            document.getElementById('stat-total').textContent = totalCrew;
+            const roles = [...new Set(members.filter(m => m.access !== 'admin').map(m => m.role))];
             document.getElementById('stat-roles').textContent = roles.length;
         }
 
@@ -699,7 +766,7 @@
 
             const filtered = cachedMembers.filter(m =>
                 (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
-                && m.id !== session.id
+                && m.access !== 'admin'
             );
 
             if (filtered.length === 0) {
