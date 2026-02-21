@@ -572,21 +572,58 @@ class DataManager {
         return this.sendGlobalMessage('HQ', adminName, `[HQ DIRECTIVE] ${text}`);
     }
 
+    /**
+     * getAttendanceDate
+     * Logic: Reset everyday at 12:00 PM (Noon). 
+     * If current time is >= 12:00 PM, return "tomorrow's" date bucket to clear current view.
+     */
+    static getAttendanceDate() {
+        const now = new Date();
+        const hours = now.getHours();
+
+        // If it's 12 PM or later, we shift the "active" date to tomorrow to clear the grid
+        const targetDate = new Date(now);
+        if (hours >= 12) {
+            targetDate.setDate(now.getDate() + 1);
+        }
+
+        const y = targetDate.getFullYear();
+        const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const d = String(targetDate.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     static async markAttendance(id) {
         const member = await this.getMemberById(id);
-        if (!member) return false;
+        if (!member) return { success: false, message: "PERSONNEL DATA CORRUPTED" };
 
-        const today = new Date().toISOString().split('T')[0];
+        // 8 AM to 10 AM Window Check
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const timeVal = hours * 100 + minutes; // HHmm format
+
+        if (timeVal < 800 || timeVal > 1000) {
+            return {
+                success: false,
+                message: "MISSION WINDOW CLOSED (0800 - 1000 HRS)"
+            };
+        }
+
+        const activeDate = this.getAttendanceDate();
         const log = {
             memberId: id,
             memberName: member.name,
             timestamp: Date.now(),
-            time: new Date().toLocaleTimeString()
+            time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
         };
 
-        await db.ref(`attendance/${today}/${id}`).set(log);
-        // Firebase listeners will handle the UI update
-        return true;
+        try {
+            await db.ref(`attendance/${activeDate}/${id}`).set(log);
+            return { success: true, message: `Check-in recorded at ${log.time} HRS.` };
+        } catch (e) {
+            return { success: false, message: "ENCRYPTION UPLOAD FAILED" };
+        }
     }
 
     static async getDailyAttendance(date = null) {
@@ -767,7 +804,7 @@ class DataManager {
     }
 
     static subscribeToDailyAttendance(callback, date = null) {
-        const today = date || new Date().toISOString().split('T')[0];
+        const today = date || this.getAttendanceDate();
         const ref = db.ref(`attendance/${today}`);
         const listener = (snapshot) => {
             const data = snapshot.val();
