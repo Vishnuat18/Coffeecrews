@@ -181,7 +181,8 @@
             let pending = 0;
             feed.innerHTML = '';
 
-            members.forEach(m => {
+            const crewOnly = members.filter(m => m.access !== 'admin');
+            crewOnly.forEach(m => {
                 const threadId = DataManager.getThreadId(m.id, 'HQ');
                 const messagesData = threads[threadId] || {};
                 const history = Object.values(messagesData);

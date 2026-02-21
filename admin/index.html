@@ -677,8 +677,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <!-- Path updated to relative from admin/ -->
-    <script src="/admin/js/auth-guard.js?v=2.5"></script>
-    <script src="/admin/id-card/js/data.js?v=2.5"></script>
+    <script src="/admin/js/auth-guard.js?v=2.8"></script>
+    <script src="/admin/id-card/js/data.js?v=2.8"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Role Check (Auth check is handled by auth-guard.js)
@@ -767,9 +767,10 @@
 
         function filterMembers(query = '') {
             const filtered = cachedMembers.filter(m =>
-                m.name.toLowerCase().includes(query) ||
-                m.id.toLowerCase().includes(query) ||
-                m.role.toLowerCase().includes(query)
+                (m.name.toLowerCase().includes(query) ||
+                    m.id.toLowerCase().includes(query) ||
+                    m.role.toLowerCase().includes(query)) &&
+                m.access !== 'admin'
             );
 
             const container = document.getElementById('memberList'); /* Changed from membersGrid to memberList to match existing HTML */
