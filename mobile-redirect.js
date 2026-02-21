@@ -20,7 +20,16 @@
         };
 
         if (map[page]) {
-            window.location.href = "/" + map[page];
+            // Calculate depth to find root
+            const depth = pathParts.length - (window.location.host === "" ? 0 : 0); // Simplified for local dev
+            // Actually, since it's a relative path to the root, we can just use the map directly if we know where we are.
+            // But a more robust way is to just find the 'app' folder relative to current.
+
+            let prefix = "";
+            if (window.location.pathname.includes('/admin/id-card/')) prefix = "../../";
+            else if (window.location.pathname.includes('/admin/')) prefix = "../";
+
+            window.location.href = prefix + map[page];
         }
     }
 })();

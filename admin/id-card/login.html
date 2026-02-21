@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | CC HQ</title>
-    <script src="/mobile-redirect.js"></script>
+    <script src="../../mobile-redirect.js"></script>
     <link rel="shortcut icon" href="/assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
@@ -401,16 +401,6 @@
             const validPass = currentMember.passcode || currentMember.ccCode;
 
             if (cleanCode === validPass) {
-                // --- NEW: BLOCK CHECK ---
-                if (currentMember.blockedUntil && currentMember.blockedUntil > Date.now()) {
-                    const remaining = Math.ceil((currentMember.blockedUntil - Date.now()) / (24 * 60 * 60 * 1000));
-                    btn.innerHTML = "<i class='fas fa-lock'></i> ACCESS REVOKED";
-                    btn.style.background = "#ffb300";
-                    btn.style.color = "#000";
-                    showToast(`ACCESS BLOCKED FOR ${remaining} MORE DAYS.`, "error");
-                    return;
-                }
-
                 btn.innerHTML = "<i class='fas fa-check'></i> ACCESS GRANTED";
                 btn.style.background = "#0aff0a";
                 btn.style.color = "#000";

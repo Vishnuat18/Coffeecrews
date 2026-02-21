@@ -447,40 +447,22 @@
 
     <div class="admin-container">
         <!-- Cockpit Header -->
-        </header>
-
-        <!-- Personal Admin Profile Section -->
-        <section id="admin-profile-section" class="animate-up mb-5" style="animation-delay: 0.05s; display: none;">
-            <div class="glass p-4 d-flex align-items-center gap-4 flex-wrap">
-                <div class="position-relative">
-                    <img id="admin-p-img" src="" alt="Admin"
-                        style="width: 100px; height: 100px; border-radius: 20px; border: 2px solid var(--accent-primary); object-fit: cover;">
-                    <div
-                        style="position: absolute; bottom: -5px; right: -5px; width: 15px; height: 15px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;">
-                    </div>
-                </div>
-                <div class="flex-grow-1">
-                    <span class="section-label" style="color: var(--accent-gold);">ACTIVE COMMANDER</span>
-                    <h2 id="admin-p-name" class="orbitron m-0" style="font-size: 1.5rem; color: #fff;">NAME</h2>
-                    <div id="admin-p-role" style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">ROLE</div>
-                    <div class="d-flex gap-3 mt-3">
-                        <a href="/admin/id-card/verify.html" id="admin-p-link" class="btn-action"
-                            style="padding: 5px 15px; font-size: 0.55rem;">
-                            <i class="fas fa-id-card"></i> VIEW MY WORKSPACE
-                        </a>
-                        <a href="/admin/id-card/reports.html" class="btn-action"
-                            style="padding: 5px 15px; font-size: 0.55rem; border-color: var(--accent-gold); color: var(--accent-gold);">
-                            <i class="fas fa-tower-broadcast"></i> TRANSMIT DIRECTIVE
-                        </a>
-                    </div>
-                </div>
-                <div class="stat-card glass" style="margin: 0; padding: 10px 20px;">
-                    <div class="small opacity-40 mb-1" style="font-size: 0.5rem; letter-spacing: 1px;">CLEARANCE</div>
-                    <div class="orbitron" style="font-size: 0.8rem; color: var(--accent-primary);">LEVEL 7 // ADMIN
-                    </div>
+        <header class="cockpit-header glass animate-up">
+            <div>
+                <span class="section-label">Operations Control</span>
+                <h1 class="glitch-title">Management Cockpit</h1>
+                <p style="opacity: 0.5; font-size: 0.6rem; letter-spacing: 2px;">SECURE ACCESS GRANTED // VERSION 6.5
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap justify-content-center">
+                <button onclick="openGlobalConfig()" class="btn-action">
+                    <i class="fas fa-cog"></i> GLOBAL CONFIG
+                </button>
+                <div id="sync-time" style="font-family: 'Orbitron'; font-size: 0.7rem; opacity: 0.4;">
+                    SYNCED // 00:00
                 </div>
             </div>
-        </section>
+        </header>
 
         <!-- Stats Overview -->
         <section class="stats-bar animate-up" style="animation-delay: 0.1s;">
@@ -640,25 +622,15 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <!-- Path updated to relative from admin/ -->
-    <script src="/admin/js/auth-guard.js"></script>
+    <script src="js/auth-guard.js"></script>
     <script src="/admin/id-card/js/data.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // AUTH & ROLE CHECK
+            // Role Check (Auth check is handled by auth-guard.js)
             const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
             if (session.role !== 'admin') {
                 location.href = '/admin/id-card/verify.html?id=' + (session.id || '');
                 return;
-            }
-
-            // Render Personal Admin Profile
-            const adminData = await DataManager.getMemberById(session.id);
-            if (adminData) {
-                document.getElementById('admin-profile-section').style.display = 'block';
-                document.getElementById('admin-p-img').src = adminData.image;
-                document.getElementById('admin-p-name').textContent = adminData.name;
-                document.getElementById('admin-p-role').textContent = adminData.role.toUpperCase();
-                document.getElementById('admin-p-link').href = `/admin/id-card/verify.html?id=${adminData.id}`;
             }
 
             // Dual Access Link
@@ -728,7 +700,6 @@
             const filtered = cachedMembers.filter(m =>
                 (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
                 && m.id !== session.id
-                && m.access !== 'admin' // Exclude other admins
             );
 
             if (filtered.length === 0) {
@@ -736,33 +707,26 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(member => {
-                const isBlocked = member.blockedUntil && member.blockedUntil > Date.now();
-                const blockText = isBlocked ? "UNBLOCK" : "BLOCK";
-                const blockColor = isBlocked ? "var(--accent-primary)" : "var(--accent-gold)";
-
-                return `
-                <div class="member-item glass" style="${isBlocked ? 'opacity: 0.6; grayscale: 50%;' : ''}">
+            container.innerHTML = filtered.map(member => `
+                <div class="member-item glass">
                     <img src="${member.image}" alt="${member.name}" class="member-img">
                     <div class="member-overlay">
                         <div class="member-name">${member.name}</div>
                         <div class="member-role-badge" style="background: ${member.accent || 'var(--accent-primary)'}">${member.role.toUpperCase()}</div>
-                        ${isBlocked ? `<div class="small mt-2" style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.5rem;"><i class="fas fa-lock"></i> ACCESS RESTRICTED</div>` : ''}
                         <div class="d-flex gap-2 mt-4">
                             <a href="/admin/id-card/edit.html?id=${member.id}" class="btn-action flex-grow-1">
                                 <i class="fas fa-edit"></i> EDIT
                             </a>
-                            <button onclick="toggleBlock('${member.id}', ${isBlocked})" class="btn-action" style="border-color: ${blockColor}; color: ${blockColor};">
-                                <i class="fas fa-${isBlocked ? 'unlock' : 'lock'}"></i> ${blockText}
-                            </button>
                             <a href="/admin/id-card/display.html?id=${member.id}" target="_blank" class="btn-action">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            <button onclick="deleteMember('${member.id}')" class="btn-action" style="border-color: var(--accent-red); color: var(--accent-red);">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-            `;
-            }).join('');
+            `).join('');
         }
 
         function renderApplicationsUI(apps) {
@@ -812,26 +776,9 @@
             document.getElementById('sync-time').textContent = `LIVE SYNC // ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
         }
 
-        async function toggleBlock(id, currentlyBlocked) {
-            if (currentlyBlocked) {
-                if (await ccConfirm("Restore Access", 'Restore access for this agent?')) {
-                    if (await DataManager.unblockMember(id)) {
-                        showToast("Access protocol restored.", "success");
-                    }
-                }
-            } else {
-                const days = await ccPrompt("Restriction Protocol", "Enter duration for login restriction (days):", "7");
-                if (days && !isNaN(days)) {
-                    if (await DataManager.blockMember(id, parseInt(days))) {
-                        showToast(`Access restricted for ${days} days.`, "warning");
-                    }
-                }
-            }
-        }
-
         async function deleteMember(id) {
             showToast("Verifying authorization...", "info");
-            if (await ccConfirm("Terminate Record", 'Authorize termination of this crew record?')) {
+            if (confirm('Authorize termination of this crew record?')) {
                 if (await DataManager.deleteMember(id)) {
                     showToast("Crew record purged from HQ.", "success");
                 }
@@ -839,7 +786,7 @@
         }
 
         async function deleteApp(id) {
-            if (!await ccConfirm("Delete Application", 'Authorize deletion of this recruitment record?')) return;
+            if (!confirm('Authorize deletion of this recruitment record?')) return;
             await DataManager.deleteApplication(id);
             showToast("Recruitment record purged.", "success");
         }
@@ -889,19 +836,19 @@
         }
 
         async function approveRequest(id) {
-            if (!await ccConfirm("Approve Request", 'Approve passcode change and update database?')) return;
+            if (!confirm('Approve passcode change and update database?')) return;
             const result = await DataManager.approvePasscodeRequest(id);
             showToast(result.message, result.success ? "success" : "error");
         }
 
         async function rejectRequest(id) {
-            if (!await ccConfirm("Reject Request", 'Reject this passcode change request?')) return;
+            if (!confirm('Reject this passcode change request?')) return;
             const result = await DataManager.rejectPasscodeRequest(id);
             showToast(result.message, "info");
         }
 
-        async function handleLogout() {
-            if (await ccConfirm("Logout", "TERMINATE SECURE SESSION?")) {
+        function handleLogout() {
+            if (confirm("TERMINATE SECURE SESSION?")) {
                 sessionStorage.removeItem('cc_session');
                 localStorage.removeItem('cc_session'); // Clear legacy
                 location.href = '/admin/id-card/login.html';
@@ -910,7 +857,7 @@
 
         async function openGlobalConfig() {
             const members = await DataManager.getAllMembers();
-            await ccAlert("System Configuration", `Global Configuration: ${members.length} personnel records active.`);
+            alert(`Global Configuration: ${members.length} personnel records active.`);
         }
     </script>
 </body>

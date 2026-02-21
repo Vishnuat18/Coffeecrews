@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify | CC HQ</title>
-    <script src="/mobile-redirect.js"></script>
+    <script src="../../mobile-redirect.js"></script>
     <link rel="shortcut icon" href="/assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
@@ -641,7 +641,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/js/auth-guard.js"></script>
+    <script src="../js/auth-guard.js"></script>
     <script src="/admin/id-card/js/data.js"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
@@ -941,7 +941,7 @@
         async function handleMediaUpload(event, channel) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { await ccAlert("File Size Error", "Max size 5MB"); return; }
+            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
 
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -1083,31 +1083,31 @@
             const conf = document.getElementById('conf-pass').value;
 
             if (cur.length !== 4 || next.length !== 4) {
-                await ccAlert("Input Error", "CC Codes must be exactly 4 digits.");
+                alert("CC Codes must be exactly 4 digits.");
                 return;
             }
 
             if (next !== conf) {
-                await ccAlert("Validation Error", "New codes do not match.");
+                alert("New codes do not match.");
                 return;
             }
 
             const result = await window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
             if (result.success) {
-                await ccAlert("Security Request", result.message);
+                alert(result.message);
                 document.getElementById('cur-pass').value = '';
                 document.getElementById('new-pass').value = '';
                 document.getElementById('conf-pass').value = '';
                 await renderSecurity();
             } else {
-                await ccAlert("Security Error", result.message);
+                alert(result.message);
             }
         }
 
-        async function previewStatusImage(event) {
+        function previewStatusImage(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { await ccAlert("File Size Error", "Max size 5MB"); return; }
+            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
 
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -1170,14 +1170,13 @@
                 await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
                 input.value = '';
                 removeStatusImage();
-                showToast("MISSION STATUS COMMITTED TO GLOBAL FEED", "success");
+                alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
                 await switchTab('home');
             }
         }
 
-        async function handleLogout() {
-            if (await ccConfirm("Termination Signal", "TERMINATE SECURE SESSION?")) {
-                sessionStorage.removeItem('cc_session');
+        function handleLogout() {
+            if (confirm("TERMINATE SECURE SESSION?")) {
                 localStorage.removeItem('cc_session');
                 location.href = '/admin/id-card/login.html';
             }

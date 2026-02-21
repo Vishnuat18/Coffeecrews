@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Member | CoffeeCrews Admin</title>
-    <script src="/mobile-redirect.js"></script>
+    <script src="../../mobile-redirect.js"></script>
     <link rel="shortcut icon" href="/assets/favicon.png">
     <link rel="stylesheet" href="/admin/id-card/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -114,7 +114,7 @@
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="/admin/js/auth-guard.js"></script>
+    <script src="../js/auth-guard.js"></script>
     <script src="/admin/id-card/js/data.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -135,7 +135,7 @@
 
             const member = await DataManager.getMemberById(memberId);
             if (!member) {
-                await ccAlert("Dossier Error", 'Personnel record not found!');
+                alert('Personnel record not found!');
                 window.location.href = '/admin/index.html';
                 return;
             }
@@ -198,14 +198,14 @@
                 };
 
                 if (await DataManager.updateMember(member.id, updatedData)) {
-                    await ccAlert("Sync Successful", 'Changes synchronized successfully!');
+                    alert('Changes synchronized successfully!');
                     window.location.href = '/admin/index.html';
                 }
             });
 
             // Delete logic
             document.getElementById('deleteBtn').onclick = async () => {
-                if (await ccConfirm("Critical Action", `CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
+                if (confirm(`CRITICAL: Are you sure you want to permanently delete ${member.name}'s record?`)) {
                     if (await DataManager.deleteMember(member.id)) {
                         window.location.href = '/admin/index.html';
                     }
