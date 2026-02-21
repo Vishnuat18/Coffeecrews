@@ -21,82 +21,6 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-/**
- * ToastManager
- * Premium notification system for tactical feedback
- */
-class ToastManager {
-    static init() {
-        if (document.getElementById('cc-toast-container')) return;
-        const container = document.createElement('div');
-        container.id = 'cc-toast-container';
-        container.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        `;
-        document.body.appendChild(container);
-
-        const style = document.createElement('style');
-        style.textContent = `
-            .cc-toast {
-                background: rgba(15, 23, 42, 0.9);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(0, 243, 255, 0.3);
-                color: #fff;
-                padding: 12px 20px;
-                border-radius: 10px;
-                font-family: 'Rajdhani', sans-serif;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-                transform: translateX(100%);
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                pointer-events: auto;
-                min-width: 250px;
-            }
-            .cc-toast.show { transform: translateX(0); }
-            .cc-toast i { font-size: 1.1rem; }
-            .cc-toast.success { border-color: #3cff7d; }
-            .cc-toast.success i { color: #3cff7d; }
-            .cc-toast.error { border-color: #ff003c; }
-            .cc-toast.error i { color: #ff003c; }
-            .cc-toast.info { border-color: #00f3ff; }
-            .cc-toast.info i { color: #00f3ff; }
-        `;
-        document.head.appendChild(style);
-    }
-
-    static show(message, type = 'info', duration = 4000) {
-        this.init();
-        const container = document.getElementById('cc-toast-container');
-        const toast = document.createElement('div');
-        toast.className = `cc-toast ${type}`;
-
-        let icon = 'fa-info-circle';
-        if (type === 'success') icon = 'fa-check-circle';
-        if (type === 'error') icon = 'fa-exclamation-triangle';
-
-        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-        container.appendChild(toast);
-
-        setTimeout(() => toast.classList.add('show'), 10);
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 400);
-        }, duration);
-    }
-}
-window.showToast = (msg, type, dur) => ToastManager.show(msg, type, dur);
-
 const INITIAL_MEMBERS = [
     {
         id: "vishnu",
@@ -268,7 +192,6 @@ class DataManager {
     static STORAGE_KEY = 'coffeecrews_id_cards';
     static CHAT_KEY = 'coffeecrews_chats';
     static REQUESTS_KEY = 'coffeecrews_passcode_requests';
-    static ATTENDANCE_KEY = 'attendance';
     static DATA_VERSION = '2.0'; // Updated for Firebase
 
     static async getAllMembers() {
@@ -429,56 +352,12 @@ class DataManager {
         if (!member) return false;
 
         const today = new Date().toISOString().split('T')[0];
-        const log = {
-            memberId: id,
-            memberName: member.name,
-            timestamp: Date.now(),
-            time: new Date().toLocaleTimeString()
-        };
+        if (!member.attendance) member.attendance = [];
 
-        await db.ref(`attendance/${today}/${id}`).set(log);
-        window.dispatchEvent(new CustomEvent('cc_attendance_update'));
-        return true;
-    }
+        if (member.attendance.includes(today)) return false;
 
-    static async getDailyAttendance(date = null) {
-        const today = date || new Date().toISOString().split('T')[0];
-        const snapshot = await db.ref(`attendance/${today}`).once('value');
-        const val = snapshot.val();
-        return val ? Object.values(val) : [];
-    }
-
-    // --- RECRUITMENT & APPLICATIONS ---
-
-    static async submitApplication(appData) {
-        const id = 'APP' + Date.now();
-        const application = {
-            ...appData,
-            id,
-            status: 'pending',
-            timestamp: new Date().toLocaleString(),
-            epoch: Date.now()
-        };
-        await db.ref(`applications/${id}`).set(application);
-        // Also keep in localStorage for backward compatibility if needed by old UI
-        const local = JSON.parse(localStorage.getItem('cc_applications') || '[]');
-        local.push(application);
-        localStorage.setItem('cc_applications', JSON.stringify(local));
-        return application;
-    }
-
-    static async getApplications() {
-        const snapshot = await db.ref('applications').once('value');
-        const val = snapshot.val();
-        return val ? Object.values(val).sort((a, b) => b.epoch - a.epoch) : [];
-    }
-
-    static async deleteApplication(id) {
-        await db.ref(`applications/${id}`).remove();
-        // Sync local
-        let local = JSON.parse(localStorage.getItem('cc_applications') || '[]');
-        local = local.filter(a => a.id !== id);
-        localStorage.setItem('cc_applications', JSON.stringify(local));
+        member.attendance.push(today);
+        return this.updateMember(id, { attendance: member.attendance });
     }
 
     // --- SECURITY & PASSCODE REQUESTS ---

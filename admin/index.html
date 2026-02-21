@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Management Cockpit | COFFEECREWS Admin</title>
     <!-- Standardized Fonts & Icons -->
-    <link rel="shortcut icon" href="/assets/favicon.png">
+    <link rel="shortcut icon" href="assets/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap"
         rel="stylesheet">
@@ -478,27 +478,6 @@
                 <div class="stat-value" id="stat-roles">0</div>
                 <div class="stat-label">Active Roles</div>
             </div>
-            <div class="stat-card glass" style="border-color: var(--accent-gold);">
-                <div class="stat-value" id="stat-attendance">0</div>
-                <div class="stat-label">Agents On-Duty</div>
-            </div>
-        </section>
-
-        <!-- Attendance Tracker -->
-        <section class="animate-up mb-5" style="animation-delay: 0.15s;">
-            <div class="glass p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <span class="section-label">Roll Call</span>
-                        <h3 class="orbitron m-0" style="font-size: 1rem;">Daily Attendance Tracker</h3>
-                    </div>
-                    <div id="attendance-date" class="opacity-50 small orbitron">2026-02-21</div>
-                </div>
-                <div id="attendance-list" class="d-flex flex-wrap gap-2">
-                    <!-- Injected via JS -->
-                    <span class="opacity-30 small">No agents clocked in yet today.</span>
-                </div>
-            </div>
         </section>
 
         <!-- Ecosystem Navigation -->
@@ -559,9 +538,6 @@
                     <span class="section-label">Incoming Talent</span>
                     <h2 class="section-title" style="margin-bottom: 0;">Recruitment Pipeline</h2>
                 </div>
-                <a href="applications.html" class="btn-action">
-                    <i class="fas fa-external-link-alt"></i> FULL PAGE VIEW
-                </a>
             </div>
             <div class="table-container glass p-0">
                 <div class="table-responsive">
@@ -673,30 +649,9 @@
         async function refreshDashboard() {
             await updateStats();
             await renderMembers();
-            await renderApplications();
-            await renderAttendance();
+            renderApplications();
             await renderSecurityRequests();
             updateSyncTime();
-        }
-
-        async function renderAttendance() {
-            const list = await DataManager.getDailyAttendance();
-            const container = document.getElementById('attendance-list');
-            document.getElementById('stat-attendance').textContent = list.length;
-            document.getElementById('attendance-date').textContent = new Date().toISOString().split('T')[0];
-
-            if (list.length === 0) {
-                container.innerHTML = '<span class="opacity-30 small italic">Waiting for agents to clock in...</span>';
-                return;
-            }
-
-            container.innerHTML = list.map(entry => `
-                <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
-                    <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
-                    <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
-                    <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
-                </div>
-            `).join('');
         }
 
         function updateSyncTime() {
@@ -707,7 +662,7 @@
 
         async function updateStats() {
             const members = await DataManager.getAllMembers();
-            const apps = await DataManager.getApplications();
+            const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
             const roles = [...new Set(members.map(m => m.role))];
 
             document.getElementById('stat-total').textContent = members.length;
@@ -790,30 +745,26 @@
         }
 
         async function deleteMember(id) {
-            showToast("Verifying authorization...", "info");
             if (confirm('Authorize termination of this crew record?')) {
                 if (await DataManager.deleteMember(id)) {
-                    showToast("Crew record purged from HQ.", "success");
                     await refreshDashboard();
                 }
             }
         }
 
-        async function deleteApp(id) {
+        function deleteApp(id) {
             if (!confirm('Authorize deletion of this recruitment record?')) return;
-            await DataManager.deleteApplication(id);
-            showToast("Recruitment record purged.", "success");
-            await refreshDashboard();
+            let apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
+            apps = apps.filter(app => app.id !== id);
+            localStorage.setItem('cc_applications', JSON.stringify(apps));
+            refreshDashboard();
         }
 
-        async function viewApp(id) {
-            const apps = await DataManager.getApplications();
+        function viewApp(id) {
+            const apps = JSON.parse(localStorage.getItem('cc_applications') || '[]');
             const app = apps.find(a => a.id === id);
             if (app) {
-                // Using a more structured popup for "detailed view" if needed, 
-                // but for now, simple toast to confirm identity and redirect to full page
-                showToast(`Viewing dossier for ${app.name}`, "info");
-                setTimeout(() => location.href = 'applications.html', 1000);
+                alert(`Commander: ${app.name}\nRole: ${app.role}\nEmail: ${app.email}\nPhone: ${app.phone}\nStack: ${app.stack}\nPortfolio: ${app.portfolio}`);
             }
         }
 

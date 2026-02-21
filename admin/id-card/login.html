@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | CC HQ</title>
     <script src="../../mobile-redirect.js"></script>
-    <link rel="shortcut icon" href="/assets/favicon.png">
+    <link rel="shortcut icon" href="assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
@@ -330,7 +330,7 @@
             }
         }
 
-        async function handleAuth() {
+        function handleAuth() {
             const codeInput = document.getElementById('cc-code').value;
             const btn = document.getElementById('auth-btn');
 
@@ -357,18 +357,22 @@
                     timestamp: Date.now()
                 }));
 
-                // --- NEW: TACTICAL ATTENDANCE LOGGING ---
-                await DataManager.markAttendance(currentMember.id);
-                showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
-
                 setTimeout(() => {
-                    location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                    // DUAL ACCESS ROUTING (Vishnu, Prasanna, Dharani)
+                    const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+
+                    if (dualAccessIds.includes(currentMember.id)) {
+                        // Land on Workspace - Switch button will handle Cockpit access
+                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                    } else {
+                        // Others (Crews) land on their Workspace
+                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                    }
                 }, 1000);
             } else {
                 btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";
                 btn.style.background = "#ff003c";
                 btn.style.color = "#fff";
-                showToast("INVALID ACCESS CODE.", "error");
 
                 gsap.to('.input-card', { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
 

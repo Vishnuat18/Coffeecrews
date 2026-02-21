@@ -70,10 +70,6 @@
                 <div style="font-size: 0.5rem; opacity: 0.5; margin-bottom: 5px;">OPEN APPS</div>
                 <div class="orbitron" id="stat-apps" style="font-size: 1.2rem; color: var(--accent-secondary);">0</div>
             </div>
-            <div class="glass" style="padding: 15px; border-radius: 15px; border-color: var(--accent-gold);">
-                <div style="font-size: 0.5rem; opacity: 0.5; margin-bottom: 5px;">ON-DUTY</div>
-                <div class="orbitron" id="stat-attendance" style="font-size: 1.2rem; color: var(--accent-gold);">0</div>
-            </div>
         </div>
 
         <h3 class="orbitron" style="font-size: 0.7rem; margin: 25px 15px 15px; opacity: 0.4;">PERSONNEL REQUESTS</h3>
@@ -138,16 +134,13 @@
         async function refreshCockpit() {
             const members = await window.DataManager.getAllMembers();
             const requests = await window.DataManager.getPasscodeRequests();
-            const apps = await window.DataManager.getApplications();
-            const attendance = await window.DataManager.getDailyAttendance();
 
             document.getElementById('stat-total').innerText = members.length;
-            document.getElementById('stat-apps').innerText = apps.length;
-            document.getElementById('stat-attendance').innerText = attendance.length;
 
             // Render Requests
             const reqList = document.getElementById('requests-list');
             const pendingReqs = requests.filter(r => r.status === 'pending');
+            document.getElementById('stat-apps').innerText = pendingReqs.length;
 
             if (pendingReqs.length === 0) {
                 reqList.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.3; font-size:0.7rem;">CLEARED: NO PENDING REQUESTS</div>';
@@ -181,14 +174,14 @@
         async function approve(id) {
             if (confirm("APPROVE SECURITY REQUEST?")) {
                 const res = await window.DataManager.approvePasscodeRequest(id);
-                showToast(res.message, "success");
+                alert(res.message);
             }
         }
 
         async function reject(id) {
             if (confirm("REJECT SECURITY REQUEST?")) {
                 const res = await window.DataManager.rejectPasscodeRequest(id);
-                showToast(res.message, "error");
+                alert(res.message);
             }
         }
     </script>
