@@ -641,8 +641,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/js/auth-guard.js?v=3.1"></script>
-    <script src="/admin/id-card/js/data.js?v=3.1"></script>
+    <script src="/admin/js/auth-guard.js?v=3.2"></script>
+    <script src="/admin/id-card/js/data.js?v=3.2"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
         let loggedInUser = null; // The person currently using the browser
@@ -1157,9 +1157,21 @@
         }
 
         async function markTodayAttendance() {
-            if (await window.DataManager.markAttendance(activeMember.id)) {
-                activeMember = await window.DataManager.getMemberById(activeMember.id);
-                renderCalendar();
+            const now = new Date();
+            const hour = now.getHours();
+
+            // Strict Window: 08:00 - 10:00
+            if (hour < 8 || hour >= 10) {
+                await tacticalAlert("MISSION LOG ACCESS DENIED. Attendance marking is strictly permitted between 08:00 and 10:00 only.", "OUTSIDE OPERATIONAL WINDOW");
+                return;
+            }
+
+            if (await tacticalConfirm("AUTHORIZE MISSION LOG FOR TODAY?", "ATTENDANCE AUTHENTICATION")) {
+                if (await window.DataManager.markAttendance(activeMember.id)) {
+                    activeMember = await window.DataManager.getMemberById(activeMember.id);
+                    renderCalendar();
+                    showToast("ATTENDANCE MARKED SUCCESSFULLY", "success");
+                }
             }
         }
 
