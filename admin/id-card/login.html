@@ -254,7 +254,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/id-card/js/data.js?v=2.9"></script>
+    <script src="/admin/id-card/js/data.js?v=2.8"></script>
     <script>
         let members = [];
         let currentMember = null;
@@ -443,15 +443,9 @@
                     timestamp: Date.now()
                 }));
 
-                // --- NEW: TACTICAL ATTENDANCE LOGGING WITH CONFIRMATION ---
-                if (await tacticalConfirm("PROCEED WITH MISSION CHECK-IN?", "ATTENDANCE PROTOCOL")) {
-                    const attResult = await DataManager.markAttendance(currentMember.id);
-                    if (attResult.success) {
-                        showToast(attResult.message, "success");
-                    } else {
-                        showToast(attResult.message, "error");
-                    }
-                }
+                // --- NEW: TACTICAL ATTENDANCE LOGGING ---
+                await DataManager.markAttendance(currentMember.id);
+                showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
 
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
