@@ -22,35 +22,19 @@
         if (!validateSession()) {
             console.warn("Unauthorized access detected. Redirecting to login.");
             const currentPath = window.location.pathname;
-            const searchParams = new URLSearchParams(window.location.search);
-            const returnToId = searchParams.get('id') || '';
-            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}&id=${returnToId}`;
+            const returnTo = new URLSearchParams(window.location.search).get('id') || '';
+            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}&id=${returnTo}`;
             return;
         }
 
-        const path = window.location.pathname;
-        const searchParams = new URLSearchParams(window.location.search);
-        const urlId = searchParams.get('id');
-
-        // 1. Strict ID Validation (Kill session if hijacking attempted)
-        if (urlId && session.role !== 'admin') {
-            if (urlId.toLowerCase() !== session.id.toLowerCase()) {
-                console.error("ID Mismatch Protocol: Session Terminated.");
-                sessionStorage.removeItem('cc_session');
-                localStorage.removeItem('cc_session');
-                window.location.href = '/admin/id-card/login.html?error=id_mismatch';
-                return;
+        // Specific page role requirements (optional but recommended)
+        if (window.location.pathname.includes('/admin/index.html') ||
+            window.location.pathname.includes('/admin/applications.html') ||
+            window.location.pathname.includes('/admin/id-card/reports.html')) {
+            if (session.role !== 'admin') {
+                console.error("Insufficient clearance for this sector.");
+                window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
             }
-        }
-
-        // 2. Sector Role Requirements
-        const adminSectors = ['/admin/index.html', '/admin/applications.html', '/admin/id-card/reports.html', '/admin/'];
-        const currentIsAdminSector = adminSectors.some(sector => path.endsWith(sector) || path === sector);
-
-        if (currentIsAdminSector && session.role !== 'admin') {
-            console.error("Insufficient clearance for this sector. Re-routing to personnel workspace.");
-            window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-            return;
         }
     }
 })();
