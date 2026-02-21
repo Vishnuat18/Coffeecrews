@@ -451,7 +451,7 @@
             const memberId = urlParams.get('id');
 
             // Admin context check
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
             if (session.role === 'admin') {
                 const adminLink = document.getElementById('admin-back');
                 if (adminLink) adminLink.style.display = 'flex';

@@ -622,13 +622,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <!-- Path updated to relative from admin/ -->
+    <script src="js/auth-guard.js"></script>
     <script src="/admin/id-card/js/data.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Auth Check
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            // Role Check (Auth check is handled by auth-guard.js)
+            const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
             if (session.role !== 'admin') {
-                location.href = '/admin/id-card/login.html';
+                location.href = '/admin/id-card/verify.html?id=' + (session.id || '');
                 return;
             }
 
@@ -694,7 +695,7 @@
 
         function filterMembers(query) {
             const container = document.getElementById('memberList');
-            const session = JSON.parse(localStorage.getItem('cc_session') || '{}');
+            const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
 
             const filtered = cachedMembers.filter(m =>
                 (m.name.toLowerCase().includes(query) || m.role.toLowerCase().includes(query))
@@ -848,7 +849,8 @@
 
         function handleLogout() {
             if (confirm("TERMINATE SECURE SESSION?")) {
-                localStorage.removeItem('cc_session');
+                sessionStorage.removeItem('cc_session');
+                localStorage.removeItem('cc_session'); // Clear legacy
                 location.href = '/admin/id-card/login.html';
             }
         }

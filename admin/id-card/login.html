@@ -398,8 +398,9 @@
 
             // Normalize code (check if they entered CC-XXXX or just XXXX)
             const cleanCode = codeInput.toUpperCase().replace('CC-', '');
+            const validPass = currentMember.passcode || currentMember.ccCode;
 
-            if (cleanCode === currentMember.ccCode) {
+            if (cleanCode === validPass) {
                 btn.innerHTML = "<i class='fas fa-check'></i> ACCESS GRANTED";
                 btn.style.background = "#0aff0a";
                 btn.style.color = "#000";
@@ -410,7 +411,8 @@
 
                 console.log("Auth Success for:", currentMember.id, "Role assigned:", role);
 
-                localStorage.setItem('cc_session', JSON.stringify({
+                // --- CHANGED: Use sessionStorage for tab-specific lifecycle ---
+                sessionStorage.setItem('cc_session', JSON.stringify({
                     id: currentMember.id,
                     role: role,
                     name: currentMember.name,
@@ -422,7 +424,13 @@
                 showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
 
                 setTimeout(() => {
-                    location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnTo = urlParams.get('return_to');
+                    if (returnTo) {
+                        location.href = returnTo;
+                    } else {
+                        location.href = '/admin/id-card/verify.html?id=' + currentMember.id;
+                    }
                 }, 1000);
             } else {
                 btn.innerHTML = "<i class='fas fa-times'></i> ACCESS DENIED";

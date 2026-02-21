@@ -101,6 +101,7 @@ const INITIAL_MEMBERS = [
     {
         id: "vishnu",
         ccCode: "1418",
+        passcode: "1418",
         name: "Vishnu R",
         role: "Full stack Dev",
         bloodGroup: "O+",
@@ -119,6 +120,7 @@ const INITIAL_MEMBERS = [
     {
         id: "kiran",
         ccCode: "0000",
+        passcode: "0000",
         name: "Kiran Balaso Patil",
         role: "Full Stack Dev",
         bloodGroup: "AB+",
@@ -136,6 +138,7 @@ const INITIAL_MEMBERS = [
     {
         id: "rohith",
         ccCode: "2244",
+        passcode: "2244",
         name: "Rohith S",
         role: "Front end Dev",
         bloodGroup: "B+",
@@ -153,6 +156,7 @@ const INITIAL_MEMBERS = [
     {
         id: "prasanna",
         ccCode: "9089",
+        passcode: "9089",
         name: "Prasanna Ramana S",
         role: "Founder & CEO",
         bloodGroup: "O+",
@@ -171,6 +175,7 @@ const INITIAL_MEMBERS = [
     {
         id: "senthil",
         ccCode: "9883",
+        passcode: "9883",
         name: "Senthilnathan L M",
         role: "UI/UX Designer",
         bloodGroup: "B+",
@@ -188,6 +193,7 @@ const INITIAL_MEMBERS = [
     {
         id: "dharani",
         ccCode: "9858",
+        passcode: "9858",
         name: "Dharanitharan P",
         role: "Founder & CEO",
         bloodGroup: "A+",
@@ -206,6 +212,7 @@ const INITIAL_MEMBERS = [
     {
         id: "gc",
         ccCode: "0109",
+        passcode: "0109",
         name: "Gowdhama Chandhran K",
         role: "DB Manager",
         bloodGroup: "AB+",
@@ -222,7 +229,8 @@ const INITIAL_MEMBERS = [
     },
     {
         id: "gokul",
-        ccCode: "1444",
+        ccCode: "3021",
+        passcode: "3021",
         name: "Gokul",
         role: "Video Editor",
         description: "Master of Motion and Visual Storytelling. Bringing static concepts to life through animation and design.",
@@ -238,7 +246,8 @@ const INITIAL_MEMBERS = [
     },
     {
         id: "nithish",
-        ccCode: "2713",
+        ccCode: "5521",
+        passcode: "5521",
         name: "Nithish",
         role: "Prompt Engineer",
         description: "Synthesizing data-driven insights with creative linguistic patterns to enhance AI reasoning capabilities.",
@@ -252,6 +261,7 @@ const INITIAL_MEMBERS = [
     {
         id: "akshaya",
         ccCode: "1029",
+        passcode: "1029",
         name: "Akshaya",
         role: "Web Designer",
         description: "UI/UX Designer creating intuitive, human-centric interfaces. Merging pixel perfection with user empathy.",
@@ -496,7 +506,8 @@ class DataManager {
 
     static async submitPasscodeRequest(memberId, memberName, currentPass, newPass) {
         const member = await this.getMemberById(memberId);
-        if (!member || member.ccCode !== currentPass) {
+        const validPass = member.passcode || member.ccCode; // Fallback for legacy
+        if (!member || validPass !== currentPass) {
             return { success: false, message: "Verification failed: Current CC Code is incorrect." };
         }
 
@@ -532,11 +543,11 @@ class DataManager {
         }
 
         if (foundKey && req.status === 'pending') {
-            const updated = await this.updateMember(req.memberId, { ccCode: req.newPass });
+            const updated = await this.updateMember(req.memberId, { passcode: req.newPass });
             if (updated) {
                 await db.ref(`requests/${foundKey}`).update({ status: 'approved' });
                 window.dispatchEvent(new CustomEvent('cc_security_update'));
-                return { success: true, message: "Request approved. CC Code updated." };
+                return { success: true, message: "Request approved. Passcode updated." };
             }
         }
         return { success: false, message: "Approval failed." };
@@ -649,7 +660,45 @@ class DataManager {
         ref.on('value', listener);
         return () => ref.off('value', listener);
     }
+    static async syncPermanentCodes() {
+        try {
+            const snapshot = await db.ref('members').once('value');
+            const firebaseMembers = snapshot.val();
+
+            if (!firebaseMembers) {
+                await this.saveAllMembers(INITIAL_MEMBERS);
+                return;
+            }
+
+            const membersArray = Array.isArray(firebaseMembers) ? firebaseMembers : Object.values(firebaseMembers);
+            let updated = false;
+
+            // Update existing members with codes from INITIAL_MEMBERS
+            membersArray.forEach((m, idx) => {
+                const source = INITIAL_MEMBERS.find(im => im.id.toLowerCase() === m.id.toLowerCase());
+                if (source) {
+                    // Force ccCode to match INITIAL_MEMBERS as it's "permanent"
+                    if (m.ccCode !== source.ccCode) {
+                        m.ccCode = source.ccCode;
+                        // Also reset passcode to match for initial workable state if it was old
+                        m.passcode = source.ccCode;
+                        updated = true;
+                    }
+                }
+            });
+
+            if (updated) {
+                await this.saveAllMembers(membersArray);
+                console.log("Permanent CC Codes synced with database.");
+            }
+        } catch (e) {
+            console.error("Sync failed:", e);
+        }
+    }
 }
+
+// Global sync on load
+DataManager.syncPermanentCodes();
 
 // Export for use in other scripts
 window.DataManager = DataManager;
