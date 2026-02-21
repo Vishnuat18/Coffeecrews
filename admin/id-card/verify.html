@@ -642,7 +642,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script src="/admin/id-card/js/data.js"></script>
-    <script src="/admin/js/tactical-notifications.js"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
         let loggedInUser = null; // The person currently using the browser
@@ -1085,24 +1084,24 @@
             const conf = document.getElementById('conf-pass').value;
 
             if (cur.length !== 4 || next.length !== 4) {
-                showTacticalNotification("INVALID FORMAT: CC Codes must be exactly 4 digits", "warning");
+                alert("CC Codes must be exactly 4 digits.");
                 return;
             }
 
             if (next !== conf) {
-                showTacticalNotification("MISMATCH: High-security authentication codes do not match", "error");
+                alert("New codes do not match.");
                 return;
             }
 
             const result = await window.DataManager.submitPasscodeRequest(activeMember.id, activeMember.name, cur, next);
             if (result.success) {
-                showTacticalNotification(result.message, "success");
+                alert(result.message);
                 document.getElementById('cur-pass').value = '';
                 document.getElementById('new-pass').value = '';
                 document.getElementById('conf-pass').value = '';
                 await renderSecurity();
             } else {
-                showTacticalNotification(result.message, "error");
+                alert(result.message);
             }
         }
 
@@ -1172,7 +1171,7 @@
                 await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
                 input.value = '';
                 removeStatusImage();
-                showTacticalNotification("MISSION STATUS COMMITTED TO GLOBAL FEED", "success");
+                alert("MISSION STATUS COMMITTED TO GLOBAL FEED");
                 await switchTab('home');
             }
         }

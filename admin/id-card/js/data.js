@@ -246,33 +246,6 @@ class DataManager {
         return false;
     }
 
-    // --- RECRUITMENT SYSTEM ---
-
-    static async submitApplication(appData) {
-        const id = 'app_' + Date.now();
-        const application = {
-            id,
-            ...appData,
-            timestamp: new Date().toLocaleString(),
-            isoDate: new Date().toISOString()
-        };
-        await db.ref(`applications/${id}`).set(application);
-        window.dispatchEvent(new CustomEvent('cc_applications_update'));
-        return id;
-    }
-
-    static async getAllApplications() {
-        const snapshot = await db.ref('applications').once('value');
-        const data = snapshot.val();
-        return data ? Object.values(data).sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate)) : [];
-    }
-
-    static async deleteApplication(id) {
-        await db.ref(`applications/${id}`).remove();
-        window.dispatchEvent(new CustomEvent('cc_applications_update'));
-        return true;
-    }
-
     // --- CHAT SYSTEM (REAL-TIME) ---
 
     static async getChatStore() {
@@ -385,20 +358,6 @@ class DataManager {
 
         member.attendance.push(today);
         return this.updateMember(id, { attendance: member.attendance });
-    }
-
-    static async getAttendanceSummary() {
-        const members = await this.getAllMembers();
-        const today = new Date().toISOString().split('T')[0];
-
-        return members.map(m => ({
-            id: m.id,
-            name: m.name,
-            role: m.role,
-            presentToday: (m.attendance || []).includes(today),
-            totalDays: (m.attendance || []).length,
-            lastSeen: m.attendance && m.attendance.length > 0 ? m.attendance[m.attendance.length - 1] : 'Never'
-        }));
     }
 
     // --- SECURITY & PASSCODE REQUESTS ---
