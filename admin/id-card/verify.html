@@ -673,11 +673,8 @@
                 }
             }
 
-            // ACL Check: Crew members can only see their own workspace
-            if (session.role === 'crew' && session.id !== id) {
-                location.href = `/admin/id-card/verify.html?id=${session.id}`;
-                return;
-            }
+            // ACL Check: Handled globally by auth-guard.js v2.9
+            // This prevents unauthorized ID jumping across the admin sectors.
 
             // Refactored to use await
             activeMember = await window.DataManager.getMemberById(id);

@@ -576,8 +576,7 @@ class DataManager {
         const member = await this.getMemberById(id);
         if (!member) return false;
 
-        const now = new Date();
-        const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        const today = new Date().toISOString().split('T')[0];
         const log = {
             memberId: id,
             memberName: member.name,
@@ -768,8 +767,7 @@ class DataManager {
     }
 
     static subscribeToDailyAttendance(callback, date = null) {
-        const now = new Date();
-        const today = date || (now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'));
+        const today = date || new Date().toISOString().split('T')[0];
         const ref = db.ref(`attendance/${today}`);
         const listener = (snapshot) => {
             const data = snapshot.val();

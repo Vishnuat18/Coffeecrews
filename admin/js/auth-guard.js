@@ -18,35 +18,52 @@
         return true;
     };
 
-    if (!isLoginPage) {
-        if (!validateSession()) {
-            console.warn("Unauthorized access detected. Redirecting to login.");
-            const currentPath = window.location.pathname;
-            const returnTo = new URLSearchParams(window.location.search).get('id') || '';
-            window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}&id=${returnTo}`;
-            return;
-        }
-
-        // --- NEW: Security ID Enforcement ---
+    const checkParamIntegrity = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const urlId = urlParams.get('id');
 
-        // If an ID is present in URL, it MUST match the session ID
-        if (urlId && session.id && urlId.toLowerCase() !== session.id.toLowerCase()) {
-            console.error("Session mismatch. Redirecting for re-authentication.");
+        if (!urlId) return true; // No ID in URL, standard page load
+
+        // STRICK LOCKDOWN: If URL ID does not match Session ID
+        if (urlId !== session.id) {
+
+            // Allow Admins to navigate purely administrative management tools (edit, reports)
+            const isAdminTool = window.location.pathname.includes('/edit.html') ||
+                window.location.pathname.includes('/applications.html') ||
+                window.location.pathname.includes('/reports.html');
+
+            if (session.role === 'admin' && isAdminTool) {
+                return true; // Admins can manage others
+            }
+
+            // RED ALERT: Identity mismatch in private workspace or unauthorized access
+            console.error("IDENTITY MISMATCH DETECTED. SECURITY LOCKDOWN INITIATED.");
             sessionStorage.removeItem('cc_session');
-            window.location.href = `/admin/id-card/login.html?id=${urlId}&error=session_mismatch`;
-            return;
+            localStorage.removeItem('cc_session');
+            window.location.href = `/admin/id-card/login.html?security_alert=identity_mismatch&from=${encodeURIComponent(window.location.pathname)}`;
+            return false;
+        }
+        return true;
+    };
+
+    if (!isLoginPage) {
+        if (!validateSession() || !checkParamIntegrity()) {
+            if (!window.location.pathname.endsWith('login.html')) {
+                console.warn("Unauthorized or insecure access detected. Redirecting to login.");
+                const currentPath = window.location.pathname;
+                const returnTo = new URLSearchParams(window.location.search).get('id') || '';
+                window.location.href = `/admin/id-card/login.html?return_to=${encodeURIComponent(currentPath)}&id=${returnTo}`;
+                return;
+            }
         }
 
-        // Specific page role requirements
-        if (window.location.pathname.includes('/admin/index.html') ||
-            window.location.pathname.includes('/admin/applications.html') ||
-            window.location.pathname.includes('/admin/id-card/reports.html')) {
-            if (session.role !== 'admin') {
-                console.error("Insufficient clearance for this sector.");
-                window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
-            }
+        // Specific sector clearance requirements
+        const adminSectors = ['/admin/index.html', '/admin/applications.html', '/admin/id-card/reports.html', '/admin/id-card/edit.html'];
+        const isSectorRestricted = adminSectors.some(path => window.location.pathname.includes(path));
+
+        if (isSectorRestricted && session.role !== 'admin') {
+            console.error("Insufficient clearance for this sector.");
+            window.location.href = `/admin/id-card/verify.html?id=${session.id}`;
         }
     }
 })();

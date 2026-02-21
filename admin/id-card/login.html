@@ -264,12 +264,9 @@
             members = await DataManager.getAllMembers();
             populateDropdown();
 
-            if (urlParams.get('error') === 'session_mismatch') {
-                setTimeout(() => showToast("Security Protocol: Session mismatch. Please re-authenticate.", "info"), 1000);
-            }
-
-            const rawId = urlParams.get('id') || urlParams.get('return_to');
-            const targetId = rawId ? rawId.split('?')[0].split('/').pop().replace('.html', '').toLowerCase() : null;
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawId = urlParams.get('return_to') || urlParams.get('id');
+            const targetId = rawId ? rawId.toLowerCase() : null;
 
             if (targetId) {
                 const target = members.find(m => m.id.toLowerCase() === targetId);
