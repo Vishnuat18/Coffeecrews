@@ -641,8 +641,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="/admin/js/auth-guard.js?v=2.8"></script>
-    <script src="/admin/id-card/js/data.js?v=2.8"></script>
+    <script src="/admin/js/auth-guard.js?v=3.0"></script>
+    <script src="/admin/id-card/js/data.js?v=3.0"></script>
     <script>
         let activeMember = null; // The member whose workspace this is
         let loggedInUser = null; // The person currently using the browser
@@ -673,11 +673,8 @@
                 }
             }
 
-            // ACL Check: Crew members can only see their own workspace
-            if (session.role === 'crew' && session.id !== id) {
-                location.href = `/admin/id-card/verify.html?id=${session.id}`;
-                return;
-            }
+            // ACL Check: Handled globally by auth-guard.js. 
+            // Local page only needs to ensure activeMember matches URL ID.
 
             // Refactored to use await
             activeMember = await window.DataManager.getMemberById(id);
