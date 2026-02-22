@@ -1065,25 +1065,60 @@
                         <div id="status-img-preview" class="status-upload-preview" style="margin-bottom: 0;">
                             <span class="remove-preview" onclick="removeStatusImage()"><i
                                     class="fas fa-times"></i></span>
-                            <img id="status-preview-target" src="">
+                            <div id="status-preview-content">
+                                <img id="status-preview-target" src="" style="display: none;">
+                                <div id="status-file-preview"
+                                    style="display: none; background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.2); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px;">
+                                    <i class="fas fa-file-alt"
+                                        style="font-size: 1.5rem; color: var(--accent-primary);"></i>
+                                    <div style="flex: 1;">
+                                        <div id="status-file-name" style="font-size: 0.7rem; color: #fff;">Filename.pdf
+                                        </div>
+                                        <div id="status-file-size" style="font-size: 0.5rem; opacity: 0.5;">0.0 MB</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <textarea id="drafter-input" class="directive-input"
-                            placeholder="Enter objectives / accomplishments / blockers..."
-                            style="min-height: 180px; width: 100%;"></textarea>
+                        <div style="position: relative;">
+                            <textarea id="drafter-input" class="directive-input"
+                                placeholder="Enter objectives / accomplishments / blockers..."
+                                style="min-height: 180px; width: 100%; padding-bottom: 50px;"></textarea>
 
-                        <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
-                            <label class="action-circle-btn" title="Add Image Proof"
-                                style="width: 55px; height: 55px; background: #080808; border: 1px solid rgba(255,255,255,0.05);">
-                                <i class="fas fa-camera" style="font-size: 1.2rem; color: #00f3ff;"></i>
-                                <input type="file" id="status-media-input" accept="image/*" style="display: none;"
-                                    onchange="previewStatusImage(event)">
-                            </label>
-                            <button class="btn-directive" onclick="commitStatus()"
-                                style="flex: 1; margin: 0; width: 100%;">
-                                <i class="fas fa-cloud-upload-alt" style="font-size: 1rem;"></i> COMMIT TO GLOBAL FEED
-                            </button>
+                            <div id="rec-indicator-status" class="recording-indicator">
+                                <div class="rec-dot"></div> RECORDING...
+                            </div>
+
+                            <!-- EMOJI, ATTACH & MIC BUTTONS IN TEXTAREA -->
+                            <div
+                                style="position: absolute; bottom: 10px; left: 15px; display: flex; gap: 10px; align-items: center;">
+                                <div class="emoji-picker-wrapper">
+                                    <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('status')"
+                                        type="button"
+                                        style="width: 35px; height: 35px; font-size: 1rem; background: rgba(255,255,255,0.05);">😊</button>
+                                    <div class="emoji-panel" id="emoji-panel-status"></div>
+                                </div>
+                                <label class="action-circle-btn" title="Attach Evidence (File/Image/Media)"
+                                    style="width: 35px; height: 35px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
+                                    <i class="fas fa-plus" style="font-size: 0.8rem; color: var(--accent-primary);"></i>
+                                    <input type="file" id="status-media-input" accept="*" style="display: none;"
+                                        onchange="previewStatusAttachment(event)">
+                                </label>
+                                <button class="action-circle-btn" id="mic-btn-status"
+                                    title="Hold to record mission report"
+                                    style="width: 35px; height: 35px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);"
+                                    onmousedown="startRecording('status')" onmouseup="stopRecording('status')"
+                                    ontouchstart="startRecording('status')" ontouchend="stopRecording('status')">
+                                    <i class="fas fa-microphone"
+                                        style="font-size: 0.8rem; color: var(--accent-primary);"></i>
+                                </button>
+                            </div>
                         </div>
+
+                        <button class="btn-directive" onclick="commitStatus()"
+                            style="margin: 0; width: 100%; height: 55px;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 1rem;"></i> BROADCAST TO MISSION FEED
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1391,7 +1426,7 @@
             '👀', '👾', '🤖', '💻', '🛸', '📡', '🔐', '🗝️', '⚙️', '🛠️', '🔍', '📊', '📋', '🗂️', '🚀', '🛩️', '🌍', '🌙', '☕', '🍕'];
 
         function initEmojiPanels() {
-            ['hq', 'global', 'peer'].forEach(ch => {
+            ['hq', 'global', 'peer', 'status'].forEach(ch => {
                 const panel = document.getElementById(`emoji-panel-${ch}`);
                 if (!panel || panel.dataset.init) return;
                 panel.innerHTML = EMOJIS.map(e => `<span onclick="insertEmoji('${ch}','${e}')">${e}</span>`).join('');
@@ -1402,7 +1437,7 @@
         function toggleEmojiPanel(channel) {
             initEmojiPanels();
             // Close all other panels first
-            ['hq', 'global', 'peer'].forEach(ch => {
+            ['hq', 'global', 'peer', 'status'].forEach(ch => {
                 if (ch !== channel) {
                     const p = document.getElementById(`emoji-panel-${ch}`);
                     if (p) p.classList.remove('open');
@@ -1413,7 +1448,11 @@
         }
 
         function insertEmoji(channel, emoji) {
-            const inputId = channel === 'peer' ? 'chat-input-peer' : `chat-input-${channel}`;
+            let inputId = '';
+            if (channel === 'peer') inputId = 'chat-input-peer';
+            else if (channel === 'status') inputId = 'drafter-input';
+            else inputId = `chat-input-${channel}`;
+
             const input = document.getElementById(inputId);
             if (!input) return;
             const start = input.selectionStart;
@@ -1472,6 +1511,20 @@
                         await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, { audioUrl: audioBase64 });
                     } else if (ch === 'peer') {
                         await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, { audioUrl: audioBase64 });
+                    } else if (ch === 'status') {
+                        const statusUpdate = {
+                            id: Date.now(),
+                            senderId: activeMember.id,
+                            senderName: activeMember.name,
+                            senderImage: activeMember.image,
+                            text: '',
+                            audioUrl: audioBase64,
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            date: new Date().toLocaleDateString(),
+                            timestamp: Date.now(),
+                            seenBy: { [loggedInUser.id]: Date.now() }
+                        };
+                        await firebase.database().ref('chats/statusFeed').push(statusUpdate);
                     }
                     showToast('Voice message sent!', 'success', 2500);
                 };
@@ -2040,22 +2093,61 @@
             }
         }
 
-        async function previewStatusImage(event) {
+        let pendingStatusExtra = {};
+
+        async function previewStatusAttachment(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { await tacticalAlert("Max size 5MB", "PAYLOAD ERROR"); return; }
+
+            const LIMIT_MB = 10;
+            if (file.size > 1024 * 1024 * LIMIT_MB) {
+                await tacticalAlert(`File too large. Max ${LIMIT_MB}MB allowed.`, 'PAYLOAD ERROR');
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = async (e) => {
-                pendingStatusImage = await resizeImage(e.target.result);
-                document.getElementById('status-preview-target').src = pendingStatusImage;
-                document.getElementById('status-img-preview').style.display = 'block';
+                const base64 = e.target.result;
+                const previewEl = document.getElementById('status-img-preview');
+                const imgEl = document.getElementById('status-preview-target');
+                const fileEl = document.getElementById('status-file-preview');
+
+                pendingStatusImage = null;
+                pendingStatusExtra = {};
+                imgEl.style.display = 'none';
+                fileEl.style.display = 'none';
+
+                if (file.type.startsWith('image/')) {
+                    pendingStatusImage = await resizeImage(base64);
+                    imgEl.src = pendingStatusImage;
+                    imgEl.style.display = 'block';
+                } else {
+                    pendingStatusExtra = {
+                        fileUrl: base64,
+                        fileType: file.type || 'application/octet-stream',
+                        fileName: file.name
+                    };
+                    if (file.type.startsWith('audio/')) {
+                        pendingStatusExtra = { audioUrl: base64 };
+                        document.querySelector('#status-file-preview i').className = 'fas fa-file-audio';
+                    } else if (file.type.startsWith('video/')) {
+                        document.querySelector('#status-file-preview i').className = 'fas fa-file-video';
+                    } else {
+                        document.querySelector('#status-file-preview i').className = 'fas fa-file-alt';
+                    }
+
+                    document.getElementById('status-file-name').innerText = file.name;
+                    document.getElementById('status-file-size').innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                    fileEl.style.display = 'flex';
+                }
+                previewEl.style.display = 'block';
             };
             reader.readAsDataURL(file);
         }
 
         function removeStatusImage() {
             pendingStatusImage = null;
+            pendingStatusExtra = {};
             document.getElementById('status-img-preview').style.display = 'none';
             document.getElementById('status-media-input').value = '';
         }
@@ -2113,7 +2205,7 @@
 
         async function commitStatus() {
             const text = document.getElementById('drafter-input').value.trim();
-            if (!text && !pendingStatusImage) {
+            if (!text && !pendingStatusImage && Object.keys(pendingStatusExtra).length === 0) {
                 showToast('Mission directive cannot be empty.', 'error');
                 return;
             }
@@ -2131,6 +2223,7 @@
                     senderImage: activeMember.image,
                     text: text,
                     image: pendingStatusImage,
+                    ...pendingStatusExtra,
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     date: new Date().toLocaleDateString(),
                     timestamp: Date.now(),
