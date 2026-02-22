@@ -690,8 +690,13 @@
                     <div class="section-title"
                         style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
                         <span><i class="fas fa-shield-halved"></i> SECURE HQ DIRECT LINE</span>
-                        <button class="reset-chat-btn" onclick="resetChat('hq')"><i class="fas fa-trash-alt"></i> RESET
-                            MY MSGS</button>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="reset-chat-btn" onclick="resetChat('hq')"><i class="fas fa-user-minus"></i>
+                                RESET MY MSGS</button>
+                            <button class="reset-chat-btn"
+                                style="border-color: rgba(255,0,60,0.6); color: rgba(255,0,60,0.8);"
+                                onclick="clearChat('hq')"><i class="fas fa-trash-can"></i> CLEAR CHAT</button>
+                        </div>
                     </div>
                     <div class="chat-container">
                         <div id="chat-feed-hq" class="chat-feed"></div>
@@ -727,8 +732,13 @@
                     <div class="section-title"
                         style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
                         <span><i class="fas fa-tower-broadcast"></i> GLOBAL MISSION BROADCAST</span>
-                        <button class="reset-chat-btn" onclick="resetChat('global')"><i class="fas fa-trash-alt"></i>
-                            RESET MY MSGS</button>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="reset-chat-btn" onclick="resetChat('global')"><i
+                                    class="fas fa-user-minus"></i> RESET MY MSGS</button>
+                            <button class="reset-chat-btn"
+                                style="border-color: rgba(255,0,60,0.6); color: rgba(255,0,60,0.8);"
+                                onclick="clearChat('global')"><i class="fas fa-trash-can"></i> CLEAR CHAT</button>
+                        </div>
                     </div>
                     <div class="chat-container">
                         <div id="chat-feed-global" class="chat-feed"></div>
@@ -768,9 +778,12 @@
                             style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
                             <span><i class="fas fa-user-lock"></i> PRIVATE ENCRYPTED CHANNEL: <span
                                     id="peer-name-label">...</span></span>
-                            <div style="display: flex; gap: 8px;">
+                            <div style="display: flex; gap: 6px;">
                                 <button class="reset-chat-btn" onclick="resetChat('peer')"><i
-                                        class="fas fa-trash-alt"></i> RESET MY MSGS</button>
+                                        class="fas fa-user-minus"></i> RESET MY MSGS</button>
+                                <button class="reset-chat-btn"
+                                    style="border-color: rgba(255,0,60,0.6); color: rgba(255,0,60,0.8);"
+                                    onclick="clearChat('peer')"><i class="fas fa-trash-can"></i> CLEAR CHAT</button>
                                 <button onclick="backToCrewList()"
                                     style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
                                     <i class="fas fa-arrow-left"></i> BACK
@@ -1382,6 +1395,9 @@
                 }
             }
 
+            // Guard: if nothing to show, skip rendering entirely
+            if (!msg.text && !attachHTML) return '';
+
             // Edit actions for own messages (only text-editable)
             const showEdit = isSelf && msg.text && msgKey && dbPath;
             const editedLabel = msg.edited ? `<span class="msg-edited-label">(edited)</span>` : '';
@@ -1513,6 +1529,25 @@
                 await window.DataManager.resetPeerChat(threadId, activeMember.id);
             }
             showToast('Your messages cleared.', 'success', 3000);
+        }
+
+        // ─── CLEAR CHAT (ALL MESSAGES, ALL PARTIES) ───────────────────────────────
+        async function clearChat(channel) {
+            const confirmed = await tacticalConfirm(
+                'This will PERMANENTLY DELETE ALL messages in this channel for EVERYONE. This cannot be undone.',
+                'CLEAR ENTIRE CHANNEL');
+            if (!confirmed) return;
+
+            if (channel === 'hq') {
+                const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+                await window.DataManager.clearPeerChat(threadId);
+            } else if (channel === 'global') {
+                await window.DataManager.clearGlobalChat();
+            } else if (channel === 'peer' && activePeerId) {
+                const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+                await window.DataManager.clearPeerChat(threadId);
+            }
+            showToast('Chat cleared for all parties.', 'success', 3000);
         }
 
         // --- OTHER WORKSPACE LOGIC ---

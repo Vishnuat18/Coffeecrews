@@ -628,6 +628,17 @@ class DataManager {
         window.dispatchEvent(new CustomEvent('cc_chat_sync'));
     }
 
+    // Clear ENTIRE chat (all messages, all parties)
+    static async clearPeerChat(threadId) {
+        await db.ref(`chats/threads/${threadId}`).remove();
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+    }
+
+    static async clearGlobalChat() {
+        await db.ref('chats/global').remove();
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+    }
+
     static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
         const statusUpdate = {
             id: Date.now(),
