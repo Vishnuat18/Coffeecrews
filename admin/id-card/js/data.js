@@ -500,7 +500,7 @@ class DataManager {
         }
     }
 
-    static async sendMessage(senderId, receiverId, text, image = null) {
+    static async sendMessage(senderId, receiverId, text, image = null, attachment = null, voice = null) {
         const threadId = this.getThreadId(senderId, receiverId);
 
         const message = {
@@ -508,6 +508,8 @@ class DataManager {
             senderId: senderId,
             text,
             image,
+            attachment,   // { type, dataUrl, name, size }
+            voice,        // { dataUrl, duration }
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
         };
@@ -517,13 +519,15 @@ class DataManager {
         return message;
     }
 
-    static async sendGlobalMessage(senderId, senderName, text, image = null) {
+    static async sendGlobalMessage(senderId, senderName, text, image = null, attachment = null, voice = null) {
         const message = {
             id: Date.now(),
             senderId,
             senderName,
             text,
             image,
+            attachment,
+            voice,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
         };
@@ -531,6 +535,22 @@ class DataManager {
         await db.ref('chats/global').push(message);
         window.dispatchEvent(new CustomEvent('cc_chat_sync'));
         return message;
+    }
+
+    // Edit a previously sent message (only text can be edited)
+    static async editMessage(path, newText) {
+        // path is the full Firebase path to the message node, e.g. chats/threads/<id>/<key>
+        await db.ref(path).update({ text: newText, edited: true });
+    }
+
+    // Clear chat history from this user's perspective (writes a timestamp, render filters below it)
+    static async clearChatForSelf(threadId, userId) {
+        await db.ref(`chats/threads/${threadId}/__clear_${userId}`).set(Date.now());
+    }
+
+    static async getChatClearTime(threadId, userId) {
+        const snap = await db.ref(`chats/threads/${threadId}/__clear_${userId}`).once('value');
+        return snap.val() || 0;
     }
 
     static async getGlobalMessages() {
@@ -715,7 +735,11 @@ class DataManager {
         const ref = db.ref(`chats/threads/${threadId}`);
         const listener = (snapshot) => {
             const data = snapshot.val();
-            const messages = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            const messages = data
+                ? Object.entries(data)
+                    .filter(([k]) => !k.startsWith('__clear_'))   // exclude clear timestamps
+                    .map(([fbKey, msg]) => ({ ...msg, _fbKey: fbKey, _threadId: threadId }))
+                : [];
             callback(messages);
         };
         ref.on('value', listener);
@@ -726,7 +750,9 @@ class DataManager {
         const ref = db.ref('chats/global');
         const listener = (snapshot) => {
             const data = snapshot.val();
-            const messages = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            const messages = data
+                ? Object.entries(data).map(([fbKey, msg]) => ({ ...msg, _fbKey: fbKey, _threadId: 'global' }))
+                : [];
             callback(messages);
         };
         ref.on('value', listener);

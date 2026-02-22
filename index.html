@@ -41,7 +41,7 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-landing">
         <div class="container position-relative" style="z-index: 2;">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="index.html" id="hq-access-trigger">
                 <span>COFFEECREWS</span>
             </a>
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -782,6 +782,34 @@
                 localStorage.setItem('theme', newTheme);
             });
         }
+    </script>
+    <script>
+        // ── HQ ACCESS PROTOCOL ─────────────────────────────────────────────
+        // 5 quick taps on the COFFEECREWS logo opens the admin login page.
+        (function () {
+            let tapCount = 0;
+            let tapTimer = null;
+            const trigger = document.getElementById('hq-access-trigger');
+            if (!trigger) return;
+
+            trigger.addEventListener('click', function (e) {
+                e.preventDefault(); // prevent normal navigation
+                tapCount++;
+                clearTimeout(tapTimer);
+                tapTimer = setTimeout(() => { tapCount = 0; }, 3000);
+
+                if (tapCount >= 5) {
+                    tapCount = 0;
+                    // Subtle flash to confirm easter egg activation
+                    trigger.style.transition = 'opacity 0.2s';
+                    trigger.style.opacity = '0';
+                    setTimeout(() => {
+                        trigger.style.opacity = '1';
+                        window.location.href = '/admin/id-card/login.html';
+                    }, 200);
+                }
+            });
+        })();
     </script>
 </body>
 
