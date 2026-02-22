@@ -670,6 +670,172 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
         }
+
+        /* ── 3-DOT MESSAGE MENU ─────────────────────────────── */
+        .msg-dot-menu {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .msg-dot-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.6);
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+            letter-spacing: 1px;
+        }
+
+        .msg-dot-btn:hover {
+            background: rgba(0, 243, 255, 0.12);
+            color: #00f3ff;
+        }
+
+        .msg-dot-dropdown {
+            display: none;
+            position: absolute;
+            top: 34px;
+            right: 0;
+            min-width: 170px;
+            background: rgba(10, 10, 16, 0.98);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 10px;
+            padding: 6px;
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+        }
+
+        /* for self messages, open to the left */
+        .msg-self .msg-dot-dropdown {
+            right: 0;
+            left: auto;
+        }
+
+        .msg-other .msg-dot-dropdown {
+            left: 0;
+            right: auto;
+        }
+
+        .msg-dot-menu.open .msg-dot-dropdown {
+            display: block;
+            animation: popIn 0.15s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .msg-drop-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 0.62rem;
+            font-family: 'Orbitron';
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.75);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .msg-drop-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .msg-drop-item.danger {
+            color: #ff4466;
+        }
+
+        .msg-drop-item.danger:hover {
+            background: rgba(255, 30, 60, 0.1);
+        }
+
+        /* ── SIDEBAR COLLAPSE ───────────────────────────────── */
+        .sidebar-minimize-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: 0.2s;
+            z-index: 10;
+        }
+
+        .sidebar-minimize-btn:hover {
+            background: rgba(0, 243, 255, 0.2);
+            color: #00f3ff;
+        }
+
+        /* collapsed sidebar */
+        .profile-sidebar.collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+            opacity: 0;
+            transition: width 0.3s ease, opacity 0.2s ease, min-width 0.3s ease, padding 0.3s ease;
+        }
+
+        .profile-sidebar {
+            transition: width 0.3s ease, opacity 0.2s ease, min-width 0.3s ease, padding 0.3s ease;
+            position: relative;
+        }
+
+        /* floating restore button */
+        #sidebar-restore-btn {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 100;
+            background: rgba(0, 243, 255, 0.12);
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            color: #00f3ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 18px rgba(0, 243, 255, 0.2);
+            transition: 0.2s;
+        }
+
+        #sidebar-restore-btn:hover {
+            background: rgba(0, 243, 255, 0.25);
+        }
+
+        #sidebar-restore-btn.visible {
+            display: flex;
+        }
     </style>
 </head>
 
@@ -698,7 +864,9 @@
     </header>
 
     <div class="dashboard-container">
-        <aside class="profile-sidebar">
+        <aside class="profile-sidebar" id="profile-sidebar">
+            <button class="sidebar-minimize-btn" onclick="toggleSidebar()" title="Minimize Profile"><i
+                    class="fas fa-minus"></i></button>
             <div class="identity-card">
                 <div class="photo-wrapper">
                     <img id="p-photo" src="" alt="Personnel">
@@ -740,6 +908,9 @@
                 </div>
             </div>
         </aside>
+        <!-- Floating restore button -->
+        <button id="sidebar-restore-btn" onclick="toggleSidebar()" title="Expand Profile"><i
+                class="fas fa-user"></i></button>
 
         <main class="dashboard-main">
             <nav class="workspace-nav">
@@ -1606,24 +1777,32 @@
             const isSelf = sId === myId || sName === loggedInUser.name;
             const fbPath = msg._fbKey && msg._threadId ? `chats/threads/${msg._threadId}/${msg._fbKey}` : null;
 
-            const editBtn = (isSelf && fbPath && msg.text)
-                ? `<button class="msg-action-btn" onclick="editMsgInline(this, '${fbPath}', \`${(msg.text || '').replace(/`/g, '\\`')}\`)" title="Edit"><i class="fas fa-pen"></i></button>`
-                : '';
-
             const mediaHTML = msg.image
                 ? `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">`
                 : msg.attachment ? renderAttachment(msg.attachment)
                     : msg.voice ? `<audio controls src="${msg.voice.dataUrl}" style="width:100%;margin-top:4px;"></audio><span style="font-size:0.5rem;opacity:0.4;">🎤 ${msg.voice.duration || 0}s</span>`
                         : '';
 
-            // onClick on bubble wrap toggles edit actions for touch users
-            const touchToggle = isSelf && editBtn ? `onclick="this.classList.toggle('actions-open')"` : '';
+            // Encode text safely for inline JS
+            const escapedText = (msg.text || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/'/g, "\\'");
+            const safeKey = fbPath ? fbPath.replace(/'/g, "\\'") : '';
+
+            // 3-dot menu — only for own messages with a Firebase key
+            const dotMenu = (isSelf && fbPath) ? `
+                <div class="msg-dot-menu" id="menu-${msg._fbKey || ''}">
+                    <button class="msg-dot-btn" onclick="event.stopPropagation();toggleMsgMenu('${msg._fbKey || ''}')" title="Options">&vellip;</button>
+                    <div class="msg-dot-dropdown">
+                        ${msg.text ? `<div class="msg-drop-item" onclick="closeMsgDropdowns();editMsgInline(document.querySelector('#menu-${msg._fbKey} .msg-dot-btn'),'${safeKey}',\`${escapedText}\`)"><i class="fas fa-pen" style="opacity:0.7;"></i> EDIT MESSAGE</div>` : ''}
+                        <div class="msg-drop-item danger" onclick="closeMsgDropdowns();deleteMsg('${safeKey}')"><i class="fas fa-trash-can" style="opacity:0.7;"></i> DELETE MESSAGE</div>
+                        <div class="msg-drop-item" onclick="closeMsgDropdowns();msgInfo(this)" data-time="${msg.time || ''}" data-edited="${msg.edited ? '1' : '0'}"><i class="fas fa-circle-info" style="opacity:0.7;"></i> INFO</div>
+                    </div>
+                </div>` : '';
 
             return `
-                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}">
+                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" onclick="closeMsgDropdowns()">
                     <span class="msg-meta">${sName} // ${msg.time || ''}${msg.edited ? '<span class="msg-edited-badge">[edited]</span>' : ''}</span>
-                    <div class="msg-bubble-wrap" ${touchToggle}>
-                        <div class="msg-actions">${editBtn}</div>
+                    <div class="msg-bubble-wrap" style="display:flex;align-items:flex-start;gap:6px;${isSelf ? 'flex-direction:row-reverse;' : ''}">
+                        ${dotMenu}
                         <div class="msg-bubble" data-fbpath="${fbPath || ''}">
                             ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
                             ${mediaHTML}
@@ -1631,6 +1810,81 @@
                     </div>
                 </div>
             `;
+        }
+
+        // ── 3-DOT MENU HELPERS ───────────────────────────────────────────────
+        function toggleMsgMenu(key) {
+            const menu = document.getElementById('menu-' + key);
+            if (!menu) return;
+            const isOpen = menu.classList.contains('open');
+            closeMsgDropdowns();
+            if (!isOpen) menu.classList.add('open');
+        }
+
+        function closeMsgDropdowns() {
+            document.querySelectorAll('.msg-dot-menu.open').forEach(m => m.classList.remove('open'));
+        }
+
+        document.addEventListener('click', closeMsgDropdowns);
+
+        async function deleteMsg(fbPath) {
+            if (!fbPath) return;
+            const ok = await tacticalConfirm('DELETE this message for everyone?', 'DELETE MESSAGE');
+            if (!ok) return;
+            await firebase.database().ref(fbPath).remove();
+        }
+
+        function msgInfo(el) {
+            const time = el.dataset.time || 'unknown';
+            const edited = el.dataset.edited === '1';
+            tacticalAlert(`Sent at: ${time}\n${edited ? '[Message was edited]' : '[Not edited]'}\nSeen: received by all online members`, 'MESSAGE INFO');
+        }
+
+        // ── SIDEBAR TOGGLE ───────────────────────────────────────────────────
+        function toggleSidebar() {
+            const sidebar = document.getElementById('profile-sidebar');
+            const restoreBtn = document.getElementById('sidebar-restore-btn');
+            if (!sidebar) return;
+            const collapsed = sidebar.classList.toggle('collapsed');
+            if (restoreBtn) restoreBtn.classList.toggle('visible', collapsed);
+        }
+
+        // ── INLINE EDIT ───────────────────────────────────────────────────────
+        function editMsgInline(triggerEl, fbPath, currentText) {
+            // Find the nearest msg-bubble from the trigger element
+            const wrap = triggerEl.closest('.msg-bubble-wrap') || triggerEl.parentElement.closest('.chat-msg').querySelector('.msg-bubble-wrap');
+            if (!wrap) return;
+            const bubble = wrap.querySelector('.msg-bubble');
+            if (!bubble) return;
+            const msgText = bubble.querySelector('.msg-text');
+            if (!msgText) return;
+
+            // Replace text with input
+            const original = currentText || msgText.textContent;
+            msgText.innerHTML = `
+                <input class="msg-edit-input" id="edit-input-${Date.now()}" value="${original.replace(/"/g, '&quot;')}" style="width:100%;background:rgba(0,243,255,0.05);border:1px solid rgba(0,243,255,0.3);border-radius:6px;padding:6px 10px;color:#fff;font-size:0.78rem;outline:none;">
+                <div style="display:flex;gap:6px;margin-top:6px;">
+                    <button class="msg-edit-save" onclick="saveEditedMsg(this,'${fbPath.replace(/'/g, "\\'")}')">SAVE</button>
+                    <button class="msg-edit-cancel" onclick="cancelEdit(this,'${original.replace(/'/g, "\\'")}')">CANCEL</button>
+                </div>
+            `;
+            const inp = msgText.querySelector('input');
+            if (inp) { inp.focus(); inp.select(); }
+        }
+
+        async function saveEditedMsg(btn, fbPath) {
+            const wrap = btn.closest('.msg-text');
+            const inp = wrap ? wrap.querySelector('input') : null;
+            if (!inp) return;
+            const newText = inp.value.trim();
+            if (!newText) return;
+            await firebase.database().ref(fbPath).update({ text: newText, edited: true });
+            // Chat re-renders via Firebase listener — nothing else needed
+        }
+
+        function cancelEdit(btn, originalText) {
+            const wrap = btn.closest('.msg-text');
+            if (wrap) wrap.innerHTML = `<div class="msg-text">${originalText}</div>`;
         }
 
         // ── SEND MSG ──────────────────────────────────────────────────────────
