@@ -1625,37 +1625,61 @@
             if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; }
         });
 
-        function openMsgMenu(event, msg, isSelf) {
+        function openMsgMenu(event, cacheKey) {
             event.stopPropagation();
-            // Close any existing dropdown
             if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; }
 
-            const fbPath = msg._fbKey && msg._threadId ? `chats/threads/${msg._threadId}/${msg._fbKey}` : null;
+            const cached = _msgCache.get(cacheKey);
+            if (!cached) return;
+            const { _isSelf: isSelf, _fbPath: fbPath, text } = cached;
 
             const dd = document.createElement('div');
             dd.className = 'msg-dropdown';
-
             let items = '';
-            if (isSelf && fbPath && msg.text) {
-                items += `<div class="msg-dd-item" onclick="closeMsgMenu();editMsgInline(event,'${fbPath}',\`${(msg.text || '').replace(/`/g, '\\`')}\`)">
+
+            if (isSelf && fbPath && text) {
+                items += `<div class="msg-dd-item" onclick="_dd_edit('${cacheKey}')">
                     <i class="fas fa-pen"></i> EDIT
                 </div>`;
             }
             if (isSelf && fbPath) {
                 items += `<div class="msg-dd-sep"></div>
-                <div class="msg-dd-item danger" onclick="closeMsgMenu();deleteMsgFromChat('${fbPath}')">
+                <div class="msg-dd-item danger" onclick="_dd_delete('${cacheKey}')">
                     <i class="fas fa-trash"></i> DELETE
                 </div>`;
             }
             items += `<div class="msg-dd-sep"></div>
-            <div class="msg-dd-item" onclick="closeMsgMenu();showMsgInfo(${JSON.stringify(msg).replace(/"/g, '&quot;')})">
-                <i class="fas fa-circle-info"></i> MESSAGE INFO
-            </div>`;
+                <div class="msg-dd-item" onclick="_dd_info('${cacheKey}')">
+                    <i class="fas fa-circle-info"></i> MESSAGE INFO
+                </div>`;
 
             dd.innerHTML = items;
-            event.currentTarget.closest('.msg-wrap').style.position = 'relative';
-            event.currentTarget.closest('.msg-wrap').appendChild(dd);
+            const wrap = event.currentTarget.closest('.msg-wrap');
+            wrap.style.position = 'relative';
+            wrap.appendChild(dd);
             _openDropdown = dd;
+        }
+
+        // Thin wrappers called from dropdown items (no complex data in onclick)
+        function _dd_edit(key) {
+            closeMsgMenu();
+            const cached = _msgCache.get(key);
+            if (!cached || !cached._fbPath) return;
+            editMsgInline(null, cached._fbPath, cached.text || '');
+        }
+
+        function _dd_delete(key) {
+            closeMsgMenu();
+            const cached = _msgCache.get(key);
+            if (!cached || !cached._fbPath) return;
+            deleteMsgFromChat(cached._fbPath);
+        }
+
+        function _dd_info(key) {
+            closeMsgMenu();
+            const cached = _msgCache.get(key);
+            if (!cached) return;
+            showMsgInfo(cached);
         }
 
         function closeMsgMenu() {
@@ -1711,6 +1735,8 @@
             if (panel) panel.classList.remove('open');
         }
 
+        // Message cache: keyed by fbKey so openMsgMenu can look up without JSON-in-onclick
+        const _msgCache = new Map();
         // Track which messages we've already marked-seen to avoid Firebase spam
         const _seenTracker = new Set();
 
@@ -1719,6 +1745,10 @@
             const sName = msg.senderName || msg.meta || nameContext[sId] || sId || 'UNKNOWN';
             const isSelf = sId === myId || sName === loggedInUser.name;
             const fbPath = msg._fbKey && msg._threadId ? `chats/threads/${msg._threadId}/${msg._fbKey}` : null;
+            const cacheKey = msg._fbKey || msg.id || String(msg.timestamp);
+
+            // Store in cache so openMsgMenu can retrieve it safely
+            _msgCache.set(cacheKey, { ...msg, _isSelf: isSelf, _fbPath: fbPath });
 
             // Auto-mark seen for received messages
             if (!isSelf && fbPath && !_seenTracker.has(fbPath)) {
@@ -1732,16 +1762,13 @@
                     : msg.voice ? `<audio controls src="${msg.voice.dataUrl}" style="width:100%;margin-top:4px;"></audio><span style="font-size:0.5rem;opacity:0.4;">🎤 ${msg.voice.duration || 0}s</span>`
                         : '';
 
-            // Serialise msg for the dropdown (sanitised: no quotes in data-attr)
-            const msgJson = JSON.stringify(msg).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
             return `
-                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" id="msg-${msg._fbKey || msg.id}">
+                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" id="msg-${cacheKey}">
                     <span class="msg-meta">${sName} // ${msg.time || ''}${msg.edited ? '<span class="msg-edited-badge">[edited]</span>' : ''}</span>
                     <div class="msg-wrap">
-                        <button class="msg-dot-btn" onclick="openMsgMenu(event, ${msgJson.replace(/&quot;/g, '"').replace(/"/g, '&quot;')}, ${isSelf})" title="Options">&#x22EE;</button>
+                        <button class="msg-dot-btn" onclick="openMsgMenu(event,'${cacheKey}')" title="Options">&#x22EE;</button>
                         <div class="msg-bubble" ${fbPath ? `data-fbpath="${fbPath}"` : ''}>
-                            ${msg.text ? `<div class="msg-text" id="txt-${msg._fbKey || msg.id}">${msg.text}</div>` : ''}
+                            ${msg.text ? `<div class="msg-text" id="txt-${cacheKey}">${msg.text}</div>` : ''}
                             ${mediaHTML}
                         </div>
                     </div>
