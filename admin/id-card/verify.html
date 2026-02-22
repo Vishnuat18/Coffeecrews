@@ -390,7 +390,7 @@
             }
         }
 
-        /* Message hover action row */
+        /* Message action row — visible on hover (desktop) or .active (touch) */
         .msg-bubble-wrap {
             position: relative;
         }
@@ -405,8 +405,20 @@
             align-items: center;
         }
 
-        .msg-bubble-wrap:hover .msg-actions {
+        .msg-bubble-wrap:hover .msg-actions,
+        .msg-bubble-wrap.actions-open .msg-actions {
             display: flex;
+        }
+
+        /* Also show on .msg-self for touch users */
+        @media (pointer: coarse) {
+            .msg-bubble-wrap .msg-actions {
+                display: none !important;
+            }
+
+            .msg-bubble-wrap.actions-open .msg-actions {
+                display: flex !important;
+            }
         }
 
         .msg-action-btn {
@@ -424,9 +436,82 @@
             transition: 0.2s;
         }
 
-        .msg-action-btn:hover {
-            background: rgba(0, 243, 255, 0.1);
-            color: var(--accent-primary);
+        /* Peer chat profile header */
+        .peer-chat-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: rgba(8, 8, 14, 0.95);
+            border: 1px solid rgba(0, 243, 255, 0.12);
+            border-radius: 16px;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .peer-avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .peer-avatar-wrap img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+        }
+
+        .peer-online-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 10px;
+            height: 10px;
+            background: #00f3ff;
+            border-radius: 50%;
+            border: 2px solid #080808;
+            box-shadow: 0 0 6px #00f3ff;
+        }
+
+        .peer-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .peer-info .peer-name {
+            font-family: 'Orbitron';
+            font-size: 0.75rem;
+            color: #fff;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .peer-info .peer-role {
+            font-size: 0.5rem;
+            color: #00f3ff;
+            opacity: 0.6;
+            letter-spacing: 1.5px;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        .peer-info .peer-enc {
+            font-size: 0.45rem;
+            color: #0aff0a;
+            opacity: 0.5;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .peer-header-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            align-items: center;
         }
 
         /* Inline edit input */
@@ -765,18 +850,25 @@
                 <div id="chat-channel-crew" class="chat-channel">
                     <div id="crew-list-container" class="crew-chat-list"></div>
 
-                    <div id="active-peer-chat" style="display: none; margin-top: 1.5rem;">
-                        <div class="section-title"
-                            style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
-                            <span><i class="fas fa-user-lock"></i> PRIVATE ENCRYPTED CHANNEL: <span
-                                    id="peer-name-label">...</span></span>
-                            <div style="display:flex;gap:8px;align-items:center;">
+                    <div id="active-peer-chat" style="display: none;">
+                        <!-- RICH PEER PROFILE HEADER -->
+                        <div class="peer-chat-header">
+                            <div class="peer-avatar-wrap">
+                                <img id="peer-avatar-img" src="/assets/favicon.png" alt="Peer">
+                                <div class="peer-online-dot"></div>
+                            </div>
+                            <div class="peer-info">
+                                <div class="peer-name" id="peer-name-label">...</div>
+                                <div class="peer-role" id="peer-role-label">CREW MEMBER</div>
+                                <div class="peer-enc"><i class="fas fa-lock" style="font-size:0.4rem;"></i> END-TO-END
+                                    ENCRYPTED CHANNEL</div>
+                            </div>
+                            <div class="peer-header-actions">
                                 <button class="chat-clear-btn" onclick="clearMyChat('peer')" title="Clear for me"><i
                                         class="fas fa-trash-can"></i> CLEAR</button>
                                 <button onclick="backToCrewList()"
-                                    style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
-                                    <i class="fas fa-arrow-left"></i> BACK
-                                </button>
+                                    style="background:none;border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.5rem;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Orbitron';"><i
+                                        class="fas fa-arrow-left"></i> BACK</button>
                             </div>
                         </div>
                         <div class="chat-container">
@@ -815,31 +907,66 @@
                             STATUS DRAFTER
                         </h2>
                         <p style="font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.5px; font-weight: 300;">
-                            Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
-                            MISSION FEED.
+                            Draft your daily mission objectives and progress. Attach files, voice notes or images.
+                            Broadcast to the GLOBAL MISSION FEED.
                         </p>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Status type selector -->
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="status-type-btn active" data-type="update" onclick="setStatusType(this)"
+                                style="background:rgba(0,243,255,0.1);border:1px solid rgba(0,243,255,0.3);color:#00f3ff;font-size:0.5rem;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Orbitron';"><i
+                                    class="fas fa-satellite-dish"></i> UPDATE</button>
+                            <button class="status-type-btn" data-type="blocker" onclick="setStatusType(this)"
+                                style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-size:0.5rem;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Orbitron';"><i
+                                    class="fas fa-triangle-exclamation"></i> BLOCKER</button>
+                            <button class="status-type-btn" data-type="milestone" onclick="setStatusType(this)"
+                                style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-size:0.5rem;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Orbitron';"><i
+                                    class="fas fa-flag-checkered"></i> MILESTONE</button>
+                            <button class="status-type-btn" data-type="intel" onclick="setStatusType(this)"
+                                style="background:none;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-size:0.5rem;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:'Orbitron';"><i
+                                    class="fas fa-lightbulb"></i> INTEL</button>
+                        </div>
+
+                        <!-- Attachment preview -->
                         <div id="status-img-preview" class="status-upload-preview" style="margin-bottom: 0;">
                             <span class="remove-preview" onclick="removeStatusImage()"><i
                                     class="fas fa-times"></i></span>
                             <img id="status-preview-target" src="">
                         </div>
 
+                        <!-- Status text area -->
                         <textarea id="drafter-input" class="directive-input"
                             placeholder="Enter objectives / accomplishments / blockers..."
                             style="min-height: 180px; width: 100%;"></textarea>
 
-                        <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
-                            <label class="action-circle-btn" title="Add Image Proof"
-                                style="width: 55px; height: 55px; background: #080808; border: 1px solid rgba(255,255,255,0.05);">
-                                <i class="fas fa-camera" style="font-size: 1.2rem; color: #00f3ff;"></i>
+                        <!-- Status emoji panel -->
+                        <div id="emoji-panel-status" class="emoji-panel" style="display:none;"></div>
+
+                        <!-- Voice preview bar -->
+                        <div id="voice-preview-status" class="voice-preview" style="display:none;"></div>
+
+                        <!-- Action bar -->
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap:wrap;">
+                            <label class="action-circle-btn" title="Attach Image Proof"
+                                style="width: 42px; height: 42px;">
+                                <i class="fas fa-camera" style="color: #00f3ff;"></i>
                                 <input type="file" id="status-media-input" accept="image/*" style="display: none;"
                                     onchange="previewStatusImage(event)">
                             </label>
+                            <label class="action-circle-btn" title="Attach any File" style="width: 42px; height: 42px;">
+                                <i class="fas fa-paperclip" style="color: #a78bfa;"></i>
+                                <input type="file" id="status-file-input" accept="*" style="display: none;"
+                                    onchange="handleStatusFileAttach(event)">
+                            </label>
+                            <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('status')"
+                                style="width:42px;height:42px;"><i class="fas fa-face-smile"></i></button>
+                            <button class="action-circle-btn mic-btn" id="mic-btn-status" title="Voice note"
+                                onclick="toggleVoice('status')" style="width:42px;height:42px;"><i
+                                    class="fas fa-microphone"></i></button>
                             <button class="btn-directive" onclick="commitStatus()"
-                                style="flex: 1; margin: 0; width: 100%;">
+                                style="flex: 1; margin: 0; min-width:160px;">
                                 <i class="fas fa-cloud-upload-alt" style="font-size: 1rem;"></i> COMMIT TO GLOBAL FEED
                             </button>
                         </div>
@@ -1240,7 +1367,12 @@
         async function startPrivateChat(peerId) {
             activePeerId = peerId;
             const peer = await window.DataManager.getMemberById(peerId);
+            // Populate rich peer header
             document.getElementById('peer-name-label').innerText = peer ? peer.name.toUpperCase() : 'CREW';
+            const roleEl = document.getElementById('peer-role-label');
+            if (roleEl) roleEl.innerText = peer ? (peer.role || 'CREW MEMBER').toUpperCase() : 'CREW MEMBER';
+            const avatarEl = document.getElementById('peer-avatar-img');
+            if (avatarEl && peer && peer.image) avatarEl.src = peer.image;
             document.getElementById('crew-list-container').style.display = 'none';
             document.getElementById('active-peer-chat').style.display = 'block';
             window.dispatchEvent(new CustomEvent('cc_peer_change'));
@@ -1388,10 +1520,45 @@
                     await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, null, voiceData);
                 } else if (channel === 'peer') {
                     await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, null, voiceData);
+                } else if (channel === 'status') {
+                    // Cache as pendingStatusVoice so commitStatus can include it
+                    pendingStatusVoice = voiceData;
+                    showToast('VOICE NOTE ATTACHED TO DRAFT', 'success');
                 }
                 discardVoice(channel);
             };
             reader.readAsDataURL(state.blob);
+        }
+
+        // ── STATUS TYPE SELECTOR ─────────────────────────────────────────────
+        let currentStatusType = 'update';
+        function setStatusType(btn) {
+            currentStatusType = btn.dataset.type;
+            document.querySelectorAll('.status-type-btn').forEach(b => {
+                b.style.background = 'none';
+                b.style.borderColor = 'rgba(255,255,255,0.1)';
+                b.style.color = 'rgba(255,255,255,0.4)';
+            });
+            btn.style.background = 'rgba(0,243,255,0.1)';
+            btn.style.borderColor = 'rgba(0,243,255,0.3)';
+            btn.style.color = '#00f3ff';
+        }
+
+        // ── STATUS FILE ATTACH (non-image) ───────────────────────────────────
+        let pendingStatusAttachment = null;
+        let pendingStatusVoice = null;
+
+        async function handleStatusFileAttach(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { await tacticalAlert('Max file size is 10MB.', 'PAYLOAD ERROR'); return; }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                pendingStatusAttachment = { type: file.type, dataUrl: e.target.result, name: file.name, size: file.size };
+                showToast(`ATTACHED: ${file.name}`, 'success');
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
         }
 
         // ── RENDER MESSAGE HTML ───────────────────────────────────────────────
@@ -1449,10 +1616,13 @@
                     : msg.voice ? `<audio controls src="${msg.voice.dataUrl}" style="width:100%;margin-top:4px;"></audio><span style="font-size:0.5rem;opacity:0.4;">🎤 ${msg.voice.duration || 0}s</span>`
                         : '';
 
+            // onClick on bubble wrap toggles edit actions for touch users
+            const touchToggle = isSelf && editBtn ? `onclick="this.classList.toggle('actions-open')"` : '';
+
             return `
                 <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}">
                     <span class="msg-meta">${sName} // ${msg.time || ''}${msg.edited ? '<span class="msg-edited-badge">[edited]</span>' : ''}</span>
-                    <div class="msg-bubble-wrap">
+                    <div class="msg-bubble-wrap" ${touchToggle}>
                         <div class="msg-actions">${editBtn}</div>
                         <div class="msg-bubble" data-fbpath="${fbPath || ''}">
                             ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
@@ -1800,14 +1970,24 @@
         async function commitStatus() {
             const input = document.getElementById('drafter-input');
             const text = input.value.trim();
-            if (text || pendingStatusImage) {
-                await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
+            if (text || pendingStatusImage || pendingStatusAttachment || pendingStatusVoice) {
+                await window.DataManager.commitStatus(
+                    activeMember.id, activeMember.name, text, activeMember.image,
+                    pendingStatusImage,
+                    currentStatusType || 'update',
+                    pendingStatusAttachment,
+                    pendingStatusVoice
+                );
                 input.value = '';
                 removeStatusImage();
+                pendingStatusAttachment = null;
+                pendingStatusVoice = null;
+                discardVoice('status');
                 await tacticalAlert("MISSION STATUS COMMITTED TO GLOBAL FEED", "DATA UPLOADED");
                 await switchTab('home');
             }
         }
+
 
         async function handleLogout() {
             if (await tacticalConfirm("TERMINATE SECURE SESSION?", "LOGOUT SEQUENCE")) {

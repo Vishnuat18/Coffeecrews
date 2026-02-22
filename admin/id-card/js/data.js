@@ -565,7 +565,7 @@ class DataManager {
         }
     }
 
-    static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
+    static async commitStatus(senderId, senderName, text, senderImage, statusImage = null, statusType = 'update', attachment = null, voice = null) {
         const statusUpdate = {
             id: Date.now(),
             senderId,
@@ -573,6 +573,9 @@ class DataManager {
             senderImage,
             text,
             image: statusImage,
+            statusType,   // 'update' | 'blocker' | 'milestone' | 'intel'
+            attachment,   // { type, dataUrl, name, size }
+            voice,        // { dataUrl, duration }
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
         };
