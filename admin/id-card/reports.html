@@ -206,6 +206,73 @@
             }
         }
 
+        /* Bank submission status badges */
+        .bank-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Orbitron';
+            font-size: 0.5rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .bank-status-badge.pending {
+            background: rgba(255, 153, 0, 0.12);
+            color: #ff9900;
+            border: 1px solid rgba(255, 153, 0, 0.35);
+            animation: pulse-red-soft 2s infinite;
+        }
+
+        .bank-status-badge.verified {
+            background: rgba(10, 255, 120, 0.1);
+            color: #0aff78;
+            border: 1px solid rgba(10, 255, 120, 0.35);
+        }
+
+        .bank-status-badge.rejected {
+            background: rgba(255, 0, 60, 0.1);
+            color: #ff003c;
+            border: 1px solid rgba(255, 0, 60, 0.35);
+        }
+
+        /* Verify / Reject action buttons */
+        .bank-verify-btn,
+        .bank-reject-btn {
+            font-family: 'Orbitron';
+            font-size: 0.5rem;
+            letter-spacing: 1px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.25s;
+            border: 1px solid;
+        }
+
+        .bank-verify-btn {
+            background: rgba(10, 255, 120, 0.08);
+            color: #0aff78;
+            border-color: rgba(10, 255, 120, 0.35);
+        }
+
+        .bank-verify-btn:hover {
+            background: rgba(10, 255, 120, 0.2);
+            box-shadow: 0 0 12px rgba(10, 255, 120, 0.25);
+        }
+
+        .bank-reject-btn {
+            background: rgba(255, 0, 60, 0.08);
+            color: #ff003c;
+            border-color: rgba(255, 0, 60, 0.35);
+        }
+
+        .bank-reject-btn:hover {
+            background: rgba(255, 0, 60, 0.18);
+            box-shadow: 0 0 12px rgba(255, 0, 60, 0.25);
+        }
+
         @media (max-width: 1000px) {
             .report-strip {
                 grid-template-columns: 1fr;
@@ -512,42 +579,115 @@
                     container.innerHTML = '<div style="opacity:0.3;font-size:0.7rem;text-align:center;padding:20px;">No submissions yet.</div>';
                     return;
                 }
-                const rows = Object.values(data);
+                const rows = Object.entries(data).map(([id, v]) => ({ ...v, _firebaseId: id }));
+
+                const statusBadge = (status) => {
+                    if (status === 'verified') return '<span class="bank-status-badge verified"><i class="fas fa-check-circle"></i> VERIFIED</span>';
+                    if (status === 'rejected') return '<span class="bank-status-badge rejected"><i class="fas fa-times-circle"></i> REJECTED</span>';
+                    return '<span class="bank-status-badge pending"><i class="fas fa-clock"></i> PENDING</span>';
+                };
+
                 container.innerHTML = `
                     <table style="width:100%;border-collapse:collapse;font-size:0.65rem;">
                         <thead>
-                            <tr style="font-family:'Orbitron';font-size:0.55rem;opacity:0.5;border-bottom:1px solid rgba(255,255,255,0.1);">
+                            <tr style="font-family:'Orbitron';font-size:0.5rem;opacity:0.5;border-bottom:1px solid rgba(255,255,255,0.1);">
                                 <th style="padding:8px;text-align:left;">NAME</th>
                                 <th style="padding:8px;text-align:left;">BANK NAME</th>
                                 <th style="padding:8px;text-align:left;">ACCOUNT NO</th>
                                 <th style="padding:8px;text-align:left;">IFSC</th>
                                 <th style="padding:8px;text-align:left;">PHONE</th>
-                                <th style="padding:8px;text-align:left;">CIF</th>
                                 <th style="padding:8px;text-align:left;">UPI ID</th>
-                                <th style="padding:8px;text-align:left;">UPI PHONE</th>
                                 <th style="padding:8px;text-align:left;">SUBMITTED</th>
+                                <th style="padding:8px;text-align:left;">STATUS</th>
+                                <th style="padding:8px;text-align:left;">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${rows.map(r => `
-                                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                                    <td style="padding:8px;color:var(--accent-primary);font-family:'Orbitron';">${r.memberName || r.memberId}</td>
+                                <tr id="bank-row-${r._firebaseId}" style="border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.3s;">
+                                    <td style="padding:8px;color:var(--accent-primary);font-family:'Orbitron';">${r.memberName || r._firebaseId}</td>
                                     <td style="padding:8px;">${r.bankName || '—'}</td>
                                     <td style="padding:8px;">${r.accountNo || '—'}</td>
                                     <td style="padding:8px;">${r.ifsc || '—'}</td>
-                                    <td style="padding:8px;">${r.phone || '—'}</td>
-                                    <td style="padding:8px;">${r.cif || '—'}</td>
+                                    <td style="padding:8px;">${r.phone || r.upiPhone || '—'}</td>
                                     <td style="padding:8px;">${r.upiId || '—'}</td>
-                                    <td style="padding:8px;">${r.upiPhone || '—'}</td>
                                     <td style="padding:8px;opacity:0.5;">${r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : '—'}</td>
+                                    <td style="padding:8px;" id="bank-status-${r._firebaseId}">${statusBadge(r.status)}</td>
+                                    <td style="padding:8px;">
+                                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                            <button class="bank-verify-btn" onclick="verifyBankDetails('${r._firebaseId}','${(r.memberName || r._firebaseId).replace(/'/g, "\\'")}')"
+                                                ${r.status === 'verified' ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>
+                                                <i class="fas fa-check"></i> VERIFY
+                                            </button>
+                                            <button class="bank-reject-btn" onclick="rejectBankDetails('${r._firebaseId}','${(r.memberName || r._firebaseId).replace(/'/g, "\\'")}')"
+                                                ${r.status === 'rejected' ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>
+                                                <i class="fas fa-times"></i> REJECT
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
-                    <div style="margin-top:10px;font-family:'Orbitron';font-size:0.55rem;opacity:0.4;">${rows.length} submission(s) total</div>
+                    <div style="margin-top:10px;font-family:'Orbitron';font-size:0.55rem;opacity:0.4;">${rows.length} submission(s) — click VERIFY or REJECT per member</div>
                 `;
             } catch (e) {
                 container.innerHTML = '<div style="opacity:0.3;font-size:0.7rem;padding:10px;">Error loading submissions.</div>';
+            }
+        }
+
+        /* ─── VERIFY BANK DETAILS ───────────────────────────────────────────── */
+        async function verifyBankDetails(memberId, memberName) {
+            const confirmed = await tacticalConfirm(
+                `Mark bank details submitted by ${memberName} as VERIFIED?`,
+                'VERIFY BANK SUBMISSION'
+            );
+            if (!confirmed) return;
+
+            try {
+                await firebase.database().ref(`bankDetails/${memberId}`).update({
+                    status: 'verified',
+                    verifiedAt: Date.now()
+                });
+
+                // Update the badge in-place without a full reload
+                const statusCell = document.getElementById(`bank-status-${memberId}`);
+                if (statusCell) statusCell.innerHTML = '<span class="bank-status-badge verified"><i class="fas fa-check-circle"></i> VERIFIED</span>';
+
+                showToast(`✅ ${memberName}'s bank details marked as VERIFIED`, 'success', 3500);
+            } catch (e) {
+                showToast('Firebase error: ' + e.message, 'error', 4000);
+            }
+        }
+
+        /* ─── REJECT BANK DETAILS ───────────────────────────────────────────── */
+        async function rejectBankDetails(memberId, memberName) {
+            const reason = await tacticalPrompt(
+                `Enter a rejection reason for ${memberName}'s bank submission. This will be sent to them via HQ Live Feed.`,
+                'e.g. Incorrect IFSC code — please resubmit.',
+                'REJECT BANK SUBMISSION'
+            );
+            if (!reason || !reason.trim()) return;
+
+            try {
+                // 1. Write status to Firebase
+                await firebase.database().ref(`bankDetails/${memberId}`).update({
+                    status: 'rejected',
+                    rejectedAt: Date.now(),
+                    rejectionReason: reason.trim()
+                });
+
+                // 2. Send automated HQ message to crew member's private chat
+                const hqMessage = `⚠️ BANK DETAILS REJECTED\n\nYour submitted bank/UPI details have been reviewed and rejected by HQ.\n\nReason: ${reason.trim()}\n\nPlease resubmit your details via the FINANCIAL DETAILS section. If you have questions, reply to this message.`;
+                await window.DataManager.sendMessage('HQ', memberId, hqMessage);
+
+                // 3. Update badge in-place
+                const statusCell = document.getElementById(`bank-status-${memberId}`);
+                if (statusCell) statusCell.innerHTML = '<span class="bank-status-badge rejected"><i class="fas fa-times-circle"></i> REJECTED</span>';
+
+                showToast(`🔴 Rejection sent to ${memberName} via HQ Live Feed`, 'error', 4000);
+            } catch (e) {
+                showToast('Firebase error: ' + e.message, 'error', 4000);
             }
         }
 

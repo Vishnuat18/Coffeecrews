@@ -876,6 +876,9 @@
                     <i class="fas fa-comments"></i> CHATS
                     <div class="nav-unread-dot" id="nav-dot-chats" style="display:none;"></div>
                 </button>
+                <button class="nav-item-btn" onclick="switchTab('status')">
+                    <i class="fas fa-file-signature"></i> STATUS
+                </button>
                 <button class="nav-item-btn" onclick="switchTab('missionlog')">
                     <i class="fas fa-calendar-check"></i> MISSION LOG
                 </button>
@@ -1062,114 +1065,155 @@
                 </div>
             </div>
 
-            <!-- SECTION: MISSION LOG — Calendar + Feed + Status Drafter -->
+            <!-- SECTION: MISSION LOG — Attendance Calendar -->
             <div id="section-missionlog" class="workspace-section">
-
-                <!-- Top Row: Calendar + Feed side by side -->
-                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; margin-bottom: 24px;">
-
-                    <!-- Attendance Calendar -->
-                    <div id="attendance-section" class="attendance-calendar card-glass">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin: 0;">ATTENDANCE LOG</h3>
-                            <button id="btn-attendance" onclick="markTodayAttendance()" class="btn-primary"
-                                style="background: rgba(10, 255, 10, 0.1); border: 1px solid #0aff0a; color: #0aff0a; border-radius: 30px; padding: 8px 15px; font-size: 0.6rem;">
-                                <i class="fas fa-calendar-check"></i> MARK TODAY
-                            </button>
+                <div class="card-glass" style="padding: 2rem; border-radius: 20px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h2
+                                style="font-family: 'Orbitron'; font-size: 0.9rem; margin: 0 0 4px; color: var(--accent-primary);">
+                                <i class="fas fa-calendar-alt"></i> MISSION LOG
+                            </h2>
+                            <p style="font-size: 0.6rem; opacity: 0.4; margin: 0;">Track your daily presence and mission
+                                commits</p>
                         </div>
-                        <div id="calendar-grid" class="calendar-grid"></div>
+                        <button id="btn-attendance" onclick="markTodayAttendance()" class="btn-primary"
+                            style="background: rgba(10,255,10,0.1); border: 1px solid #0aff0a; color: #0aff0a; border-radius: 30px; padding: 10px 20px; font-family:'Orbitron'; font-size: 0.6rem;">
+                            <i class="fas fa-calendar-check"></i> MARK TODAY PRESENT
+                        </button>
                     </div>
-
-                    <!-- Global Mission Feed -->
-                    <div class="card-glass"
-                        style="padding: 20px; border-radius: 20px; display: flex; flex-direction: column;">
-                        <h3
-                            style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 1.2rem; color: var(--accent-primary); display: flex; justify-content: space-between; align-items: center;">
-                            <span><i class="fas fa-stream"></i> GLOBAL MISSION FEED</span>
-                            <span style="font-size: 0.5rem; opacity: 0.5;">REAL-TIME SYNC</span>
-                        </h3>
-                        <div id="missionlog-feed-list"
-                            style="flex: 1; display: flex; flex-direction: column; gap: 15px; max-height: 380px; overflow-y: auto; padding-right: 5px;">
-                            <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;"><i
-                                    class="fas fa-spinner fa-spin"></i> Loading...</div>
+                    <!-- Month navigator -->
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <button onclick="calNav(-1)"
+                            style="background:transparent;border:1px solid rgba(0,243,255,0.2);color:var(--accent-primary);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;">&#8249;</button>
+                        <span id="cal-month-label"
+                            style="font-family:'Orbitron';font-size:0.75rem;letter-spacing:2px;"></span>
+                        <button onclick="calNav(1)"
+                            style="background:transparent;border:1px solid rgba(0,243,255,0.2);color:var(--accent-primary);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;">&#8250;</button>
+                    </div>
+                    <!-- Day-of-week headers -->
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;">
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            SUN</div>
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            MON</div>
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            TUE</div>
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            WED</div>
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            THU</div>
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            FRI</div>
+                        <div style="text-align:center;font-family:'Orbitron';font-size:0.5rem;opacity:0.4;padding:4px;">
+                            SAT</div>
+                    </div>
+                    <!-- Calendar grid injected by JS -->
+                    <div id="calendar-grid" class="calendar-grid"
+                        style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+                    <!-- Legend -->
+                    <div style="display:flex;gap:20px;margin-top:1.5rem;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:6px;font-size:0.6rem;opacity:0.6;">
+                            <div
+                                style="width:12px;height:12px;border-radius:3px;background:rgba(10,255,10,0.3);border:1px solid #0aff0a;">
+                            </div> Present
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:0.6rem;opacity:0.6;">
+                            <div
+                                style="width:12px;height:12px;border-radius:3px;background:rgba(255,0,60,0.2);border:1px solid rgba(255,0,60,0.4);">
+                            </div> Absent
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;font-size:0.6rem;opacity:0.6;">
+                            <div style="width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,243,255,0.2);">
+                            </div> Future / Untracked
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- SECTION: STATUS — Daily Mission Commit + Global Feed -->
+            <div id="section-status" class="workspace-section">
                 <!-- Status Drafter -->
                 <div class="card-glass"
-                    style="padding: 2.5rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
+                    style="padding: 2.5rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
                     <div style="margin-bottom: 2rem;">
                         <h2
-                            style="font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 10px; color: #fff;">
-                            <i class="fas fa-file-signature" style="font-size: 1.1rem; opacity: 0.8;"></i> MISSION
-                            STATUS DRAFTER
+                            style="font-family:'Orbitron';font-size:0.9rem;margin-bottom:0.8rem;display:flex;align-items:center;gap:10px;color:#fff;">
+                            <i class="fas fa-file-signature" style="font-size:1.1rem;opacity:0.8;"></i> MISSION STATUS
+                            DRAFTER
                         </h2>
-                        <p style="font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.5px; font-weight: 300;">
+                        <p style="font-size:0.65rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
                             Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
                             MISSION FEED.
                         </p>
                     </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <div id="status-img-preview" class="status-upload-preview" style="margin-bottom: 0;">
+                    <div style="display:flex;flex-direction:column;gap:20px;">
+                        <div id="status-img-preview" class="status-upload-preview" style="margin-bottom:0;">
                             <span class="remove-preview" onclick="removeStatusImage()"><i
                                     class="fas fa-times"></i></span>
                             <div id="status-preview-content">
-                                <img id="status-preview-target" src="" style="display: none;">
+                                <img id="status-preview-target" src="" style="display:none;">
                                 <div id="status-file-preview"
-                                    style="display: none; background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.2); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px;">
+                                    style="display:none;background:rgba(0,243,255,0.05);border:1px solid rgba(0,243,255,0.2);padding:15px;border-radius:12px;display:flex;align-items:center;gap:15px;">
                                     <i class="fas fa-file-alt"
-                                        style="font-size: 1.5rem; color: var(--accent-primary);"></i>
-                                    <div style="flex: 1;">
-                                        <div id="status-file-name" style="font-size: 0.7rem; color: #fff;">Filename.pdf
+                                        style="font-size:1.5rem;color:var(--accent-primary);"></i>
+                                    <div style="flex:1;">
+                                        <div id="status-file-name" style="font-size:0.7rem;color:#fff;">Filename.pdf
                                         </div>
-                                        <div id="status-file-size" style="font-size: 0.5rem; opacity: 0.5;">0.0 MB</div>
+                                        <div id="status-file-size" style="font-size:0.5rem;opacity:0.5;">0.0 MB</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div style="position: relative;">
+                        <div style="position:relative;">
                             <textarea id="drafter-input" class="directive-input"
                                 placeholder="Enter objectives / accomplishments / blockers..."
-                                style="min-height: 180px; width: 100%; padding-bottom: 50px;"></textarea>
-
+                                style="min-height:180px;width:100%;padding-bottom:50px;"></textarea>
                             <div id="rec-indicator-status" class="recording-indicator">
                                 <div class="rec-dot"></div> RECORDING...
                             </div>
-
-                            <!-- EMOJI, ATTACH & MIC BUTTONS IN TEXTAREA -->
                             <div
-                                style="position: absolute; bottom: 10px; left: 15px; display: flex; gap: 10px; align-items: center;">
+                                style="position:absolute;bottom:10px;left:15px;display:flex;gap:10px;align-items:center;">
                                 <div class="emoji-picker-wrapper">
                                     <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('status')"
                                         type="button"
-                                        style="width: 35px; height: 35px; font-size: 1rem; background: rgba(255,255,255,0.05);">😊</button>
+                                        style="width:35px;height:35px;font-size:1rem;background:rgba(255,255,255,0.05);">😊</button>
                                     <div class="emoji-panel" id="emoji-panel-status"></div>
                                 </div>
-                                <label class="action-circle-btn" title="Attach Evidence (File/Image/Media)"
-                                    style="width: 35px; height: 35px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
-                                    <i class="fas fa-plus" style="font-size: 0.8rem; color: var(--accent-primary);"></i>
-                                    <input type="file" id="status-media-input" accept="*" style="display: none;"
+                                <label class="action-circle-btn" title="Attach Evidence"
+                                    style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);">
+                                    <i class="fas fa-plus" style="font-size:0.8rem;color:var(--accent-primary);"></i>
+                                    <input type="file" id="status-media-input" accept="*" style="display:none;"
                                         onchange="previewStatusAttachment(event)">
                                 </label>
-                                <button class="action-circle-btn" id="mic-btn-status"
-                                    title="Hold to record mission report"
-                                    style="width: 35px; height: 35px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);"
+                                <button class="action-circle-btn" id="mic-btn-status" title="Hold to record"
+                                    style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);"
                                     onmousedown="startRecording('status')" onmouseup="stopRecording('status')"
                                     ontouchstart="startRecording('status')" ontouchend="stopRecording('status')">
                                     <i class="fas fa-microphone"
-                                        style="font-size: 0.8rem; color: var(--accent-primary);"></i>
+                                        style="font-size:0.8rem;color:var(--accent-primary);"></i>
                                 </button>
                             </div>
                         </div>
-
-                        <button class="btn-directive" onclick="commitStatus()"
-                            style="margin: 0; width: 100%; height: 55px;">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 1rem;"></i> BROADCAST TO MISSION FEED
+                        <button class="btn-directive" onclick="commitStatus()" style="margin:0;width:100%;height:55px;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:1rem;"></i> BROADCAST TO MISSION FEED
                         </button>
+                    </div>
+                </div>
+
+                <!-- Global Mission Feed -->
+                <div class="card-glass" style="padding:20px;border-radius:20px;">
+                    <h3
+                        style="font-family:'Orbitron';font-size:0.8rem;margin-bottom:1.2rem;color:var(--accent-primary);display:flex;justify-content:space-between;align-items:center;">
+                        <span><i class="fas fa-stream"></i> GLOBAL MISSION FEED</span>
+                        <span style="font-size:0.5rem;opacity:0.5;">REAL-TIME SYNC</span>
+                    </h3>
+                    <div id="missionlog-feed-list"
+                        style="display:flex;flex-direction:column;gap:15px;max-height:400px;overflow-y:auto;padding-right:5px;">
+                        <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;"><i
+                                class="fas fa-spinner fa-spin"></i> Loading...</div>
                     </div>
                 </div>
             </div>
@@ -1180,10 +1224,15 @@
                     <div class="section-title" style="margin-bottom: 1rem;">
                         <i class="fas fa-university"></i> FINANCIAL DETAILS SUBMISSION
                     </div>
-                    <p style="font-size:0.7rem; opacity:0.5; margin-bottom:2rem;">
+                    <p style="font-size:0.7rem; opacity:0.5; margin-bottom:1rem;">
                         Submit your bank and/or UPI details securely. Fill either one or both sections.
                         <span style="color: #ff9900; font-weight:bold;"> Deadline: Feb 28, 2026.</span>
                     </p>
+
+                    <!-- LIVE SUBMISSION STATUS BANNER -->
+                    <div id="bank-submission-status"
+                        style="display:none; margin-bottom:1.5rem; padding:14px 18px; border-radius:12px; font-family:'Orbitron'; font-size:0.6rem; letter-spacing:1px; border:1px solid; align-items:center; gap:12px;">
+                    </div>
 
                     <!-- Bank Details -->
                     <div style="margin-bottom: 2.5rem;">
@@ -2140,6 +2189,7 @@
             const sectionMap = {
                 'home': 'section-home',
                 'chats': 'section-chats',
+                'status': 'section-status',
                 'missionlog': 'section-missionlog',
                 'security': 'section-security',
                 'bankdetails': 'section-bankdetails'
@@ -2147,16 +2197,24 @@
             const sec = document.getElementById(sectionMap[tab]);
             if (sec) sec.classList.add('active');
 
-            // Highlight correct nav button
-            const navMap = { 'home': 0, 'chats': 1, 'missionlog': 2, 'security': 3 };
+            // Highlight correct nav button (HOME=0, CHATS=1, STATUS=2, MISSION LOG=3, SECURITY=4)
+            const navMap = { 'home': 0, 'chats': 1, 'status': 2, 'missionlog': 3, 'security': 4 };
             const navBtns = document.querySelectorAll('.nav-item-btn');
             if (navMap[tab] !== undefined && navBtns[navMap[tab]]) {
                 navBtns[navMap[tab]].classList.add('active');
             }
 
             if (tab === 'home') renderHome();
-            if (tab === 'missionlog') renderMissionLog();
+            if (tab === 'status') renderMissionFeed();
+            if (tab === 'missionlog') renderCalendar();
             if (tab === 'security') renderSecurity();
+        }
+
+        // Month offset for calendar navigation
+        let calViewMonth = 0; // 0 = current month, -1 = previous, etc.
+        function calNav(dir) {
+            calViewMonth += dir;
+            renderCalendar();
         }
 
         let pendingStatusImage = null;
@@ -2262,6 +2320,7 @@
                 const banner = document.getElementById('bank-form-banner');
                 if (banner) banner.style.display = 'none';
                 showToast('Financial details submitted successfully! ✅', 'success', 4000);
+                loadBankStatus(); // Refresh the live status badge
                 switchTab('home');
             } catch (e) {
                 console.error('Bank submit error:', e);
@@ -2269,11 +2328,50 @@
             }
         }
 
+        /* Renders the submission-status badge inside the bank section */
+        async function loadBankStatus() {
+            const el = document.getElementById('bank-submission-status');
+            if (!el || !activeMember) return;
+            try {
+                const snap = await firebase.database().ref(`bankDetails/${activeMember.id}`).once('value');
+                const data = snap.val();
+                if (!data) { el.style.display = 'none'; return; }
+
+                const status = data.status || 'pending';
+                const configs = {
+                    pending: { bg: 'rgba(255,153,0,0.1)', border: 'rgba(255,153,0,0.4)', color: '#ff9900', icon: 'fa-clock', label: '⏳ PENDING REVIEW', sub: 'Your details have been received and are awaiting HQ verification.' },
+                    verified: { bg: 'rgba(10,255,120,0.08)', border: 'rgba(10,255,120,0.35)', color: '#0aff78', icon: 'fa-check-circle', label: '✅ BANK DETAILS VERIFIED', sub: 'Your financial details have been verified by HQ. No further action needed.' },
+                    rejected: { bg: 'rgba(255,0,60,0.08)', border: 'rgba(255,0,60,0.35)', color: '#ff003c', icon: 'fa-times-circle', label: '❌ BANK DETAILS REJECTED — RESUBMISSION REQUIRED', sub: data.rejectionReason ? `Reason: ${data.rejectionReason}` : 'Please resubmit your details below.' }
+                };
+                const cfg = configs[status] || configs.pending;
+
+                el.style.cssText = `display:flex; margin-bottom:1.5rem; padding:14px 18px; border-radius:12px; font-family:'Orbitron'; font-size:0.6rem; letter-spacing:1px; border:1px solid ${cfg.border}; background:${cfg.bg}; color:${cfg.color}; align-items:flex-start; gap:12px; flex-direction:column;`;
+                el.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <i class="fas ${cfg.icon}" style="font-size:1rem;"></i>
+                        <span>${cfg.label}</span>
+                    </div>
+                    <div style="font-family:'Inter',sans-serif; font-size:0.7rem; opacity:0.75; line-height:1.5; letter-spacing:0;">${cfg.sub}</div>
+                `;
+
+                // If rejected, remove the localStorage flag so the banner can appear again for resubmission
+                if (status === 'rejected') {
+                    localStorage.removeItem(`bankFormSubmitted_${activeMember.id}`);
+                }
+            } catch (e) {
+                el.style.display = 'none';
+            }
+        }
+
         async function checkBankFormBroadcast() {
+            // Always load the current verification status for the crew member
+            loadBankStatus();
+
             // Deadline: Feb 28, 2026
             const deadline = new Date('2026-02-28T23:59:59').getTime();
             if (Date.now() > deadline) return; // Expired
 
+            // Only show the banner if not yet submitted (or if rejected, allow resubmit)
             const alreadySubmitted = localStorage.getItem(`bankFormSubmitted_${activeMember.id}`);
             if (alreadySubmitted) return;
 
@@ -2415,19 +2513,53 @@
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             if (!grid) return;
-            const today = new Date();
+
+            const now = new Date();
+            const viewDate = new Date(now.getFullYear(), now.getMonth() + calViewMonth, 1);
+            const year = viewDate.getFullYear();
+            const month = viewDate.getMonth();
+
+            // Update month label
+            const label = document.getElementById('cal-month-label');
+            if (label) {
+                label.textContent = viewDate.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase();
+            }
+
+            const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const todayStr = now.toISOString().split('T')[0];
+
             grid.innerHTML = '';
-            for (let i = 29; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(today.getDate() - i);
-                const dateStr = date.toISOString().split('T')[0];
-                const isMarked = activeMember.attendance && activeMember.attendance.includes(dateStr);
-                const isToday = i === 0;
+
+            // Leading blank cells
+            for (let b = 0; b < firstDay; b++) {
+                grid.innerHTML += `<div style="aspect-ratio:1;"></div>`;
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isMarked = activeMember && activeMember.attendance && activeMember.attendance.includes(dateStr);
+                const isToday = dateStr === todayStr;
+                const isFuture = dateStr > todayStr;
+
+                let bg = 'rgba(255,0,60,0.15)';
+                let border = '1px solid rgba(255,0,60,0.3)';
+                let textColor = 'rgba(255,80,80,0.7)';
+                if (isMarked) { bg = 'rgba(10,255,10,0.18)'; border = '1px solid #0aff0a'; textColor = '#0aff0a'; }
+                if (isFuture) { bg = 'rgba(0,243,255,0.04)'; border = '1px solid rgba(0,243,255,0.1)'; textColor = 'rgba(255,255,255,0.25)'; }
+
+                const todayRing = isToday ? `box-shadow:0 0 0 2px var(--accent-primary);` : '';
+                const todayWeight = isToday ? `font-weight:bold;` : '';
+
                 grid.innerHTML += `
-                    <div class="calendar-day ${isMarked ? 'marked' : ''} ${isToday ? 'today' : ''}" 
-                         title="${dateStr}" ${isToday ? 'onclick="markTodayAttendance()"' : ''}>
-                        ${date.getDate()}
-                    </div>`;
+                    <div style="aspect-ratio:1;border-radius:8px;${bg !== '' ? `background:${bg};` : ''}${border !== '' ? `border:${border};` : ''}
+                        display:flex;align-items:center;justify-content:center;
+                        font-family:'Orbitron';font-size:0.6rem;${textColor !== '' ? `color:${textColor};` : ''}
+                        ${todayRing}${todayWeight}cursor:${isToday ? 'pointer' : 'default'};transition:transform 0.15s;"
+                        ${isToday ? 'onclick="markTodayAttendance()"' : ''}
+                        title="${dateStr}${isMarked ? ' ✅ Present' : isFuture ? '' : ' ❌ Absent'}"
+                    >${d}</div>`;
             }
         }
 
