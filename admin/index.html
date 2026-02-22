@@ -460,10 +460,6 @@
                 </p>
             </div>
             <div class="d-flex align-items-center gap-3 flex-wrap justify-content-center">
-                <button onclick="sendGlobalBroadcast()" class="btn-action"
-                    style="border-color: var(--accent-gold); color: var(--accent-gold);">
-                    <i class="fas fa-tower-broadcast"></i> BROADCAST
-                </button>
                 <button onclick="openGlobalConfig()" class="btn-action">
                     <i class="fas fa-cog"></i> GLOBAL CONFIG
                 </button>
@@ -789,9 +785,6 @@
                         ${isBlocked ? `<div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.55rem; margin-top: 8px; letter-spacing: 1px;"><i class="fas fa-lock me-1"></i> ACCESS RESTRICTED</div>` : ''}
                         
                         <div class="d-flex gap-2 mt-4 w-100">
-                            <a href="/admin/id-card/verify.html?id=${member.id}&tab=chats&channel=hq" class="btn-action" style="border-color: var(--accent-primary); color: var(--accent-primary); padding: 8px 10px;" title="DIRECT CHAT">
-                                <i class="fas fa-comments"></i>
-                            </a>
                             <a href="/admin/id-card/edit.html?id=${member.id}" class="btn-action flex-grow-1" style="border-color: var(--accent-primary); color: var(--accent-primary);">
                                 <i class="fas fa-edit"></i> EDIT
                             </a>
@@ -851,7 +844,7 @@
             container.innerHTML = list.map(entry => `
                 <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
                     <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
-                    <a href="/admin/id-card/verify.html?id=${entry.memberId}&tab=chats&channel=hq" class="small fw-bold text-decoration-none" style="color: var(--accent-gold)">${entry.memberName}</a>
+                    <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
                     <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
                 </div>
             `).join('');
@@ -954,15 +947,6 @@
         async function openGlobalConfig() {
             const members = await DataManager.getAllMembers();
             await tacticalAlert(`Global Configuration: ${members.length} personnel records active.`, "SYSTEM DATA");
-        }
-
-        async function sendGlobalBroadcast() {
-            const directive = await tacticalPrompt("EMERGENCY BROADCAST: Enter directive for all crew members:", "ALL HANDS ON DECK.", "GLOBAL PROTOCOL");
-            if (directive) {
-                const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
-                await DataManager.sendGlobalMessage(session.id, session.name, `[HQ DIRECTIVE] ${directive}`);
-                await tacticalAlert("Directive broadcast complete.", "BROADCAST SUCCESS");
-            }
         }
     </script>
 </body>
