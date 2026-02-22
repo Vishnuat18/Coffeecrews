@@ -1260,6 +1260,15 @@
             return 'fa-file-alt';
         }
 
+        // ─── LIVE SUBSCRIPTION HANDLES ────────────────────────────────────────────
+        let _unsubHQ = null, _unsubGlobal = null, _unsubPeer = null;
+
+        function unsubAll() {
+            if (_unsubHQ) { _unsubHQ(); _unsubHQ = null; }
+            if (_unsubGlobal) { _unsubGlobal(); _unsubGlobal = null; }
+            if (_unsubPeer) { _unsubPeer(); _unsubPeer = null; }
+        }
+
         // ─── CHAT CHANNEL SWITCHING ──────────────────────────────────────────────
         async function switchChatChannel(channel) {
             currentChatChannel = channel;
@@ -1274,10 +1283,10 @@
             document.querySelectorAll('.chat-channel').forEach(ch => ch.classList.remove('active'));
             document.getElementById(`chat-channel-${channel}`).classList.add('active');
 
-            if (channel === 'hq') await renderHQChat();
-            else if (channel === 'global') await renderGlobalChat();
+            if (channel === 'hq') subscribeHQChat();
+            else if (channel === 'global') subscribeGlobalChat();
             else if (channel === 'crew') {
-                if (activePeerId) await renderPeerChat();
+                if (activePeerId) subscribePeerChat(activePeerId);
                 else await renderCrewList();
             }
         }
@@ -1289,31 +1298,38 @@
             if (isNearBottom) element.scrollTop = element.scrollHeight;
         }
 
-        // ─── RENDER FUNCTIONS ────────────────────────────────────────────────────
-        async function renderHQChat(messages = null) {
+        // ─── LIVE RENDER: HQ CHAT ─────────────────────────────────────────────────
+        function subscribeHQChat() {
             if (!activeMember || !loggedInUser) return;
-            const feed = document.getElementById('chat-feed-hq');
-            if (!feed) return;
-            if (!messages) {
-                const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-                messages = await window.DataManager.getMessages(threadId);
-            }
+            if (_unsubHQ) { _unsubHQ(); _unsubHQ = null; }
+            const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
             const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
             const context = { 'HQ': 'HQ COMMAND', [activeMember.id]: activeMember.name };
-            const path = `chats/threads/${window.DataManager.getThreadId(activeMember.id, 'HQ')}`;
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context, path)).join('');
-            smartScrollToBottom(feed);
+            const path = `chats/threads/${threadId}`;
+            const feed = document.getElementById('chat-feed-hq');
+            _unsubHQ = window.DataManager.subscribeToChat(threadId, (messages) => {
+                if (!feed) return;
+                feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context, path)).join('');
+                smartScrollToBottom(feed);
+            });
         }
+        // Keep old async name for backward compat (called from some places)
+        async function renderHQChat() { subscribeHQChat(); }
 
-        async function renderGlobalChat(messages = null) {
+        // ─── LIVE RENDER: GLOBAL CHAT ─────────────────────────────────────────────
+        function subscribeGlobalChat() {
             if (!loggedInUser) return;
-            const feed = document.getElementById('chat-feed-global');
-            if (!feed) return;
-            if (!messages) messages = await window.DataManager.getGlobalMessages();
+            if (_unsubGlobal) { _unsubGlobal(); _unsubGlobal = null; }
             const myId = loggedInUser.id;
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, {}, 'chats/global')).join('');
-            smartScrollToBottom(feed);
+            const feed = document.getElementById('chat-feed-global');
+            _unsubGlobal = window.DataManager.subscribeToGlobalChatLive((messages) => {
+                if (!feed) return;
+                feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, {}, 'chats/global')).join('');
+                smartScrollToBottom(feed);
+            });
         }
+        // Keep old async name for backward compat
+        async function renderGlobalChat() { subscribeGlobalChat(); }
 
         async function renderCrewList() {
             const container = document.getElementById('crew-list-container');
@@ -1340,30 +1356,36 @@
             document.getElementById('crew-list-container').style.display = 'none';
             document.getElementById('active-peer-chat').style.display = 'block';
             window.dispatchEvent(new CustomEvent('cc_peer_change'));
-            await renderPeerChat();
+            subscribePeerChat(peerId);
         }
 
         function backToCrewList() {
             activePeerId = null;
+            if (_unsubPeer) { _unsubPeer(); _unsubPeer = null; }
             window.dispatchEvent(new CustomEvent('cc_peer_change'));
             renderCrewList();
         }
 
-        async function renderPeerChat(messages = null) {
-            if (!activeMember || !activePeerId) return;
-            const feed = document.getElementById('chat-feed-peer');
-            if (!feed) return;
-            const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
-            if (!messages) messages = await window.DataManager.getMessages(threadId);
-            const peer = await window.DataManager.getMemberById(activePeerId);
+        // ─── LIVE RENDER: PEER CHAT ───────────────────────────────────────────────
+        async function subscribePeerChat(peerId) {
+            if (!activeMember || !peerId) return;
+            if (_unsubPeer) { _unsubPeer(); _unsubPeer = null; }
+            const threadId = window.DataManager.getThreadId(activeMember.id, peerId);
+            const peer = await window.DataManager.getMemberById(peerId);
             const context = {
                 [activeMember.id]: activeMember.name,
-                [activePeerId]: peer ? peer.name : activePeerId
+                [peerId]: peer ? peer.name : peerId
             };
             const path = `chats/threads/${threadId}`;
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context, path)).join('');
-            smartScrollToBottom(feed);
+            const feed = document.getElementById('chat-feed-peer');
+            _unsubPeer = window.DataManager.subscribeToChat(threadId, (messages) => {
+                if (!feed) return;
+                feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context, path)).join('');
+                smartScrollToBottom(feed);
+            });
         }
+        // Keep old async name for backward compat
+        async function renderPeerChat() { if (activePeerId) subscribePeerChat(activePeerId); }
 
         // ─── RENDER MESSAGE HTML ──────────────────────────────────────────────────
         function renderMessageHTML(msg, myId, nameContext = {}, dbPath = '') {

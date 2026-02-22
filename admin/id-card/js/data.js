@@ -537,6 +537,32 @@ class DataManager {
         }
     }
 
+    // Real-time subscription for a peer/HQ thread — returns unsubscribe fn
+    static subscribeToChat(threadId, callback) {
+        const ref = db.ref(`chats/threads/${threadId}`);
+        const handler = (snapshot) => {
+            const data = snapshot.val();
+            if (!data) { callback([]); return; }
+            const msgs = Object.entries(data).map(([key, val]) => ({ ...val, _key: key }));
+            callback(msgs);
+        };
+        ref.on('value', handler);
+        return () => ref.off('value', handler); // unsubscribe fn
+    }
+
+    // Real-time subscription for global channel — returns unsubscribe fn
+    static subscribeToGlobalChatLive(callback) {
+        const ref = db.ref('chats/global');
+        const handler = (snapshot) => {
+            const data = snapshot.val();
+            if (!data) { callback([]); return; }
+            const msgs = Object.entries(data).map(([key, val]) => ({ ...val, _key: key }));
+            callback(msgs);
+        };
+        ref.on('value', handler);
+        return () => ref.off('value', handler); // unsubscribe fn
+    }
+
     static async sendMessage(senderId, receiverId, text, image = null, extra = {}) {
         const threadId = this.getThreadId(senderId, receiverId);
 
