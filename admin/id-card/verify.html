@@ -1437,7 +1437,11 @@
             const sId = msg.senderId || msg.sender;
             const sName = msg.senderName || msg.meta || nameContext[sId] || sId || 'UNKNOWN';
             const isSelf = sId === myId || sName === loggedInUser.name;
-            const fbPath = msg._fbKey && msg._threadId ? `chats/threads/${msg._threadId}/${msg._fbKey}` : null;
+
+            // Set the correct Firebase path based on whether it's a global message or thread message
+            const fbPath = (msg._fbKey && msg._threadId)
+                ? (msg._threadId === 'global' ? `chats/global/${msg._fbKey}` : `chats/threads/${msg._threadId}/${msg._fbKey}`)
+                : null;
 
             const editBtn = (isSelf && fbPath && msg.text)
                 ? `<button class="msg-action-btn" onclick="editMsgInline(this, '${fbPath}', \`${(msg.text || '').replace(/`/g, '\\`')}\`)" title="Edit"><i class="fas fa-pen"></i></button>`
@@ -1605,7 +1609,17 @@
 
             const sidebarId = document.getElementById('p-id-sidebar');
             if (sidebarId) sidebarId.innerText = `CC-${activeMember.ccCode}`;
-            switchTab('home');
+
+            // Handle deep-linking via URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetTab = urlParams.get('tab') || 'home';
+            const targetChannel = urlParams.get('channel');
+
+            switchTab(targetTab);
+
+            if (targetTab === 'chats' && targetChannel) {
+                setTimeout(() => switchChatChannel(targetChannel), 100);
+            }
         }
 
         let pendingStatusImage = null;
