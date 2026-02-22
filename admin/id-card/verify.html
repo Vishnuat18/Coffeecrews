@@ -956,6 +956,10 @@
         let currentChatChannel = 'hq'; // hq, global, crew
         let activePeerId = null;
 
+        // ── CHAT OPTIMIZATION ENGINE v3.4 ──
+        const CHAT_CACHE = { hq: [], global: [], peer: {} };
+        const chatClearTimes = {}; // Stores { 'hq_userId': timestamp, 'peer_userId_peerId': timestamp }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
@@ -998,13 +1002,28 @@
             // Request browser notification permission
             await CCNotify.init();
 
-            // Restore chat clear timestamps from Firebase
-            (async () => {
-                const myId = loggedInUser.id;
-                const hqThread = window.DataManager.getThreadId(activeMember.id, 'HQ');
-                const hqClear = await window.DataManager.getChatClearTime(hqThread, myId);
-                if (hqClear) chatClearTimes[`hq_${myId}`] = hqClear;
-            })();
+            // ── CRITICAL: Restore chat clear timestamps BEFORE subscriptions ──
+            // This fixes the Cloudflare race condition where subscriptions render before clear checks.
+            const myId = loggedInUser.id;
+            const hqThread = window.DataManager.getThreadId(activeMember.id, 'HQ');
+
+            // Load from both Local (instant) and Firebase (sync)
+            const localHqClear = localStorage.getItem(`cc_hq_clear_${myId}`);
+            if (localHqClear) chatClearTimes[`hq_${myId}`] = parseInt(localHqClear);
+
+            const fbHqClear = await window.DataManager.getChatClearTime(hqThread, myId);
+            if (fbHqClear) {
+                chatClearTimes[`hq_${myId}`] = fbHqClear;
+                localStorage.setItem(`cc_hq_clear_${myId}`, fbHqClear);
+            }
+
+            // Also load global from local
+            const globalClear = localStorage.getItem(`cc_global_clear_${myId}`);
+            if (globalClear) chatClearTimes[`global_${myId}`] = parseInt(globalClear);
+
+            // Initial cache-load (Immediate UI)
+            await renderHQChat();
+            await renderGlobalChat();
 
             // SYNC HANDLERS (Firebase Real-time)
             const hqThreadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
@@ -1178,9 +1197,17 @@
             const feed = document.getElementById('chat-feed-hq');
             if (!feed) return;
 
-            if (!messages) {
-                const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-                messages = await window.DataManager.getMessages(threadId);
+            if (messages) {
+                CHAT_CACHE.hq = messages;
+            } else {
+                // Use cache if available for instant display
+                if (CHAT_CACHE.hq.length > 0) messages = CHAT_CACHE.hq;
+
+                if (!messages) {
+                    const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+                    messages = await window.DataManager.getMessages(threadId);
+                    CHAT_CACHE.hq = messages;
+                }
             }
 
             const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
@@ -1203,8 +1230,15 @@
             const feed = document.getElementById('chat-feed-global');
             if (!feed) return;
 
-            if (!messages) {
-                messages = await window.DataManager.getGlobalMessages();
+            if (messages) {
+                CHAT_CACHE.global = messages;
+            } else {
+                if (CHAT_CACHE.global.length > 0) messages = CHAT_CACHE.global;
+
+                if (!messages) {
+                    messages = await window.DataManager.getGlobalMessages();
+                    CHAT_CACHE.global = messages;
+                }
             }
             const myId = loggedInUser.id;
 
@@ -1243,6 +1277,21 @@
             document.getElementById('peer-name-label').innerText = peer ? peer.name.toUpperCase() : 'CREW';
             document.getElementById('crew-list-container').style.display = 'none';
             document.getElementById('active-peer-chat').style.display = 'block';
+
+            // Restore peer clear time
+            const myId = loggedInUser.id;
+            const clearKey = `peer_${myId}_${peerId}`;
+            const localClear = localStorage.getItem(`cc_peer_clear_${myId}_${peerId}`);
+            if (localClear) chatClearTimes[clearKey] = parseInt(localClear);
+
+            const threadId = window.DataManager.getThreadId(activeMember.id, peerId);
+            window.DataManager.getChatClearTime(threadId, myId).then(t => {
+                if (t) {
+                    chatClearTimes[clearKey] = t;
+                    localStorage.setItem(`cc_peer_clear_${myId}_${peerId}`, t);
+                }
+            });
+
             window.dispatchEvent(new CustomEvent('cc_peer_change'));
             await renderPeerChat();
         }
@@ -1258,9 +1307,16 @@
             const feed = document.getElementById('chat-feed-peer');
             if (!feed) return;
 
-            if (!messages) {
-                const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
-                messages = await window.DataManager.getMessages(threadId);
+            if (messages) {
+                CHAT_CACHE.peer[activePeerId] = messages;
+            } else {
+                if (CHAT_CACHE.peer[activePeerId]) messages = CHAT_CACHE.peer[activePeerId];
+
+                if (!messages) {
+                    const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+                    messages = await window.DataManager.getMessages(threadId);
+                    CHAT_CACHE.peer[activePeerId] = messages;
+                }
             }
 
             const peer = await window.DataManager.getMemberById(activePeerId);
@@ -1380,13 +1436,30 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const voiceData = { dataUrl: e.target.result, duration: state.duration };
+
+                // Optimistic UI Update
+                const tempMsg = {
+                    senderId: loggedInUser.id,
+                    senderName: loggedInUser.name,
+                    text: null, image: null, attachment: null,
+                    voice: voiceData,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: Date.now()
+                };
+
                 if (channel === 'hq') {
                     const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                     const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                    CHAT_CACHE.hq.push(tempMsg);
+                    await renderHQChat();
                     await window.DataManager.sendMessage(senderId, receiverId, null, null, null, voiceData);
                 } else if (channel === 'global') {
+                    CHAT_CACHE.global.push(tempMsg);
+                    await renderGlobalChat();
                     await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, null, voiceData);
                 } else if (channel === 'peer') {
+                    CHAT_CACHE.peer[activePeerId].push(tempMsg);
+                    await renderPeerChat();
                     await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, null, voiceData);
                 }
                 discardVoice(channel);
@@ -1474,13 +1547,29 @@
             const panel = document.getElementById(`emoji-panel-${channel}`);
             if (panel) panel.style.display = 'none';
 
+            // Optimistic UI Update
+            const tempMsg = {
+                senderId: loggedInUser.id,
+                senderName: loggedInUser.name,
+                text, image: null, attachment: null, voice: null,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: Date.now()
+            };
+
             if (channel === 'hq') {
                 const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                 const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                CHAT_CACHE.hq.push(tempMsg);
+                await renderHQChat();
                 await window.DataManager.sendMessage(senderId, receiverId, text);
             } else if (channel === 'global') {
+                CHAT_CACHE.global.push(tempMsg);
+                await renderGlobalChat();
                 await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text);
             } else if (channel === 'peer') {
+                if (!CHAT_CACHE.peer[activePeerId]) CHAT_CACHE.peer[activePeerId] = [];
+                CHAT_CACHE.peer[activePeerId].push(tempMsg);
+                await renderPeerChat();
                 await window.DataManager.sendMessage(activeMember.id, activePeerId, text);
             }
             input.value = '';
@@ -1498,13 +1587,29 @@
                 const dataUrl = e.target.result;
                 const attachment = { type: file.type, dataUrl, name: file.name, size: file.size };
 
+                // Optimistic UI Update
+                const tempMsg = {
+                    senderId: loggedInUser.id,
+                    senderName: loggedInUser.name,
+                    text: null, image: null, attachment, voice: null,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: Date.now()
+                };
+
                 if (channel === 'hq') {
                     const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                     const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                    CHAT_CACHE.hq.push(tempMsg);
+                    await renderHQChat();
                     await window.DataManager.sendMessage(senderId, receiverId, null, null, attachment);
                 } else if (channel === 'global') {
+                    CHAT_CACHE.global.push(tempMsg);
+                    await renderGlobalChat();
                     await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, attachment);
                 } else if (channel === 'peer') {
+                    if (!CHAT_CACHE.peer[activePeerId]) CHAT_CACHE.peer[activePeerId] = [];
+                    CHAT_CACHE.peer[activePeerId].push(tempMsg);
+                    await renderPeerChat();
                     await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, attachment);
                 }
             };
@@ -1539,7 +1644,6 @@
 
         // ── CLEAR CHAT FOR SELF ───────────────────────────────────────────────
         // Stores a timestamp; render functions filter messages before it
-        const chatClearTimes = {};
 
         async function clearMyChat(channel) {
             const confirmed = await tacticalConfirm(
@@ -1549,37 +1653,29 @@
             if (!confirmed) return;
 
             const myId = loggedInUser.id;
+            const now = Date.now();
+
             if (channel === 'hq') {
                 const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+                chatClearTimes[`hq_${myId}`] = now;
+                localStorage.setItem(`cc_hq_clear_${myId}`, now);
                 await window.DataManager.clearChatForSelf(threadId, myId);
-                chatClearTimes[`hq_${myId}`] = Date.now();
-                await renderHQChat();
+                await renderHQChat([]); // Clear UI immediately
             } else if (channel === 'global') {
-                // Store locally for global (no single threadId)
-                const key = `cc_global_clear_${myId}`;
-                localStorage.setItem(key, Date.now().toString());
-                chatClearTimes[`global_${myId}`] = Date.now();
-                await renderGlobalChat();
+                chatClearTimes[`global_${myId}`] = now;
+                localStorage.setItem(`cc_global_clear_${myId}`, now.toString());
+                await renderGlobalChat([]); // Clear UI immediately
             } else if (channel === 'peer' && activePeerId) {
                 const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+                chatClearTimes[`peer_${myId}_${activePeerId}`] = now;
+                localStorage.setItem(`cc_peer_clear_${myId}_${activePeerId}`, now);
                 await window.DataManager.clearChatForSelf(threadId, myId);
-                chatClearTimes[`peer_${myId}_${activePeerId}`] = Date.now();
-                await renderPeerChat();
+                await renderPeerChat([]); // Clear UI immediately
             }
             showToast('CHANNEL CLEARED FOR YOU', 'success');
         }
 
-        // Filter messages after the user's clear timestamp
-        async function getMyHQClearTime() {
-            const myId = loggedInUser?.id;
-            if (!myId) return 0;
-            const cacheKey = `hq_${myId}`;
-            if (chatClearTimes[cacheKey] !== undefined) return chatClearTimes[cacheKey];
-            const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-            const t = await window.DataManager.getChatClearTime(threadId, myId);
-            chatClearTimes[cacheKey] = t;
-            return t;
-        }
+
 
         // --- OTHER WORKSPACE LOGIC ---
 
