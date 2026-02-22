@@ -1504,7 +1504,16 @@
                         smartScrollToBottom(feed);
                         window.DataManager.markAsSeen('global', null, loggedInUser.id);
                     }
+                } else if (currentTab === 'home') {
+                    // Admin broadcast live-updates the HOME HQ feed
+                    const hqNew = messages.filter(m => m.senderId === 'HQ');
+                    if (hqNew.length > 0) renderHome();
+                } else if (currentTab === 'status') {
+                    // Admin HQ broadcasts also appear in Global Mission Feed
+                    const hqMessages = messages.filter(m => m.senderId === 'HQ');
+                    if (hqMessages.length > 0) renderMissionFeed();
                 } else {
+                    // Show unread dot for global chat tab
                     const globalDot = document.querySelector('#btn-global .nav-unread-dot');
                     if (globalDot) globalDot.style.display = 'block';
                     if (messages.length > 0) {
@@ -1520,20 +1529,13 @@
                 }
             });
 
-            _unsubStatus = window.DataManager.subscribeToStatusFeedLive(async (feed) => {
-                if (currentTab === 'missionlog') {
-                    const list = document.getElementById('missionlog-feed-list');
-                    if (list) {
-                        if (feed.length === 0) {
-                            list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;">No mission commits logged yet</div>';
-                        } else {
-                            list.innerHTML = feed.map(msg => renderMessageHTML(msg, loggedInUser.id, {}, 'chats/statusFeed')).join('');
-                            window.DataManager.markAsSeen('status', null, loggedInUser.id);
-                        }
-                    }
+            _unsubStatus = window.DataManager.subscribeToStatusFeedLive(async (statusFeed) => {
+                if (currentTab === 'status') {
+                    // Use renderMissionFeed for the merged view (statusFeed + HQ broadcasts)
+                    await renderMissionFeed();
                 } else {
-                    if (feed.length > 0) {
-                        const latest = feed[0];
+                    if (statusFeed.length > 0) {
+                        const latest = statusFeed[0];
                         if (latest.senderId !== activeMember.id) {
                             CCNotify.push('🚀 MISSION STATUS', {
                                 body: `${latest.senderName} committed a status update.`,
@@ -1586,23 +1588,8 @@
             });
         });
 
-        async function switchTab(tabId) {
-            currentTab = tabId;
-            document.querySelectorAll('.nav-item-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
-            });
-
-            document.querySelectorAll('.workspace-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(`section-${tabId}`).classList.add('active');
-
-            if (tabId === 'home') await renderHome();
-            else if (tabId === 'chats') await switchChatChannel(currentChatChannel);
-            else if (tabId === 'attendance') await renderCalendar();
-            else if (tabId === 'security') await renderSecurity();
-        }
+        // NOTE: The canonical switchTab is defined lower in the file (handles all 5 tabs).
+        // This stub was removed to avoid shadowing the real implementation.
 
         // ─── EMOJI PANEL SETUP ──────────────────────────────────────────────────
         const EMOJIS = ['😀', '😁', '😂', '🤣', '😊', '😍', '🥰', '😘', '😎', '🤩', '🥳', '😜', '😝', '🤔', '🤗', '😢', '😭', '😩', '😤', '😠',
@@ -2223,27 +2210,43 @@
         async function renderHome() {
             if (!activeMember) return;
             renderDrive();
-            // HQ live feed loaded via _unsubHQ listener (already running)
-            // Trigger a one-shot load if element already visible
             const feed = document.getElementById('home-hq-feed');
             if (!feed) return;
             const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+
             try {
-                const snap = await firebase.database().ref(`chats/${threadId}`).orderByChild('timestamp').once('value');
-                const data = snap.val();
-                if (!data) {
+                // --- Private HQ thread messages ---
+                const snap = await firebase.database().ref(`chats/threads/${threadId}`).once('value');
+                const threadData = snap.val() || {};
+                const threadMsgs = Object.entries(threadData)
+                    .map(([k, v]) => ({ ...v, _key: k, _source: 'hq' }));
+
+                // --- Admin global broadcasts (from reports.html sendBroadcast) ---
+                const gSnap = await firebase.database().ref('chats/global').once('value');
+                const gData = gSnap.val() || {};
+                const broadcastMsgs = Object.entries(gData)
+                    .map(([k, v]) => ({ ...v, _key: k, _source: 'broadcast' }))
+                    .filter(m => m.senderId === 'HQ');
+
+                // Merge and sort newest first
+                const all = [...threadMsgs, ...broadcastMsgs]
+                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+                    .slice(0, 40);
+
+                if (all.length === 0) {
                     feed.innerHTML = '<div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;">No HQ updates yet</div>';
                     return;
                 }
-                const msgs = Object.entries(data)
-                    .map(([k, v]) => ({ ...v, _key: k }))
-                    .sort((a, b) => b.timestamp - a.timestamp)
-                    .slice(0, 30);
-                feed.innerHTML = msgs.map(msg => {
-                    const isHQ = msg.senderId === 'HQ' || loggedInUser.role === 'admin';
-                    return `<div style="background:rgba(0,243,255,0.04);border:1px solid rgba(0,243,255,0.1);border-radius:12px;padding:12px 15px;">
+
+                feed.innerHTML = all.map(msg => {
+                    const isBroadcast = msg._source === 'broadcast';
+                    const label = isBroadcast ? '📢 HQ GLOBAL BROADCAST' : (msg.senderId === 'HQ' ? '📡 HQ COMMAND' : (msg.senderName || msg.senderId));
+                    const border = isBroadcast ? 'rgba(255,165,0,0.25)' : 'rgba(0,243,255,0.1)';
+                    const bg = isBroadcast ? 'rgba(255,165,0,0.06)' : 'rgba(0,243,255,0.04)';
+                    const labelColor = isBroadcast ? '#ff9900' : 'var(--accent-primary)';
+                    return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:12px 15px;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                            <span style="font-family:'Orbitron';font-size:0.6rem;color:var(--accent-primary);">${msg.senderId === 'HQ' ? '📡 HQ COMMAND' : msg.senderName || msg.senderId}</span>
+                            <span style="font-family:'Orbitron';font-size:0.6rem;color:${labelColor};">${label}</span>
                             <span style="font-size:0.55rem;opacity:0.4;">${msg.time || ''}</span>
                         </div>
                         ${msg.text ? `<div style="font-size:0.75rem;line-height:1.5;">${msg.text}</div>` : ''}
@@ -2269,16 +2272,29 @@
             list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading feed...</div>';
 
             try {
-                const snapshot = await firebase.database().ref('chats/statusFeed').orderByChild('timestamp').once('value');
-                const data = snapshot.val();
-                if (!data) {
-                    list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;">No mission commits logged yet</div>';
+                // Pull crew status commits
+                const statusSnap = await firebase.database().ref('chats/statusFeed').once('value');
+                const statusData = statusSnap.val() || {};
+                const statusItems = Object.entries(statusData)
+                    .map(([key, val]) => ({ ...val, _key: key, _path: 'chats/statusFeed' }));
+
+                // Pull admin HQ global broadcasts (chats/global where senderId === 'HQ')
+                const globalSnap = await firebase.database().ref('chats/global').once('value');
+                const globalData = globalSnap.val() || {};
+                const hqBroadcasts = Object.entries(globalData)
+                    .map(([key, val]) => ({ ...val, _key: key, _path: 'chats/global' }))
+                    .filter(m => m.senderId === 'HQ');
+
+                // Merge and sort newest first
+                const merged = [...statusItems, ...hqBroadcasts]
+                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                if (merged.length === 0) {
+                    list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;">No mission commits or broadcasts yet.</div>';
                     return;
                 }
-                const feed = Object.entries(data)
-                    .map(([key, val]) => ({ ...val, _key: key }))
-                    .sort((a, b) => b.timestamp - a.timestamp);
-                list.innerHTML = feed.map(msg => renderMessageHTML(msg, loggedInUser.id, {}, 'chats/statusFeed')).join('');
+
+                list.innerHTML = merged.map(msg => renderMessageHTML(msg, loggedInUser.id, { HQ: 'HQ COMMAND' }, msg._path)).join('');
                 window.DataManager.markAsSeen('status', null, loggedInUser.id);
             } catch (err) {
                 console.error('Feed load failed:', err);

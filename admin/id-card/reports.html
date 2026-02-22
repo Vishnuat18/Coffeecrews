@@ -691,6 +691,36 @@
             }
         }
 
+        /* ─── GLOBAL BROADCAST ─────────────────────────────────────────────── */
+        async function triggerGlobalBroadcast() {
+            const message = await tacticalPrompt(
+                "Enter the global directive for all crew members. This will appear on everyone's HOME and STATUS feeds.",
+                "e.g. Assemble for a quick standup in Room 4B at 10:30.",
+                "GLOBAL HQ BROADCAST"
+            );
+            if (!message || !message.trim()) return;
+
+            try {
+                const adminSession = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
+                const adminName = adminSession.name || 'HQ COMMAND';
+
+                await window.DataManager.sendBroadcast(adminName, message.trim());
+                showToast('🚀 GLOBAL BROADCAST TRANSMITTED', 'success', 3500);
+            } catch (e) {
+                console.error('Broadcast failed:', e);
+                showToast('Broadcast failed: ' + e.message, 'error', 4000);
+            }
+        }
+
+        /* ─── LOGOUT ─────────────────────────────────────────────────────── */
+        async function handleLogout() {
+            if (await tacticalConfirm("TERMINATE COMMAND CENTER SESSION?", "LOGOUT SEQUENCE")) {
+                sessionStorage.removeItem('cc_session');
+                localStorage.removeItem('cc_session');
+                location.href = '/admin/id-card/login.html';
+            }
+        }
+
     </script>
 </body>
 
