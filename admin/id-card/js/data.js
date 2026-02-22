@@ -617,7 +617,8 @@ class DataManager {
             fileType: extra.fileType || null,
             fileName: extra.fileName || null,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            seenBy: { [senderId]: Date.now() } // Mark as seen by sender immediately
         };
 
         await db.ref(`chats/threads/${threadId}`).push(message);
@@ -637,7 +638,8 @@ class DataManager {
             fileType: extra.fileType || null,
             fileName: extra.fileName || null,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            seenBy: { [senderId]: Date.now() }
         };
 
         await db.ref('chats/global').push(message);
@@ -723,10 +725,48 @@ class DataManager {
         return statusUpdate;
     }
 
-    static async getStatusFeed() {
-        const snapshot = await db.ref('chats/statusFeed').limitToLast(20).once('value');
-        const val = snapshot.val();
-        return val ? Object.values(val).reverse() : [];
+    static async markAsSeen(channel, threadIdOrKey, userId) {
+        let path = '';
+        if (channel === 'peer') path = `chats/threads/${threadIdOrKey}`;
+        else if (channel === 'global') path = 'chats/global';
+        else if (channel === 'status') path = 'chats/statusFeed';
+
+        const snapshot = await db.ref(path).once('value');
+        const data = snapshot.val();
+        if (!data) return;
+
+        const updates = {};
+        Object.entries(data).forEach(([key, msg]) => {
+            if (msg.senderId !== userId && (!msg.seenBy || !msg.seenBy[userId])) {
+                updates[`${key}/seenBy/${userId}`] = Date.now();
+            }
+        });
+
+        if (Object.keys(updates).length > 0) {
+            await db.ref(path).update(updates);
+        }
+    }
+
+    static async getMessageInfo(channel, threadId, msgKey) {
+        let path = '';
+        if (channel === 'peer') path = `chats/threads/${threadId}/${msgKey}`;
+        else if (channel === 'global') path = `chats/global/${msgKey}`;
+        else if (channel === 'status') path = `chats/statusFeed/${msgKey}`;
+
+        const snapshot = await db.ref(path).once('value');
+        return snapshot.val();
+    }
+
+    static subscribeToStatusFeedLive(callback) {
+        const ref = db.ref('chats/statusFeed');
+        const handler = (snapshot) => {
+            const data = snapshot.val();
+            if (!data) { callback([]); return; }
+            const msgs = Object.entries(data).map(([key, val]) => ({ ...val, _key: key }));
+            callback(msgs.reverse()); // Latest first
+        };
+        ref.on('value', handler);
+        return () => ref.off('value', handler);
     }
 
     static async sendBroadcast(adminName, text) {

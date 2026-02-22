@@ -397,7 +397,224 @@
             line-height: 1.3;
         }
 
-        /* Audio / Video Players */
+        /* Message Action Menu (3-dot) */
+        .msg-bubble {
+            position: relative;
+            max-width: 80%;
+        }
+
+        .msg-menu-btn {
+            position: absolute;
+            top: 5px;
+            right: -30px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.2s;
+            z-index: 5;
+            font-size: 0.7rem;
+        }
+
+        .msg-self .msg-menu-btn {
+            right: auto;
+            left: -30px;
+        }
+
+        .msg-bubble:hover .msg-menu-btn {
+            opacity: 1;
+        }
+
+        .msg-context-menu {
+            position: fixed;
+            background: #0a0a0d;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px 0;
+            min-width: 160px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            animation: contextPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes contextPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .msg-context-item {
+            padding: 10px 16px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .msg-context-item:hover {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .msg-context-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .msg-context-item.delete {
+            color: #ff003c;
+        }
+
+        .msg-context-item.delete:hover {
+            background: rgba(255, 0, 60, 0.1);
+        }
+
+        /* Read Receipts */
+        .msg-status {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        .msg-status i {
+            font-size: 0.65rem;
+        }
+
+        .msg-status.seen {
+            color: var(--accent-primary);
+        }
+
+        /* Updated Chat Header */
+        .chat-header-updated {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            margin: -25px -25px 25px -25px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .chat-profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .chat-profile-name {
+            font-family: 'Orbitron';
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-header-action {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: 'Orbitron';
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-header-action:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-header-action.danger {
+            color: #ff003c;
+            border-color: rgba(255, 0, 60, 0.2);
+        }
+
+        .btn-header-action.danger:hover {
+            background: rgba(255, 0, 60, 0.1);
+            border-color: #ff003c;
+        }
+
+        .btn-header-back {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Orbitron';
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-header-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        #msg-info-modal .seen-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #msg-info-modal .seen-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #msg-info-modal .seen-item img {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+        }
+
         .msg-audio,
         .msg-video {
             margin-top: 6px;
@@ -687,15 +904,18 @@
 
                 <!-- HQ INTEL: Direct Thread with Admin -->
                 <div id="chat-channel-hq" class="chat-channel active">
-                    <div class="section-title"
-                        style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span><i class="fas fa-shield-halved"></i> SECURE HQ DIRECT LINE</span>
-                        <div style="display: flex; gap: 6px;">
-                            <button class="reset-chat-btn" onclick="resetChat('hq')"><i class="fas fa-user-minus"></i>
-                                RESET MY MSGS</button>
-                            <button class="reset-chat-btn"
-                                style="border-color: rgba(255,0,60,0.6); color: rgba(255,0,60,0.8);"
-                                onclick="clearChat('hq')"><i class="fas fa-trash-can"></i> CLEAR CHAT</button>
+                    <div class="chat-header-updated">
+                        <div class="chat-profile-info">
+                            <img src="/assets/favicon.png" class="chat-profile-img" alt="HQ">
+                            <div class="chat-profile-name">SECURE HQ DIRECT LINE</div>
+                        </div>
+                        <div class="chat-header-actions">
+                            <button class="btn-header-action" onclick="resetChat('hq')">
+                                <i class="fas fa-rotate-left"></i> RESET MY MSGS
+                            </button>
+                            <button class="btn-header-action danger" onclick="clearChat('hq')">
+                                <i class="fas fa-trash-can"></i> CLEAR CHAT
+                            </button>
                         </div>
                     </div>
                     <div class="chat-container">
@@ -729,15 +949,18 @@
 
                 <!-- GLOBAL OPS: Broadcast Channel -->
                 <div id="chat-channel-global" class="chat-channel">
-                    <div class="section-title"
-                        style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span><i class="fas fa-tower-broadcast"></i> GLOBAL MISSION BROADCAST</span>
-                        <div style="display: flex; gap: 6px;">
-                            <button class="reset-chat-btn" onclick="resetChat('global')"><i
-                                    class="fas fa-user-minus"></i> RESET MY MSGS</button>
-                            <button class="reset-chat-btn"
-                                style="border-color: rgba(255,0,60,0.6); color: rgba(255,0,60,0.8);"
-                                onclick="clearChat('global')"><i class="fas fa-trash-can"></i> CLEAR CHAT</button>
+                    <div class="chat-header-updated">
+                        <div class="chat-profile-info">
+                            <img src="/assets/favicon.png" class="chat-profile-img" alt="Global">
+                            <div class="chat-profile-name">GLOBAL MISSION BROADCAST</div>
+                        </div>
+                        <div class="chat-header-actions">
+                            <button class="btn-header-action" onclick="resetChat('global')">
+                                <i class="fas fa-rotate-left"></i> RESET MY MSGS
+                            </button>
+                            <button class="btn-header-action danger" onclick="clearChat('global')">
+                                <i class="fas fa-trash-can"></i> CLEAR CHAT
+                            </button>
                         </div>
                     </div>
                     <div class="chat-container">
@@ -774,18 +997,19 @@
                     <div id="crew-list-container" class="crew-chat-list"></div>
 
                     <div id="active-peer-chat" style="display: none; margin-top: 1.5rem;">
-                        <div class="section-title"
-                            style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
-                            <span><i class="fas fa-user-lock"></i> PRIVATE ENCRYPTED CHANNEL: <span
-                                    id="peer-name-label">...</span></span>
-                            <div style="display: flex; gap: 6px;">
-                                <button class="reset-chat-btn" onclick="resetChat('peer')"><i
-                                        class="fas fa-user-minus"></i> RESET MY MSGS</button>
-                                <button class="reset-chat-btn"
-                                    style="border-color: rgba(255,0,60,0.6); color: rgba(255,0,60,0.8);"
-                                    onclick="clearChat('peer')"><i class="fas fa-trash-can"></i> CLEAR CHAT</button>
-                                <button onclick="backToCrewList()"
-                                    style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
+                        <div class="chat-header-updated">
+                            <div class="chat-profile-info">
+                                <img id="peer-header-img" src="/assets/favicon.png" class="chat-profile-img" alt="Peer">
+                                <div id="peer-name-label" class="chat-profile-name">PRIVATE ENCRYPTED CHANNEL</div>
+                            </div>
+                            <div class="chat-header-actions">
+                                <button class="btn-header-action" onclick="resetChat('peer')">
+                                    <i class="fas fa-rotate-left"></i> RESET MY MSGS
+                                </button>
+                                <button class="btn-header-action danger" onclick="clearChat('peer')">
+                                    <i class="fas fa-trash-can"></i> CLEAR CHAT
+                                </button>
+                                <button class="btn-header-back" onclick="backToCrewList()">
                                     <i class="fas fa-arrow-left"></i> BACK
                                 </button>
                             </div>
@@ -931,6 +1155,19 @@
         </main>
     </div>
 
+    <!-- Context Menu for Message Actions -->
+    <div id="msg-context-menu" class="msg-context-menu">
+        <div class="msg-context-item" id="menu-edit">
+            <i class="fas fa-pencil"></i> EDIT MESSAGE
+        </div>
+        <div class="msg-context-item" id="menu-info">
+            <i class="fas fa-info-circle"></i> MESSAGE INFO
+        </div>
+        <div class="msg-context-item delete" id="menu-delete">
+            <i class="fas fa-trash"></i> DELETE MESSAGE
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -1017,13 +1254,20 @@
 
             // SYNC HANDLERS (Firebase Real-time)
             const hqThreadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-            window.DataManager.subscribeToChat(hqThreadId, async (messages) => {
+            _unsubHQ = window.DataManager.subscribeToChat(hqThreadId, async (messages) => {
                 if (currentTab === 'chats' && currentChatChannel === 'hq') {
-                    await renderHQChat(messages);
+                    const feed = document.getElementById('chat-feed-hq');
+                    if (feed) {
+                        const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                        const context = { 'HQ': 'HQ COMMAND', [activeMember.id]: activeMember.name };
+                        const path = `chats/threads/${hqThreadId}`;
+                        feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context, path)).join('');
+                        smartScrollToBottom(feed);
+                        window.DataManager.markAsSeen('peer', hqThreadId, loggedInUser.id);
+                    }
                 } else {
                     const hqDot = document.querySelector('#btn-hq .nav-unread-dot');
                     if (hqDot) hqDot.style.display = 'block';
-                    // Notify: new HQ message
                     if (messages.length > 0) {
                         const last = messages[messages.length - 1];
                         if (last.senderId === 'HQ') {
@@ -1037,13 +1281,17 @@
                 }
             });
 
-            window.DataManager.subscribeToGlobalChat(async (messages) => {
+            _unsubGlobal = window.DataManager.subscribeToGlobalChatLive(async (messages) => {
                 if (currentTab === 'chats' && currentChatChannel === 'global') {
-                    await renderGlobalChat(messages);
+                    const feed = document.getElementById('chat-feed-global');
+                    if (feed) {
+                        feed.innerHTML = messages.map(msg => renderMessageHTML(msg, loggedInUser.id, {}, 'chats/global')).join('');
+                        smartScrollToBottom(feed);
+                        window.DataManager.markAsSeen('global', null, loggedInUser.id);
+                    }
                 } else {
                     const globalDot = document.querySelector('#btn-global .nav-unread-dot');
                     if (globalDot) globalDot.style.display = 'block';
-                    // Notify: new global message
                     if (messages.length > 0) {
                         const last = messages[messages.length - 1];
                         if (last.senderId !== activeMember.id) {
@@ -1057,11 +1305,14 @@
                 }
             });
 
-            window.DataManager.subscribeToStatusFeed(async (feed) => {
+            _unsubStatus = window.DataManager.subscribeToStatusFeedLive(async (feed) => {
                 if (currentTab === 'home') {
-                    await renderMissionFeed(feed);
+                    const list = document.getElementById('mission-feed-list');
+                    if (list) {
+                        list.innerHTML = feed.map(msg => renderMessageHTML(msg, loggedInUser.id, {}, 'chats/statusFeed')).join('');
+                        window.DataManager.markAsSeen('status', null, loggedInUser.id);
+                    }
                 } else {
-                    // Notify: new status commit
                     if (feed.length > 0) {
                         const latest = feed[0];
                         if (latest.senderId !== activeMember.id) {
@@ -1261,12 +1512,13 @@
         }
 
         // ─── LIVE SUBSCRIPTION HANDLES ────────────────────────────────────────────
-        let _unsubHQ = null, _unsubGlobal = null, _unsubPeer = null;
+        let _unsubHQ = null, _unsubGlobal = null, _unsubPeer = null, _unsubStatus = null;
 
         function unsubAll() {
             if (_unsubHQ) { _unsubHQ(); _unsubHQ = null; }
             if (_unsubGlobal) { _unsubGlobal(); _unsubGlobal = null; }
             if (_unsubPeer) { _unsubPeer(); _unsubPeer = null; }
+            if (_unsubStatus) { _unsubStatus(); _unsubStatus = null; }
         }
 
         // ─── CHAT CHANNEL SWITCHING ──────────────────────────────────────────────
@@ -1283,8 +1535,8 @@
             document.querySelectorAll('.chat-channel').forEach(ch => ch.classList.remove('active'));
             document.getElementById(`chat-channel-${channel}`).classList.add('active');
 
-            if (channel === 'hq') subscribeHQChat();
-            else if (channel === 'global') subscribeGlobalChat();
+            if (channel === 'hq') { /* Global sub handles feed */ }
+            else if (channel === 'global') { /* Global sub handles feed */ }
             else if (channel === 'crew') {
                 if (activePeerId) subscribePeerChat(activePeerId);
                 else await renderCrewList();
@@ -1298,38 +1550,11 @@
             if (isNearBottom) element.scrollTop = element.scrollHeight;
         }
 
-        // ─── LIVE RENDER: HQ CHAT ─────────────────────────────────────────────────
-        function subscribeHQChat() {
-            if (!activeMember || !loggedInUser) return;
-            if (_unsubHQ) { _unsubHQ(); _unsubHQ = null; }
-            const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
-            const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
-            const context = { 'HQ': 'HQ COMMAND', [activeMember.id]: activeMember.name };
-            const path = `chats/threads/${threadId}`;
-            const feed = document.getElementById('chat-feed-hq');
-            _unsubHQ = window.DataManager.subscribeToChat(threadId, (messages) => {
-                if (!feed) return;
-                feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context, path)).join('');
-                smartScrollToBottom(feed);
-            });
-        }
-        // Keep old async name for backward compat (called from some places)
-        async function renderHQChat() { subscribeHQChat(); }
-
-        // ─── LIVE RENDER: GLOBAL CHAT ─────────────────────────────────────────────
-        function subscribeGlobalChat() {
-            if (!loggedInUser) return;
-            if (_unsubGlobal) { _unsubGlobal(); _unsubGlobal = null; }
-            const myId = loggedInUser.id;
-            const feed = document.getElementById('chat-feed-global');
-            _unsubGlobal = window.DataManager.subscribeToGlobalChatLive((messages) => {
-                if (!feed) return;
-                feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, {}, 'chats/global')).join('');
-                smartScrollToBottom(feed);
-            });
-        }
-        // Keep old async name for backward compat
-        async function renderGlobalChat() { subscribeGlobalChat(); }
+        // Global subscriptions handle these feeds now to avoid redundancy.
+        function subscribeHQChat() { }
+        async function renderHQChat() { }
+        function subscribeGlobalChat() { }
+        async function renderGlobalChat() { }
 
         async function renderCrewList() {
             const container = document.getElementById('crew-list-container');
@@ -1382,6 +1607,7 @@
                 if (!feed) return;
                 feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context, path)).join('');
                 smartScrollToBottom(feed);
+                window.DataManager.markAsSeen('peer', threadId, activeMember.id);
             });
         }
         // Keep old async name for backward compat
@@ -1391,7 +1617,7 @@
         function renderMessageHTML(msg, myId, nameContext = {}, dbPath = '') {
             const sId = msg.senderId || msg.sender;
             const sName = msg.senderName || msg.meta || nameContext[sId] || sId || 'UNKNOWN';
-            const isSelf = sId === myId || sName === loggedInUser.name;
+            const isSelf = sId === myId || sName === (loggedInUser ? loggedInUser.name : '');
             const msgKey = msg._key || '';
 
             // Build attachment HTML
@@ -1417,16 +1643,24 @@
                 }
             }
 
-            // Guard: if nothing to show, skip rendering entirely
             if (!msg.text && !attachHTML) return '';
 
-            // Edit actions for own messages (only text-editable)
-            const showEdit = isSelf && msg.text && msgKey && dbPath;
             const editedLabel = msg.edited ? `<span class="msg-edited-label">(edited)</span>` : '';
-            const actionsHTML = showEdit ? `
-                <div class="msg-actions">
-                    <button class="msg-action-btn" onclick="editMsgInline('${msgKey}','${dbPath}',this)">✏️ EDIT</button>
-                </div>` : '';
+
+            // Read receipt dots/ticks
+            let statusHTML = '';
+            if (isSelf) {
+                const seenCount = msg.seenBy ? Object.keys(msg.seenBy).filter(id => id !== myId).length : 0;
+                const isSeen = seenCount > 0;
+                statusHTML = `<div class="msg-status ${isSeen ? 'seen' : ''}">
+                    <i class="fas ${isSeen ? 'fa-check-double' : 'fa-check'}"></i>
+                </div>`;
+            }
+
+            // 3-dot Menu for actions
+            const menuBtn = `<div class="msg-menu-btn" onclick="showMsgMenu(event, '${msgKey}', '${dbPath}', ${isSelf})">
+                <i class="fas fa-ellipsis-v"></i>
+            </div>`;
 
             return `
                 <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" data-key="${msgKey}" data-path="${dbPath}">
@@ -1434,11 +1668,107 @@
                     <div class="msg-bubble" id="bubble-${msgKey}">
                         ${msg.text ? `<div class="msg-text" id="text-${msgKey}">${msg.text}</div>` : ''}
                         ${attachHTML}
+                        ${menuBtn}
                     </div>
-                    ${actionsHTML}
+                    ${statusHTML}
                 </div>
             `;
         }
+
+        // ─── MESSAGE ACTIONS ────────────────────────────────────────────────────
+        let activeMenuMsg = null;
+
+        function showMsgMenu(e, msgKey, dbPath, isSelf) {
+            e.stopPropagation();
+            activeMenuMsg = { key: msgKey, path: dbPath, isSelf: isSelf };
+
+            const menu = document.getElementById('msg-context-menu');
+            const editOpt = document.getElementById('menu-edit');
+            const delOpt = document.getElementById('menu-delete');
+
+            // Only show edit/delete for own messages
+            editOpt.style.display = isSelf ? 'flex' : 'none';
+            delOpt.style.display = isSelf ? 'flex' : 'none';
+
+            menu.style.display = 'block';
+            menu.style.left = `${e.clientX - 160}px`;
+            menu.style.top = `${e.clientY}px`;
+
+            // Adjust if near bottom
+            if (e.clientY + 150 > window.innerHeight) {
+                menu.style.top = `${e.clientY - 150}px`;
+            }
+
+            // Global click to close
+            const closeMenu = () => {
+                menu.style.display = 'none';
+                document.removeEventListener('click', closeMenu);
+            };
+            setTimeout(() => document.addEventListener('click', closeMenu), 10);
+        }
+
+        document.getElementById('menu-edit').onclick = async () => {
+            if (!activeMenuMsg) return;
+            const bubble = document.getElementById(`bubble-${activeMenuMsg.key}`);
+            const textEl = document.getElementById(`text-${activeMenuMsg.key}`);
+            if (!textEl) return; // Only edit text messages
+
+            const oldText = textEl.innerText;
+            const newText = await tacticalPrompt('EDIT MESSAGE TRANSMISSION:', oldText, 'ENCRYPTED EDIT');
+            if (newText && newText !== oldText) {
+                await firebase.database().ref(`${activeMenuMsg.path}/${activeMenuMsg.key}`).update({
+                    text: newText,
+                    edited: true,
+                    timestamp: Date.now()
+                });
+                showToast('Transmission updated.', 'success');
+            }
+        };
+
+        document.getElementById('menu-delete').onclick = async () => {
+            if (!activeMenuMsg) return;
+            const ok = await tacticalConfirm('Are you sure you want to PERMANENTLY DELETE this transmission?', 'DELETION CONFIRM');
+            if (ok) {
+                await firebase.database().ref(`${activeMenuMsg.path}/${activeMenuMsg.key}`).remove();
+                showToast('Transmission purged.', 'success');
+            }
+        };
+
+        document.getElementById('menu-info').onclick = async () => {
+            if (!activeMenuMsg) return;
+            const snapshot = await firebase.database().ref(`${activeMenuMsg.path}/${activeMenuMsg.key}`).once('value');
+            const msg = snapshot.val();
+            if (!msg) return;
+
+            let seenHTML = '<div class="seen-list">';
+            if (msg.seenBy) {
+                const members = await window.DataManager.getAllMembers();
+                const readers = Object.entries(msg.seenBy).filter(([id]) => id !== msg.senderId);
+
+                if (readers.length === 0) {
+                    seenHTML += '<div style="font-size:0.7rem; opacity:0.5; padding:10px;">Not seen by anyone yet.</div>';
+                } else {
+                    for (const [uid, time] of readers) {
+                        const m = members.find(mem => mem.id === uid) || { name: uid, image: '/assets/favicon.png' };
+                        const date = new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        seenHTML += `
+                            <div class="seen-item">
+                                <img src="${m.image || '/assets/favicon.png'}" alt="">
+                                <div style="flex:1">
+                                    <div style="font-size:0.7rem; color:#fff;">${m.name}</div>
+                                    <div style="font-size:0.5rem; opacity:0.5;">Seen at ${date}</div>
+                                </div>
+                                <i class="fas fa-check-double" style="color:var(--accent-primary); font-size:0.6rem;"></i>
+                            </div>`;
+                    }
+                }
+            } else {
+                seenHTML += '<div style="font-size:0.7rem; opacity:0.5; padding:10px;">Not seen by anyone yet.</div>';
+            }
+            seenHTML += '</div>';
+
+            await tacticalAlert(seenHTML, 'TRANSMISSION INFO');
+        };
 
         // ─── MESSAGE EDITING ────────────────────────────────────────────────────
         function editMsgInline(msgKey, dbPath, btn) {
@@ -1652,30 +1982,8 @@
             renderDrive();
         }
 
-        async function renderMissionFeed(feedData = null) {
-            const list = document.getElementById('mission-feed-list');
-            if (!list) return;
-
-            const statusFeed = feedData || await window.DataManager.getStatusFeed();
-
-            if (statusFeed.length === 0) {
-                list.innerHTML = '<div style="opacity: 0.3; text-align: center; font-size: 0.7rem; padding: 20px;">No mission commits logged in the last 24h</div>';
-                return;
-            }
-
-            list.innerHTML = statusFeed.map(status => `
-                <div class="status-commit-item" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <img src="${status.senderImage}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent-primary);">
-                        <div style="flex: 1;">
-                            <div style="font-size: 0.7rem; font-family: 'Orbitron'; color: #fff;">${status.senderName.toUpperCase()}</div>
-                            <div style="font-size: 0.5rem; opacity: 0.5;">${status.time} // COMMITTED</div>
-                        </div>
-                    </div>
-                    <div style="font-size: 0.75rem; line-height: 1.4; color: rgba(255,255,255,0.8); white-space: pre-wrap;">${status.text}</div>
-                    ${status.image ? `<img src="${status.image}" class="status-attachment" onclick="window.open(this.src)">` : ''}
-                </div>
-            `).join('');
+        async function renderMissionFeed() {
+            // Handled by global _unsubStatus listener in sync section
         }
 
         async function renderSecurity() {
@@ -1804,14 +2112,42 @@
         }
 
         async function commitStatus() {
-            const input = document.getElementById('drafter-input');
-            const text = input.value.trim();
-            if (text || pendingStatusImage) {
-                await window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image, pendingStatusImage);
-                input.value = '';
+            const text = document.getElementById('drafter-input').value.trim();
+            if (!text && !pendingStatusImage) {
+                showToast('Mission directive cannot be empty.', 'error');
+                return;
+            }
+
+            const btn = document.querySelector('.btn-directive');
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> BROADCASTING...';
+            btn.disabled = true;
+
+            try {
+                const statusUpdate = {
+                    id: Date.now(),
+                    senderId: activeMember.id,
+                    senderName: activeMember.name,
+                    senderImage: activeMember.image,
+                    text: text,
+                    image: pendingStatusImage,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    date: new Date().toLocaleDateString(),
+                    timestamp: Date.now(),
+                    seenBy: { [loggedInUser.id]: Date.now() }
+                };
+
+                await firebase.database().ref('chats/statusFeed').push(statusUpdate);
+
+                document.getElementById('drafter-input').value = '';
                 removeStatusImage();
-                await tacticalAlert("MISSION STATUS COMMITTED TO GLOBAL FEED", "DATA UPLOADED");
-                await switchTab('home');
+                showToast('Status broadcast to global feed.', 'success');
+            } catch (err) {
+                console.error('Status broadcast failed:', err);
+                showToast('Broadcast failed. Try again.', 'error');
+            } finally {
+                btn.innerHTML = origHTML;
+                btn.disabled = false;
             }
         }
 
