@@ -253,6 +253,7 @@ const INITIAL_MEMBERS = [
         name: "Kiran Balaso Patil",
         role: "Full Stack Dev",
         bloodGroup: "AB+",
+        access: "admin",
         description: "Specialist in Node.js and Java backends. Creator of SmartCart and complex Management Systems. 'Write Once, Run Anywhere.'",
         image: "/assets/kiran.jpeg",
         accent: "#ff003c",
@@ -958,5 +959,19 @@ class DataManager {
 // Global sync on load
 DataManager.syncPermanentCodes();
 
+// Patch: ensure Kiran has admin access in the live Firebase record
+(async () => {
+    try {
+        const kiran = await DataManager.getMemberById('kiran');
+        if (kiran && kiran.access !== 'admin') {
+            await DataManager.updateMember('kiran', { access: 'admin' });
+            console.log('[PATCH] Kiran promoted to admin in Firebase.');
+        }
+    } catch (e) {
+        console.warn('[PATCH] Could not update Kiran access:', e);
+    }
+})();
+
 // Export for use in other scripts
 window.DataManager = DataManager;
+
