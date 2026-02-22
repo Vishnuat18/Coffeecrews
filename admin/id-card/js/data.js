@@ -539,8 +539,27 @@ class DataManager {
 
     // Edit a previously sent message (only text can be edited)
     static async editMessage(path, newText) {
-        // path is the full Firebase path to the message node, e.g. chats/threads/<id>/<key>
         await db.ref(path).update({ text: newText, edited: true });
+    }
+
+    // Hard-delete a message completely
+    static async deleteMessage(path) {
+        await db.ref(path).remove();
+    }
+
+    // Mark a message as seen by userId
+    static async markMessageSeen(path, userId, userName) {
+        await db.ref(`${path}/seenBy/${userId}`).set({
+            name: userName,
+            at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            ts: Date.now()
+        });
+    }
+
+    // Get seen-by data for a message
+    static async getMessageSeenBy(path) {
+        const snap = await db.ref(`${path}/seenBy`).once('value');
+        return snap.val() || {};
     }
 
     // Clear chat history from this user's perspective (writes a timestamp, render filters below it)
@@ -565,7 +584,7 @@ class DataManager {
         }
     }
 
-    static async commitStatus(senderId, senderName, text, senderImage, statusImage = null, statusType = 'update', attachment = null, voice = null) {
+    static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
         const statusUpdate = {
             id: Date.now(),
             senderId,
@@ -573,9 +592,6 @@ class DataManager {
             senderImage,
             text,
             image: statusImage,
-            statusType,   // 'update' | 'blocker' | 'milestone' | 'intel'
-            attachment,   // { type, dataUrl, name, size }
-            voice,        // { dataUrl, duration }
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
         };
