@@ -384,7 +384,43 @@ const INITIAL_MEMBERS = [
         accent: "#8fd222",
         contact: {
             phone: "9043420472",
-            email: "nithishk6500@gmil.com"
+            email: "nithishk6500@gmil.com",
+            portfolio: "https://rohith22s.github.io/laila/"
+        }
+    },
+    {
+        id: "bhavana",
+        ccCode: "0207",
+        passcode: "0207",
+        name: "Bhavana C P",
+        role: "Content creator",
+        bloodGroup: "O+",
+        description: "Creative content strategist specializing in digital storytelling and brand engagement for the CoffeeCrews ecosystem.",
+        image: "/assets/favicon.png",
+        accent: "#d946ef",
+        contact: {
+            phone: "8248890779",
+            email: "cpbhava2006@gmail.com",
+            github: "https://github.com/cpbhava2006-ship-it",
+            linkedin: "https://www.linkedin.com/in/bhavana-c-p-1702512b4"
+        }
+    },
+    {
+        id: "santhosh",
+        ccCode: "2209",
+        passcode: "2209",
+        name: "Santhosh G",
+        role: "prompt engineer",
+        bloodGroup: "B+",
+        description: "Innovative prompt engineer optimizing AI interactions and developing advanced linguistic frameworks for next-gen agents.",
+        image: "/assets/santhosh.png",
+        accent: "#f97316",
+        contact: {
+            phone: "7845295779",
+            email: "santhoshgovindan2006@gmail.com",
+            portfolio: "https://santhoshprofile.netlify.app",
+            github: "https://github.com/santhosh0822",
+            linkedin: "https://www.linkedin.com/in/santhosh-g-895434351"
         }
     },
     {
