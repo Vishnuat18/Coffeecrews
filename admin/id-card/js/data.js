@@ -210,11 +210,11 @@ class ModalManager {
     }
 
     static alert(message, title = 'SYSTEM ALERT') {
-        return this.show({ message, title, showCancel: false, okText: 'ACKNOWLEDGE' });
+        return this.show({ message, title, showCancel: false, okText: 'Confirm' });
     }
 
     static confirm(message, title = 'SYSTEM CONFIRMATION') {
-        return this.show({ message, title, showCancel: true, okText: 'AUTHORIZE' });
+        return this.show({ message, title, showCancel: true, okText: 'Confirm' });
     }
 
     static prompt(message, defaultValue = '', title = 'DATA INPUT REQUIRED') {
@@ -474,6 +474,46 @@ class DataManager {
 
     static async saveAllMembers(members) {
         await db.ref('members').set(members);
+    }
+
+    // Non-destructive seed: patches base fields from INITIAL_MEMBERS into Firebase
+    // Preserves dynamic fields: attendance, achievements, driveLinks, etc.
+    static async seedMembersToFirebase() {
+        const snapshot = await db.ref('members').once('value');
+        const current = snapshot.val();
+
+        if (!current) {
+            // DB is empty — do a full write
+            await db.ref('members').set(INITIAL_MEMBERS);
+            return { seeded: INITIAL_MEMBERS.length, updated: 0, msg: 'Full seed completed.' };
+        }
+
+        const currentArr = Array.isArray(current) ? current : Object.values(current);
+        let updatedCount = 0;
+
+        // Fields that come from INITIAL_MEMBERS (base config)
+        const BASE_FIELDS = ['id', 'ccCode', 'passcode', 'name', 'role', 'bloodGroup',
+            'access', 'description', 'image', 'accent', 'contact'];
+
+        const merged = currentArr.map(existing => {
+            const source = INITIAL_MEMBERS.find(m => m.id === existing.id);
+            if (!source) return existing; // unknown member, leave as-is
+            const patch = {};
+            BASE_FIELDS.forEach(f => { if (source[f] !== undefined) patch[f] = source[f]; });
+            updatedCount++;
+            return { ...existing, ...patch };
+        });
+
+        // Also add any INITIAL_MEMBERS not yet in Firebase (new members)
+        INITIAL_MEMBERS.forEach(m => {
+            if (!merged.find(e => e.id === m.id)) {
+                merged.push(m);
+                updatedCount++;
+            }
+        });
+
+        await db.ref('members').set(merged);
+        return { seeded: 0, updated: updatedCount, msg: `Patched ${updatedCount} member(s).` };
     }
 
     static async updateMember(id, updatedData) {
@@ -959,19 +999,5 @@ class DataManager {
 // Global sync on load
 DataManager.syncPermanentCodes();
 
-// Patch: ensure Kiran has admin access in the live Firebase record
-(async () => {
-    try {
-        const kiran = await DataManager.getMemberById('kiran');
-        if (kiran && kiran.access !== 'admin') {
-            await DataManager.updateMember('kiran', { access: 'admin' });
-            console.log('[PATCH] Kiran promoted to admin in Firebase.');
-        }
-    } catch (e) {
-        console.warn('[PATCH] Could not update Kiran access:', e);
-    }
-})();
-
 // Export for use in other scripts
 window.DataManager = DataManager;
-

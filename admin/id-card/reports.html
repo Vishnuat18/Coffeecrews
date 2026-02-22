@@ -254,6 +254,12 @@
                     style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem;">
                     <i class="fas fa-tower-broadcast"></i> GLOBAL BROADCAST
                 </button>
+                <button id="seed-btn" onclick="seedDatabase()"
+                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: transparent; border: 1px solid rgba(0,243,255,0.4); color: var(--accent-primary); font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;"
+                    onmouseover="this.style.background='rgba(0,243,255,0.1)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-database"></i> SEED DB
+                </button>
                 <div id="pending-indicator" style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ff003c;">
                     <i class="fas fa-circle-exclamation"></i> <span id="pending-count">0</span> PENDING
                 </div>
@@ -263,6 +269,7 @@
                 </button>
             </div>
         </div>
+
 
         <div class="reports-feed" id="reports-feed">
             <!-- Reports will be injected here -->
@@ -405,6 +412,31 @@
                 showToast("Transmission failed. Check network.", "error");
             }
         }
+
+        // ─── SEED DATABASE ────────────────────────────────────────────────────────
+        async function seedDatabase() {
+            const confirmed = await tacticalConfirm(
+                'This will sync all member base data (name, role, access, passcode, contact) from INITIAL_MEMBERS to Firebase. Attendance and custom fields are preserved.',
+                'SEED DATABASE');
+            if (!confirmed) return;
+
+            const btn = document.getElementById('seed-btn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...';
+            btn.disabled = true;
+
+            try {
+                const result = await window.DataManager.seedMembersToFirebase();
+                showToast(`✅ ${result.msg}`, 'success', 4000);
+            } catch (err) {
+                console.error('Seed failed:', err);
+                showToast('Seed failed. Check console for details.', 'error', 4000);
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+
     </script>
 </body>
 

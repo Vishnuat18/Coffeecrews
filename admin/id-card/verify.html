@@ -984,8 +984,8 @@
             loggedInUser = session;
             console.log("Session Initialized:", loggedInUser.id, "Role:", loggedInUser.role);
 
-            // DUAL ACCESS ENFORCEMENT (Vishnu, Prasanna, Dharani)
-            const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+            // DUAL ACCESS ENFORCEMENT (Vishnu, Prasanna, Dharani, Kiran)
+            const dualAccessIds = ['vishnu', 'prasanna', 'dharani', 'kiran'];
 
             if (dualAccessIds.includes(session.id)) {
                 const cockpitBtn = document.getElementById('cockpit-btn');
