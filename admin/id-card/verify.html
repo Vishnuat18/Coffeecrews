@@ -711,7 +711,7 @@
                             </div>
                             <label class="action-circle-btn" title="Attach File">
                                 <i class="fas fa-paperclip"></i>
-                                <input type="file" id="media-upload-hq" accept="*" style="display: none;"
+                                <input type="file" id="media-upload-hq" style="display: none;"
                                     onchange="handleMediaUpload(event, 'hq')">
                             </label>
                             <input type="text" id="chat-input-hq" placeholder="Report to HQ..."
@@ -753,7 +753,7 @@
                             </div>
                             <label class="action-circle-btn" title="Attach File">
                                 <i class="fas fa-paperclip"></i>
-                                <input type="file" id="media-upload-global" accept="*" style="display: none;"
+                                <input type="file" id="media-upload-global" style="display: none;"
                                     onchange="handleMediaUpload(event, 'global')">
                             </label>
                             <input type="text" id="chat-input-global" placeholder="Transmit to all personnel..."
@@ -803,7 +803,7 @@
                                 </div>
                                 <label class="action-circle-btn" title="Attach File">
                                     <i class="fas fa-paperclip"></i>
-                                    <input type="file" id="media-upload-peer" accept="*" style="display: none;"
+                                    <input type="file" id="media-upload-peer" style="display: none;"
                                         onchange="handleMediaUpload(event, 'peer')">
                                 </label>
                                 <input type="text" id="chat-input-peer" placeholder="Secure peer transmission..."
@@ -1488,32 +1488,42 @@
             input.value = '';
         }
 
-        // ─── FILE UPLOAD (ALL TYPES) ──────────────────────────────────────────────
+        // ─── FILE UPLOAD (ALL TYPES, ALL BROWSERS) ────────────────────────────────
         async function handleMediaUpload(event, channel) {
+            // Capture file + input ref IMMEDIATELY — Chrome may invalidate event obj later
             const file = event.target.files[0];
+            const inputEl = event.target;
             if (!file) return;
+
             const LIMIT_MB = 10;
             if (file.size > 1024 * 1024 * LIMIT_MB) {
                 await tacticalAlert(`File too large. Max ${LIMIT_MB}MB allowed.`, 'PAYLOAD ERROR');
-                event.target.value = '';
+                inputEl.value = '';
                 return;
             }
 
             showToast('Uploading...', 'info', 3000);
 
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const base64 = e.target.result;
+            // Wrap FileReader in a Promise — reliable cross-browser async flow
+            const readFile = (f) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => reject(new Error('FileReader failed'));
+                reader.readAsDataURL(f);
+            });
+
+            try {
+                const base64 = await readFile(file);
                 let image = null, extra = {};
 
                 if (file.type.startsWith('image/')) {
-                    // Resize images to keep DB lean
                     image = await resizeImage(base64, 600, 600);
                 } else if (file.type.startsWith('audio/')) {
                     extra = { audioUrl: base64 };
                 } else {
                     // video, PDF, doc, xlsx, csv, pptx, zip, etc.
-                    extra = { fileUrl: base64, fileType: file.type, fileName: file.name };
+                    const fileType = file.type || 'application/octet-stream';
+                    extra = { fileUrl: base64, fileType, fileName: file.name };
                 }
 
                 if (channel === 'hq') {
@@ -1525,11 +1535,16 @@
                 } else if (channel === 'peer') {
                     await window.DataManager.sendMessage(activeMember.id, activePeerId, null, image, extra);
                 }
+
                 showToast(`${file.name} sent!`, 'success', 2500);
-                event.target.value = ''; // clear input so same file can be re-sent
-            };
-            reader.readAsDataURL(file);
+            } catch (err) {
+                console.error('File upload error:', err);
+                showToast('Failed to upload file. Please try again.', 'error', 4000);
+            } finally {
+                inputEl.value = ''; // Always clear — use captured ref, not event.target
+            }
         }
+
 
         // ─── RESET CHAT (SENDER ONLY) ─────────────────────────────────────────────
         async function resetChat(channel) {
