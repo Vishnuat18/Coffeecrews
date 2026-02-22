@@ -529,21 +529,26 @@ class DataManager {
             const snapshot = await db.ref(`chats/threads/${threadId}`).once('value');
             const data = snapshot.val();
             if (!data) return [];
-            return Array.isArray(data) ? data : Object.values(data);
+            // Attach the Firebase key to each message for edit/delete
+            return Object.entries(data).map(([key, val]) => ({ ...val, _key: key }));
         } catch (e) {
             console.error("Firebase getMessages failed:", e);
             return [];
         }
     }
 
-    static async sendMessage(senderId, receiverId, text, image = null) {
+    static async sendMessage(senderId, receiverId, text, image = null, extra = {}) {
         const threadId = this.getThreadId(senderId, receiverId);
 
         const message = {
             id: Date.now(),
             senderId: senderId,
-            text,
-            image,
+            text: text || null,
+            image: image || null,
+            audioUrl: extra.audioUrl || null,
+            fileUrl: extra.fileUrl || null,
+            fileType: extra.fileType || null,
+            fileName: extra.fileName || null,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
         };
@@ -553,13 +558,17 @@ class DataManager {
         return message;
     }
 
-    static async sendGlobalMessage(senderId, senderName, text, image = null) {
+    static async sendGlobalMessage(senderId, senderName, text, image = null, extra = {}) {
         const message = {
             id: Date.now(),
             senderId,
             senderName,
-            text,
-            image,
+            text: text || null,
+            image: image || null,
+            audioUrl: extra.audioUrl || null,
+            fileUrl: extra.fileUrl || null,
+            fileType: extra.fileType || null,
+            fileName: extra.fileName || null,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now()
         };
@@ -574,11 +583,49 @@ class DataManager {
             const snapshot = await db.ref('chats/global').limitToLast(50).once('value');
             const data = snapshot.val();
             if (!data) return [];
-            return Array.isArray(data) ? data : Object.values(data);
+            return Object.entries(data).map(([key, val]) => ({ ...val, _key: key }));
         } catch (e) {
             console.error("Firebase getGlobalMessages failed:", e);
             return [];
         }
+    }
+
+    // --- CHAT EDIT / DELETE / RESET ---
+
+    static async editMessage(path, msgKey, newText) {
+        // path: 'chats/threads/<threadId>' or 'chats/global'
+        await db.ref(`${path}/${msgKey}`).update({ text: newText, edited: true });
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+    }
+
+    static async deleteMessage(path, msgKey) {
+        await db.ref(`${path}/${msgKey}`).remove();
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+    }
+
+    static async resetPeerChat(threadId, userId) {
+        // Remove only messages from this user in the thread
+        const snapshot = await db.ref(`chats/threads/${threadId}`).once('value');
+        const data = snapshot.val();
+        if (!data) return;
+        const updates = {};
+        Object.entries(data).forEach(([key, msg]) => {
+            if (msg.senderId === userId) updates[key] = null;
+        });
+        await db.ref(`chats/threads/${threadId}`).update(updates);
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+    }
+
+    static async resetGlobalChat(userId) {
+        const snapshot = await db.ref('chats/global').once('value');
+        const data = snapshot.val();
+        if (!data) return;
+        const updates = {};
+        Object.entries(data).forEach(([key, msg]) => {
+            if (msg.senderId === userId) updates[key] = null;
+        });
+        await db.ref('chats/global').update(updates);
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
     }
 
     static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
@@ -751,7 +798,7 @@ class DataManager {
         const ref = db.ref(`chats/threads/${threadId}`);
         const listener = (snapshot) => {
             const data = snapshot.val();
-            const messages = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            const messages = data ? Object.entries(data).map(([k, v]) => ({ ...v, _key: k })) : [];
             callback(messages);
         };
         ref.on('value', listener);
@@ -762,7 +809,7 @@ class DataManager {
         const ref = db.ref('chats/global');
         const listener = (snapshot) => {
             const data = snapshot.val();
-            const messages = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            const messages = data ? Object.entries(data).map(([k, v]) => ({ ...v, _key: k })) : [];
             callback(messages);
         };
         ref.on('value', listener);

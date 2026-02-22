@@ -355,13 +355,221 @@
 
         /* Chat Image Constraint */
         .msg-img {
-            width: 100px;
-            height: 100px;
+            max-width: 200px;
+            max-height: 200px;
             object-fit: cover;
             border-radius: 8px;
             margin-top: 5px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
+        }
+
+        /* File Attachment Card */
+        .msg-file-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 6px;
+            text-decoration: none;
+            color: #e2e8f0;
+            transition: 0.2s;
+            max-width: 240px;
+        }
+
+        .msg-file-card:hover {
+            background: rgba(0, 243, 255, 0.08);
+            border-color: rgba(0, 243, 255, 0.3);
+            color: var(--accent-primary);
+        }
+
+        .msg-file-card .file-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .msg-file-card .file-name {
+            font-size: 0.75rem;
+            word-break: break-all;
+            line-height: 1.3;
+        }
+
+        /* Audio / Video Players */
+        .msg-audio,
+        .msg-video {
+            margin-top: 6px;
+            border-radius: 8px;
+            max-width: 260px;
+            width: 100%;
+        }
+
+        /* Edited label */
+        .msg-edited-label {
+            font-size: 0.5rem;
+            opacity: 0.45;
+            margin-left: 6px;
+            font-style: italic;
+        }
+
+        /* Edit Input */
+        .msg-edit-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-primary);
+            color: #fff;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        /* Hover action buttons on messages */
+        .msg-actions {
+            display: none;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .chat-msg:hover .msg-actions {
+            display: flex;
+        }
+
+        .msg-action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .msg-action-btn:hover {
+            background: rgba(0, 243, 255, 0.1);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* Emoji Picker */
+        .emoji-picker-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .emoji-panel {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            background: rgba(10, 12, 20, 0.97);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 14px;
+            padding: 12px;
+            width: 280px;
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 500;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .emoji-panel.open {
+            display: flex;
+        }
+
+        .emoji-panel span {
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: 0.15s;
+            user-select: none;
+        }
+
+        .emoji-panel span:hover {
+            background: rgba(0, 243, 255, 0.1);
+            transform: scale(1.2);
+        }
+
+        .emoji-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .emoji-panel::-webkit-scrollbar-thumb {
+            background: rgba(0, 243, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        /* Voice recording indicator */
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #ff003c;
+            font-family: 'Orbitron';
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            animation: pulse-rec 1s infinite;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        @keyframes pulse-rec {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .rec-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff003c;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff003c;
+        }
+
+        /* Mic button recording state */
+        .action-circle-btn.recording {
+            background: rgba(255, 0, 60, 0.15) !important;
+            border-color: #ff003c !important;
+            color: #ff003c !important;
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.3) !important;
+        }
+
+        /* Reset chat button */
+        .reset-chat-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            color: rgba(255, 0, 60, 0.6);
+            font-family: 'Orbitron';
+            font-size: 0.5rem;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .reset-chat-btn:hover {
+            background: rgba(255, 0, 60, 0.1);
+            border-color: #ff003c;
+            color: #ff003c;
         }
     </style>
 </head>
@@ -479,19 +687,35 @@
 
                 <!-- HQ INTEL: Direct Thread with Admin -->
                 <div id="chat-channel-hq" class="chat-channel active">
-                    <div class="section-title" style="font-size: 0.7rem;">
-                        <i class="fas fa-shield-halved"></i> SECURE HQ DIRECT LINE
+                    <div class="section-title"
+                        style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fas fa-shield-halved"></i> SECURE HQ DIRECT LINE</span>
+                        <button class="reset-chat-btn" onclick="resetChat('hq')"><i class="fas fa-trash-alt"></i> RESET
+                            MY MSGS</button>
                     </div>
                     <div class="chat-container">
                         <div id="chat-feed-hq" class="chat-feed"></div>
+                        <div class="recording-indicator" id="rec-indicator-hq">
+                            <div class="rec-dot"></div> RECORDING...
+                        </div>
                         <div class="chat-controls">
-                            <label class="action-circle-btn" title="Upload Intel">
-                                <i class="fas fa-image"></i>
-                                <input type="file" id="media-upload-hq" accept="image/*" style="display: none;"
+                            <div class="emoji-picker-wrapper">
+                                <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('hq')"
+                                    type="button">😊</button>
+                                <div class="emoji-panel" id="emoji-panel-hq"></div>
+                            </div>
+                            <label class="action-circle-btn" title="Attach File">
+                                <i class="fas fa-paperclip"></i>
+                                <input type="file" id="media-upload-hq" accept="*" style="display: none;"
                                     onchange="handleMediaUpload(event, 'hq')">
                             </label>
                             <input type="text" id="chat-input-hq" placeholder="Report to HQ..."
                                 onkeypress="if(event.key==='Enter') sendMsg('hq')">
+                            <button class="action-circle-btn" id="mic-btn-hq" title="Hold to record voice"
+                                onmousedown="startRecording('hq')" onmouseup="stopRecording('hq')"
+                                ontouchstart="startRecording('hq')" ontouchend="stopRecording('hq')">
+                                <i class="fas fa-microphone"></i>
+                            </button>
                             <button class="action-circle-btn" onclick="sendMsg('hq')"><i
                                     class="fas fa-paper-plane"></i></button>
                         </div>
@@ -500,19 +724,35 @@
 
                 <!-- GLOBAL OPS: Broadcast Channel -->
                 <div id="chat-channel-global" class="chat-channel">
-                    <div class="section-title" style="font-size: 0.7rem;">
-                        <i class="fas fa-tower-broadcast"></i> GLOBAL MISSION BROADCAST
+                    <div class="section-title"
+                        style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fas fa-tower-broadcast"></i> GLOBAL MISSION BROADCAST</span>
+                        <button class="reset-chat-btn" onclick="resetChat('global')"><i class="fas fa-trash-alt"></i>
+                            RESET MY MSGS</button>
                     </div>
                     <div class="chat-container">
                         <div id="chat-feed-global" class="chat-feed"></div>
+                        <div class="recording-indicator" id="rec-indicator-global">
+                            <div class="rec-dot"></div> RECORDING...
+                        </div>
                         <div class="chat-controls">
-                            <label class="action-circle-btn" title="Share Mission Data">
+                            <div class="emoji-picker-wrapper">
+                                <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('global')"
+                                    type="button">😊</button>
+                                <div class="emoji-panel" id="emoji-panel-global"></div>
+                            </div>
+                            <label class="action-circle-btn" title="Attach File">
                                 <i class="fas fa-paperclip"></i>
-                                <input type="file" id="media-upload-global" accept="image/*" style="display: none;"
+                                <input type="file" id="media-upload-global" accept="*" style="display: none;"
                                     onchange="handleMediaUpload(event, 'global')">
                             </label>
                             <input type="text" id="chat-input-global" placeholder="Transmit to all personnel..."
                                 onkeypress="if(event.key==='Enter') sendMsg('global')">
+                            <button class="action-circle-btn" id="mic-btn-global" title="Hold to record voice"
+                                onmousedown="startRecording('global')" onmouseup="stopRecording('global')"
+                                ontouchstart="startRecording('global')" ontouchend="stopRecording('global')">
+                                <i class="fas fa-microphone"></i>
+                            </button>
                             <button class="action-circle-btn" onclick="sendMsg('global')"><i
                                     class="fas fa-paper-plane"></i></button>
                         </div>
@@ -528,21 +768,38 @@
                             style="font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;">
                             <span><i class="fas fa-user-lock"></i> PRIVATE ENCRYPTED CHANNEL: <span
                                     id="peer-name-label">...</span></span>
-                            <button onclick="backToCrewList()"
-                                style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
-                                <i class="fas fa-arrow-left"></i> BACK
-                            </button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="reset-chat-btn" onclick="resetChat('peer')"><i
+                                        class="fas fa-trash-alt"></i> RESET MY MSGS</button>
+                                <button onclick="backToCrewList()"
+                                    style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-arrow-left"></i> BACK
+                                </button>
+                            </div>
                         </div>
                         <div class="chat-container">
                             <div id="chat-feed-peer" class="chat-feed"></div>
+                            <div class="recording-indicator" id="rec-indicator-peer">
+                                <div class="rec-dot"></div> RECORDING...
+                            </div>
                             <div class="chat-controls">
-                                <label class="action-circle-btn" title="Send Secure File">
-                                    <i class="fas fa-file-shield"></i>
-                                    <input type="file" id="media-upload-peer" accept="image/*" style="display: none;"
+                                <div class="emoji-picker-wrapper">
+                                    <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('peer')"
+                                        type="button">😊</button>
+                                    <div class="emoji-panel" id="emoji-panel-peer"></div>
+                                </div>
+                                <label class="action-circle-btn" title="Attach File">
+                                    <i class="fas fa-paperclip"></i>
+                                    <input type="file" id="media-upload-peer" accept="*" style="display: none;"
                                         onchange="handleMediaUpload(event, 'peer')">
                                 </label>
                                 <input type="text" id="chat-input-peer" placeholder="Secure peer transmission..."
                                     onkeypress="if(event.key==='Enter') sendMsg('peer')">
+                                <button class="action-circle-btn" id="mic-btn-peer" title="Hold to record voice"
+                                    onmousedown="startRecording('peer')" onmouseup="stopRecording('peer')"
+                                    ontouchstart="startRecording('peer')" ontouchend="stopRecording('peer')">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
                                 <button class="action-circle-btn" onclick="sendMsg('peer')"><i
                                         class="fas fa-paper-plane"></i></button>
                             </div>
@@ -864,23 +1121,133 @@
             else if (tabId === 'security') await renderSecurity();
         }
 
-        // --- CHAT LOGIC ---
+        // ─── EMOJI PANEL SETUP ──────────────────────────────────────────────────
+        const EMOJIS = ['😀', '😁', '😂', '🤣', '😊', '😍', '🥰', '😘', '😎', '🤩', '🥳', '😜', '😝', '🤔', '🤗', '😢', '😭', '😩', '😤', '😠',
+            '🔥', '✨', '💯', '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '💥', '⚡', '🌈', '🎉', '🎊', '👍', '👏', '🙌', '🤝', '✌️',
+            '👀', '👾', '🤖', '💻', '🛸', '📡', '🔐', '🗝️', '⚙️', '🛠️', '🔍', '📊', '📋', '🗂️', '🚀', '🛩️', '🌍', '🌙', '☕', '🍕'];
 
-        function resizeImage(base64Str, maxWidth = 100, maxHeight = 100) {
+        function initEmojiPanels() {
+            ['hq', 'global', 'peer'].forEach(ch => {
+                const panel = document.getElementById(`emoji-panel-${ch}`);
+                if (!panel || panel.dataset.init) return;
+                panel.innerHTML = EMOJIS.map(e => `<span onclick="insertEmoji('${ch}','${e}')">${e}</span>`).join('');
+                panel.dataset.init = '1';
+            });
+        }
+
+        function toggleEmojiPanel(channel) {
+            initEmojiPanels();
+            // Close all other panels first
+            ['hq', 'global', 'peer'].forEach(ch => {
+                if (ch !== channel) {
+                    const p = document.getElementById(`emoji-panel-${ch}`);
+                    if (p) p.classList.remove('open');
+                }
+            });
+            const panel = document.getElementById(`emoji-panel-${channel}`);
+            if (panel) panel.classList.toggle('open');
+        }
+
+        function insertEmoji(channel, emoji) {
+            const inputId = channel === 'peer' ? 'chat-input-peer' : `chat-input-${channel}`;
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const val = input.value;
+            input.value = val.substring(0, start) + emoji + val.substring(end);
+            input.selectionStart = input.selectionEnd = start + emoji.length;
+            input.focus();
+        }
+
+        // Close emoji panels when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.emoji-picker-wrapper')) {
+                document.querySelectorAll('.emoji-panel').forEach(p => p.classList.remove('open'));
+            }
+        });
+
+        // ─── VOICE RECORDING ────────────────────────────────────────────────────
+        let activeRecorder = null;
+        let activeRecordChannel = null;
+        let recordedChunks = [];
+
+        async function startRecording(channel) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const recorder = new MediaRecorder(stream);
+                activeRecorder = recorder;
+                activeRecordChannel = channel;
+                recordedChunks = [];
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                recorder.start();
+                document.getElementById(`mic-btn-${channel}`).classList.add('recording');
+                document.getElementById(`rec-indicator-${channel}`).classList.add('active');
+            } catch (e) {
+                showToast('Microphone access denied. Please allow mic permission.', 'error');
+            }
+        }
+
+        async function stopRecording(channel) {
+            if (!activeRecorder || activeRecorder.state === 'inactive') return;
+            activeRecorder.stop();
+            document.getElementById(`mic-btn-${channel}`).classList.remove('recording');
+            document.getElementById(`rec-indicator-${channel}`).classList.remove('active');
+            activeRecorder.onstop = async () => {
+                const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                activeRecorder.stream.getTracks().forEach(t => t.stop());
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    const audioBase64 = ev.target.result;
+                    const ch = activeRecordChannel;
+                    if (ch === 'hq') {
+                        const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                        const rId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                        await window.DataManager.sendMessage(sId, rId, null, null, { audioUrl: audioBase64 });
+                    } else if (ch === 'global') {
+                        await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, { audioUrl: audioBase64 });
+                    } else if (ch === 'peer') {
+                        await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, { audioUrl: audioBase64 });
+                    }
+                    showToast('Voice message sent!', 'success', 2500);
+                };
+                reader.readAsDataURL(blob);
+                activeRecorder = null;
+            };
+        }
+
+        // ─── RESIZE IMAGE ────────────────────────────────────────────────────────
+        function resizeImage(base64Str, maxWidth = 600, maxHeight = 600) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = base64Str;
                 img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w > maxWidth) { h = h * maxWidth / w; w = maxWidth; }
+                    if (h > maxHeight) { w = w * maxHeight / h; h = maxHeight; }
                     const canvas = document.createElement('canvas');
-                    canvas.width = maxWidth;
-                    canvas.height = maxHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, maxWidth, maxHeight);
-                    resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', 0.82));
                 };
             });
         }
 
+        // ─── FILE TYPE HELPER ────────────────────────────────────────────────────
+        function getFileIcon(fileType) {
+            if (!fileType) return 'fa-file';
+            if (fileType.startsWith('image/')) return 'fa-image';
+            if (fileType.startsWith('audio/')) return 'fa-file-audio';
+            if (fileType.startsWith('video/')) return 'fa-file-video';
+            if (fileType.includes('pdf')) return 'fa-file-pdf';
+            if (fileType.includes('word') || fileType.includes('docx')) return 'fa-file-word';
+            if (fileType.includes('sheet') || fileType.includes('xlsx') || fileType.includes('csv')) return 'fa-file-excel';
+            if (fileType.includes('presentation') || fileType.includes('pptx')) return 'fa-file-powerpoint';
+            if (fileType.includes('zip') || fileType.includes('rar')) return 'fa-file-archive';
+            return 'fa-file-alt';
+        }
+
+        // ─── CHAT CHANNEL SWITCHING ──────────────────────────────────────────────
         async function switchChatChannel(channel) {
             currentChatChannel = channel;
             document.querySelectorAll('.sub-nav-btn').forEach(btn => {
@@ -888,7 +1255,6 @@
                 if (btn.getAttribute('onclick').includes(channel)) btn.classList.add('active');
             });
 
-            // Clear dot for this channel
             const dot = document.querySelector(`#btn-${channel} .nav-unread-dot`);
             if (dot) dot.style.display = 'none';
 
@@ -905,30 +1271,24 @@
 
         function smartScrollToBottom(element) {
             if (!element) return;
-            const threshold = 150; // pixels from bottom
+            const threshold = 150;
             const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
-            if (isNearBottom) {
-                element.scrollTop = element.scrollHeight;
-            }
+            if (isNearBottom) element.scrollTop = element.scrollHeight;
         }
 
+        // ─── RENDER FUNCTIONS ────────────────────────────────────────────────────
         async function renderHQChat(messages = null) {
             if (!activeMember || !loggedInUser) return;
             const feed = document.getElementById('chat-feed-hq');
             if (!feed) return;
-
             if (!messages) {
                 const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
                 messages = await window.DataManager.getMessages(threadId);
             }
-
             const myId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
-            const context = {
-                'HQ': 'HQ COMMAND',
-                [activeMember.id]: activeMember.name
-            };
-
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context)).join('');
+            const context = { 'HQ': 'HQ COMMAND', [activeMember.id]: activeMember.name };
+            const path = `chats/threads/${window.DataManager.getThreadId(activeMember.id, 'HQ')}`;
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, context, path)).join('');
             smartScrollToBottom(feed);
         }
 
@@ -936,24 +1296,17 @@
             if (!loggedInUser) return;
             const feed = document.getElementById('chat-feed-global');
             if (!feed) return;
-
-            if (!messages) {
-                messages = await window.DataManager.getGlobalMessages();
-            }
+            if (!messages) messages = await window.DataManager.getGlobalMessages();
             const myId = loggedInUser.id;
-
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId)).join('');
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, myId, {}, 'chats/global')).join('');
             smartScrollToBottom(feed);
         }
 
         async function renderCrewList() {
             const container = document.getElementById('crew-list-container');
             const members = await window.DataManager.getAllMembers();
-
             container.style.display = 'grid';
             document.getElementById('active-peer-chat').style.display = 'none';
-
-            // Filter out the activeMember (self) from the peer list
             const targets = members.filter(m => m.id !== activeMember.id);
             container.innerHTML = targets.map(m => `
                 <div class="crew-chat-item" onclick="startPrivateChat('${m.id}')">
@@ -987,39 +1340,98 @@
             if (!activeMember || !activePeerId) return;
             const feed = document.getElementById('chat-feed-peer');
             if (!feed) return;
-
-            if (!messages) {
-                const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
-                messages = await window.DataManager.getMessages(threadId);
-            }
-
+            const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+            if (!messages) messages = await window.DataManager.getMessages(threadId);
             const peer = await window.DataManager.getMemberById(activePeerId);
             const context = {
                 [activeMember.id]: activeMember.name,
                 [activePeerId]: peer ? peer.name : activePeerId
             };
-
-            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context)).join('');
+            const path = `chats/threads/${threadId}`;
+            feed.innerHTML = messages.map(msg => renderMessageHTML(msg, activeMember.id, context, path)).join('');
             smartScrollToBottom(feed);
         }
 
-        function renderMessageHTML(msg, myId, nameContext = {}) {
-            // Support old and new property names
+        // ─── RENDER MESSAGE HTML ──────────────────────────────────────────────────
+        function renderMessageHTML(msg, myId, nameContext = {}, dbPath = '') {
             const sId = msg.senderId || msg.sender;
             const sName = msg.senderName || msg.meta || nameContext[sId] || sId || 'UNKNOWN';
             const isSelf = sId === myId || sName === loggedInUser.name;
+            const msgKey = msg._key || '';
+
+            // Build attachment HTML
+            let attachHTML = '';
+            if (msg.image) {
+                attachHTML += `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">`;
+            }
+            if (msg.audioUrl) {
+                attachHTML += `<audio class="msg-audio" controls src="${msg.audioUrl}"></audio>`;
+            }
+            if (msg.fileUrl) {
+                const ftype = msg.fileType || '';
+                if (ftype.startsWith('video/')) {
+                    attachHTML += `<video class="msg-video" controls src="${msg.fileUrl}"></video>`;
+                } else if (ftype.startsWith('image/')) {
+                    attachHTML += `<img src="${msg.fileUrl}" class="msg-img" onclick="window.open(this.src)">`;
+                } else {
+                    const icon = getFileIcon(ftype);
+                    attachHTML += `<a class="msg-file-card" href="${msg.fileUrl}" download="${msg.fileName || 'file'}" target="_blank">
+                        <i class="fas ${icon} file-icon"></i>
+                        <span class="file-name">${msg.fileName || 'Download File'}</span>
+                    </a>`;
+                }
+            }
+
+            // Edit actions for own messages (only text-editable)
+            const showEdit = isSelf && msg.text && msgKey && dbPath;
+            const editedLabel = msg.edited ? `<span class="msg-edited-label">(edited)</span>` : '';
+            const actionsHTML = showEdit ? `
+                <div class="msg-actions">
+                    <button class="msg-action-btn" onclick="editMsgInline('${msgKey}','${dbPath}',this)">✏️ EDIT</button>
+                </div>` : '';
 
             return `
-                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}">
-                    <span class="msg-meta">${sName} // ${msg.time || ''}</span>
-                    <div class="msg-bubble">
-                        ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
-                        ${msg.image ? `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">` : ''}
+                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" data-key="${msgKey}" data-path="${dbPath}">
+                    <span class="msg-meta">${sName} // ${msg.time || ''}${editedLabel}</span>
+                    <div class="msg-bubble" id="bubble-${msgKey}">
+                        ${msg.text ? `<div class="msg-text" id="text-${msgKey}">${msg.text}</div>` : ''}
+                        ${attachHTML}
                     </div>
+                    ${actionsHTML}
                 </div>
             `;
         }
 
+        // ─── MESSAGE EDITING ────────────────────────────────────────────────────
+        function editMsgInline(msgKey, dbPath, btn) {
+            const textEl = document.getElementById(`text-${msgKey}`);
+            if (!textEl) return;
+            const current = textEl.innerText;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = current;
+            input.className = 'msg-edit-input';
+            input.onkeydown = async (e) => {
+                if (e.key === 'Enter') await saveEditedMsg(msgKey, dbPath, input.value, textEl, input);
+                if (e.key === 'Escape') { textEl.style.display = ''; input.remove(); if (btn) btn.textContent = '✏️ EDIT'; }
+            };
+            textEl.style.display = 'none';
+            textEl.parentNode.insertBefore(input, textEl.nextSibling);
+            input.focus();
+            if (btn) btn.textContent = '✅ SAVE';
+            btn.onclick = async () => await saveEditedMsg(msgKey, dbPath, input.value, textEl, input);
+        }
+
+        async function saveEditedMsg(msgKey, dbPath, newText, textEl, inputEl) {
+            if (!newText.trim()) { showToast('Message cannot be empty.', 'error'); return; }
+            await window.DataManager.editMessage(dbPath, msgKey, newText.trim());
+            textEl.innerText = newText.trim();
+            textEl.style.display = '';
+            inputEl.remove();
+            showToast('Message updated.', 'success', 2000);
+        }
+
+        // ─── SEND MESSAGE ────────────────────────────────────────────────────────
         async function sendMsg(channel) {
             const inputId = channel === 'peer' ? 'chat-input-peer' : `chat-input-${channel}`;
             const input = document.getElementById(inputId);
@@ -1035,30 +1447,72 @@
             } else if (channel === 'peer') {
                 await window.DataManager.sendMessage(activeMember.id, activePeerId, text);
             }
-
             input.value = '';
-            // Event sync handles rendering
         }
 
+        // ─── FILE UPLOAD (ALL TYPES) ──────────────────────────────────────────────
         async function handleMediaUpload(event, channel) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 1024 * 1024 * 5) { alert("Max size 5MB"); return; }
+            const LIMIT_MB = 10;
+            if (file.size > 1024 * 1024 * LIMIT_MB) {
+                await tacticalAlert(`File too large. Max ${LIMIT_MB}MB allowed.`, 'PAYLOAD ERROR');
+                event.target.value = '';
+                return;
+            }
+
+            showToast('Uploading...', 'info', 3000);
 
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const resized = await resizeImage(e.target.result);
-                if (channel === 'hq') {
-                    const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
-                    const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
-                    await window.DataManager.sendMessage(senderId, receiverId, null, resized);
-                } else if (channel === 'global') {
-                    await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, resized);
-                } else if (channel === 'peer') {
-                    await window.DataManager.sendMessage(activeMember.id, activePeerId, null, resized);
+                const base64 = e.target.result;
+                let image = null, extra = {};
+
+                if (file.type.startsWith('image/')) {
+                    // Resize images to keep DB lean
+                    image = await resizeImage(base64, 600, 600);
+                } else if (file.type.startsWith('audio/')) {
+                    extra = { audioUrl: base64 };
+                } else {
+                    // video, PDF, doc, xlsx, csv, pptx, zip, etc.
+                    extra = { fileUrl: base64, fileType: file.type, fileName: file.name };
                 }
+
+                if (channel === 'hq') {
+                    const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                    const rId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                    await window.DataManager.sendMessage(sId, rId, null, image, extra);
+                } else if (channel === 'global') {
+                    await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, image, extra);
+                } else if (channel === 'peer') {
+                    await window.DataManager.sendMessage(activeMember.id, activePeerId, null, image, extra);
+                }
+                showToast(`${file.name} sent!`, 'success', 2500);
+                event.target.value = ''; // clear input so same file can be re-sent
             };
             reader.readAsDataURL(file);
+        }
+
+        // ─── RESET CHAT (SENDER ONLY) ─────────────────────────────────────────────
+        async function resetChat(channel) {
+            const confirmed = await tacticalConfirm(
+                'This will permanently delete YOUR messages from this channel. Others\' messages will remain intact.',
+                'RESET CHANNEL');
+            if (!confirmed) return;
+
+            const myId = loggedInUser.id;
+
+            if (channel === 'hq') {
+                const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                const threadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
+                await window.DataManager.resetPeerChat(threadId, sId);
+            } else if (channel === 'global') {
+                await window.DataManager.resetGlobalChat(myId);
+            } else if (channel === 'peer' && activePeerId) {
+                const threadId = window.DataManager.getThreadId(activeMember.id, activePeerId);
+                await window.DataManager.resetPeerChat(threadId, activeMember.id);
+            }
+            showToast('Your messages cleared.', 'success', 3000);
         }
 
         // --- OTHER WORKSPACE LOGIC ---
@@ -1300,4 +1754,3 @@
 </body>
 
 </html>
-```
