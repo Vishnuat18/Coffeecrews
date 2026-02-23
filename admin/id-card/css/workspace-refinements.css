@@ -13,6 +13,17 @@ body {
         radial-gradient(circle at 90% 80%, rgba(255, 0, 60, 0.03) 0%, transparent 20%);
 }
 
+/* --- Mobile Navigation (Hidden on Desktop) --- */
+@media (min-width: 769px) {
+
+    .mobile-bottom-nav,
+    .mobile-menu-btn,
+    .mobile-dropdown-menu,
+    #bank-form-banner {
+        display: none !important;
+    }
+}
+
 /* --- Workspace Header (Top Level) --- */
 .workspace-header {
     padding: 10px 40px;
