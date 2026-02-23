@@ -1609,11 +1609,20 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
+            // ID RESOLUTION (v3.2)
+            let id = urlParams.get('id');
 
             // AUTH CHECK (Handled by auth-guard.js, but we need session data)
             const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
             if (!session.timestamp) return; // auth-guard will redirect
+
+            // Fallback: If no ID in URL, use session ID (prevents accidental kickout to landing page)
+            if (!id && session.id) {
+                console.log("[AUTH] No ID in URL, falling back to session ID:", session.id);
+                id = session.id;
+                // Optional: sync URL state without reload
+                window.history.replaceState({}, '', `/admin/id-card/verify.html?id=${id}`);
+            }
 
             loggedInUser = session;
             console.log("Session Initialized:", loggedInUser.id, "Role:", loggedInUser.role);
@@ -1639,7 +1648,8 @@
             // Refactored to use await
             activeMember = await window.DataManager.getMemberById(id);
             if (!activeMember) {
-                location.href = '/index.html';
+                console.error("[AUTH] Member not found in database for ID:", id);
+                location.href = '/admin/id-card/login.html?error=not_found&id=' + (id || '');
                 return;
             }
             renderWorkspace();
