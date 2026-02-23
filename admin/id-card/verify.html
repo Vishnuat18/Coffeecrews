@@ -601,6 +601,124 @@
             overflow-y: auto;
         }
 
+        /* REPLY SYSTEM STYLES */
+        .reply-preview-container {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            padding: 10px 15px;
+            display: none;
+            /* hidden by default */
+            align-items: center;
+            gap: 12px;
+            margin-bottom: -1px;
+            position: relative;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 5;
+            width: 100%;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .reply-preview-content {
+            flex: 1;
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 10px;
+            overflow: hidden;
+        }
+
+        .reply-preview-name {
+            font-family: 'Orbitron';
+            font-size: 0.6rem;
+            color: var(--accent-primary);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .reply-preview-text {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        .reply-preview-close {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: 0.2s;
+            color: #fff;
+        }
+
+        .reply-preview-close:hover {
+            opacity: 1;
+            color: #ff003c;
+        }
+
+        /* Bubble Reply Display */
+        .msg-reply-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--accent-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .msg-reply-box:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .msg-reply-box .reply-name {
+            font-family: 'Orbitron';
+            font-size: 0.55rem;
+            color: var(--accent-primary);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .msg-reply-box .reply-text {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* Swipe Gesture Indicator */
+        .swipe-indicator {
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-primary);
+            opacity: 0;
+            transition: 0.2s;
+            font-size: 1.2rem;
+        }
+
         #msg-info-modal .seen-item {
             display: flex;
             align-items: center;
@@ -954,6 +1072,15 @@
                                 <input type="file" id="media-upload-hq" style="display: none;"
                                     onchange="handleMediaUpload(event, 'hq')">
                             </label>
+                            <div id="reply-bar-hq" class="reply-preview-container">
+                                <div class="reply-preview-content">
+                                    <div class="reply-preview-name" id="reply-name-hq">REPLYING TO...</div>
+                                    <div class="reply-preview-text" id="reply-text-hq">...</div>
+                                </div>
+                                <div class="reply-preview-close" onclick="cancelReply('hq')">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
                             <input type="text" id="chat-input-hq" placeholder="Report to HQ..."
                                 onkeypress="if(event.key==='Enter') sendMsg('hq')">
                             <button class="action-circle-btn" id="mic-btn-hq" title="Hold to record voice"
@@ -999,6 +1126,15 @@
                                 <input type="file" id="media-upload-global" style="display: none;"
                                     onchange="handleMediaUpload(event, 'global')">
                             </label>
+                            <div id="reply-bar-global" class="reply-preview-container">
+                                <div class="reply-preview-content">
+                                    <div class="reply-preview-name" id="reply-name-global">REPLYING TO...</div>
+                                    <div class="reply-preview-text" id="reply-text-global">...</div>
+                                </div>
+                                <div class="reply-preview-close" onclick="cancelReply('global')">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
                             <input type="text" id="chat-input-global" placeholder="Transmit to all personnel..."
                                 onkeypress="if(event.key==='Enter') sendMsg('global')">
                             <button class="action-circle-btn" id="mic-btn-global" title="Hold to record voice"
@@ -1050,6 +1186,15 @@
                                     <input type="file" id="media-upload-peer" style="display: none;"
                                         onchange="handleMediaUpload(event, 'peer')">
                                 </label>
+                                <div id="reply-bar-peer" class="reply-preview-container">
+                                    <div class="reply-preview-content">
+                                        <div class="reply-preview-name" id="reply-name-peer">REPLYING TO...</div>
+                                        <div class="reply-preview-text" id="reply-text-peer">...</div>
+                                    </div>
+                                    <div class="reply-preview-close" onclick="cancelReply('peer')">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                </div>
                                 <input type="text" id="chat-input-peer" placeholder="Secure peer transmission..."
                                     onkeypress="if(event.key==='Enter') sendMsg('peer')">
                                 <button class="action-circle-btn" id="mic-btn-peer" title="Hold to record voice"
@@ -1188,6 +1333,16 @@
                                     <input type="file" id="status-media-input" accept="*" style="display:none;"
                                         onchange="previewStatusAttachment(event)">
                                 </label>
+                                <div id="reply-bar-status" class="reply-preview-container"
+                                    style="margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                    <div class="reply-preview-content">
+                                        <div class="reply-preview-name" id="reply-name-status">REPLYING TO...</div>
+                                        <div class="reply-preview-text" id="reply-text-status">...</div>
+                                    </div>
+                                    <div class="reply-preview-close" onclick="cancelReply('status')">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                </div>
                                 <button class="action-circle-btn" id="mic-btn-status" title="Hold to record"
                                     style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);"
                                     onmousedown="startRecording('status')" onmouseup="stopRecording('status')"
@@ -1371,6 +1526,9 @@
         <div class="msg-context-item" id="menu-edit">
             <i class="fas fa-pencil"></i> EDIT MESSAGE
         </div>
+        <div class="msg-context-item" id="menu-reply">
+            <i class="fas fa-reply"></i> REPLY
+        </div>
         <div class="msg-context-item" id="menu-info">
             <i class="fas fa-info-circle"></i> MESSAGE INFO
         </div>
@@ -1420,6 +1578,34 @@
         let currentTab = 'home';
         let currentChatChannel = 'hq'; // hq, global, crew
         let activePeerId = null;
+        let activeReplyTo = { hq: null, global: null, peer: null, status: null };
+
+        function replyToMsg(msgKey, sName, text, channel) {
+            // text: snippet of original message
+            const cleanText = (text || '').replace(/<[^>]*>?/gm, '').substring(0, 100);
+            activeReplyTo[channel] = { key: msgKey, name: sName, text: cleanText };
+
+            const bar = document.getElementById(`reply-bar-${channel}`);
+            const nameEl = document.getElementById(`reply-name-${channel}`);
+            const textEl = document.getElementById(`reply-text-${channel}`);
+
+            if (bar && nameEl && textEl) {
+                nameEl.innerText = `REPLYING TO ${sName.toUpperCase()}`;
+                textEl.innerText = cleanText;
+                bar.style.display = 'flex';
+
+                // Focus the input
+                const inputId = channel === 'peer' ? 'chat-input-peer' : (channel === 'status' ? 'drafter-input' : `chat-input-${channel}`);
+                const input = document.getElementById(inputId);
+                if (input) input.focus();
+            }
+        }
+
+        function cancelReply(channel) {
+            activeReplyTo[channel] = null;
+            const bar = document.getElementById(`reply-bar-${channel}`);
+            if (bar) bar.style.display = 'none';
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1881,15 +2067,37 @@
                 </div>`;
             }
 
+            // Reply Context HTML
+            let replyHTML = '';
+            if (msg.replyTo) {
+                replyHTML = `
+                    <div class="msg-reply-box" onclick="scrollToMessage('${msg.replyTo.key}')">
+                        <div class="reply-name">${msg.replyTo.name}</div>
+                        <div class="reply-text">${msg.replyTo.text}</div>
+                    </div>
+                `;
+            }
+
             // 3-dot Menu for actions
-            const menuBtn = `<div class="msg-menu-btn" onclick="showMsgMenu(event, '${msgKey}', '${dbPath}', ${isSelf})">
+            const menuBtn = `<div class="msg-menu-btn" onclick="showMsgMenu(event, '${msgKey}', '${dbPath}', ${isSelf}, '${sName.replace(/'/g, "\\'")}', '${(msg.text || '').replace(/'/g, "\\'").replace(/\n/g, " ")}')">
                 <i class="fas fa-ellipsis-v"></i>
             </div>`;
 
+            // Channel detection for reply logic
+            let channel = 'global';
+            if (dbPath.includes('threads/')) {
+                channel = dbPath.includes('_HQ') || dbPath.includes('hq_') ? 'hq' : 'peer';
+            } else if (dbPath.includes('statusFeed')) {
+                channel = 'status';
+            }
+
             return `
-                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" data-key="${msgKey}" data-path="${dbPath}">
+                <div class="chat-msg ${isSelf ? 'msg-self' : 'msg-other'}" data-key="${msgKey}" data-path="${dbPath}"
+                     ontouchstart="handleSwipeStart(event)" ontouchmove="handleSwipeMove(event, this)" ontouchend="handleSwipeEnd(event, this, '${msgKey}', '${sName.replace(/'/g, "\\'")}', '${(msg.text || '').replace(/'/g, "\\'").replace(/\n/g, " ")}', '${channel}')">
                     <span class="msg-meta">${sName} // ${msg.time || ''}${editedLabel}</span>
+                    <i class="fas fa-reply swipe-indicator"></i>
                     <div class="msg-bubble" id="bubble-${msgKey}">
+                        ${replyHTML}
                         ${msg.text ? `<div class="msg-text" id="text-${msgKey}">${msg.text}</div>` : ''}
                         ${attachHTML}
                         ${menuBtn}
@@ -1902,9 +2110,9 @@
         // ─── MESSAGE ACTIONS ────────────────────────────────────────────────────
         let activeMenuMsg = null;
 
-        function showMsgMenu(e, msgKey, dbPath, isSelf) {
+        function showMsgMenu(e, msgKey, dbPath, isSelf, senderName, text) {
             e.stopPropagation();
-            activeMenuMsg = { key: msgKey, path: dbPath, isSelf: isSelf };
+            activeMenuMsg = { key: msgKey, path: dbPath, isSelf: isSelf, senderName: senderName, text: text };
 
             const menu = document.getElementById('msg-context-menu');
             const editOpt = document.getElementById('menu-edit');
@@ -1929,6 +2137,54 @@
                 document.removeEventListener('click', closeMenu);
             };
             setTimeout(() => document.addEventListener('click', closeMenu), 10);
+        }
+
+        document.getElementById('menu-reply').onclick = () => {
+            if (!activeMenuMsg) return;
+            // Determine channel from path
+            let channel = 'global';
+            const dbPath = activeMenuMsg.path;
+            if (dbPath.includes('threads/')) {
+                channel = dbPath.includes('_HQ') || dbPath.includes('hq_') ? 'hq' : 'peer';
+            } else if (dbPath.includes('statusFeed')) {
+                channel = 'status';
+            }
+            replyToMsg(activeMenuMsg.key, activeMenuMsg.senderName, activeMenuMsg.text, channel);
+        };
+
+        function scrollToMessage(msgKey) {
+            const el = document.getElementById(`bubble-${msgKey}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.boxShadow = '0 0 20px var(--accent-primary)';
+                setTimeout(() => el.style.boxShadow = '', 2000);
+            }
+        }
+
+        // Swipe Handlers
+        let touchStartPos = null;
+        function handleSwipeStart(e) { touchStartPos = e.touches[0].clientX; }
+        function handleSwipeMove(e, el) {
+            if (!touchStartPos) return;
+            const currentX = e.touches[0].clientX;
+            const diff = currentX - touchStartPos;
+            if (diff > 0 && diff < 100) {
+                el.style.transform = `translateX(${diff}px)`;
+                const indicator = el.querySelector('.swipe-indicator');
+                if (indicator) indicator.style.opacity = diff / 60;
+            }
+        }
+        function handleSwipeEnd(e, el, msgKey, sName, text, channel) {
+            if (!touchStartPos) return;
+            const currentX = e.changedTouches[0].clientX;
+            const diff = currentX - touchStartPos;
+            el.style.transform = '';
+            const indicator = el.querySelector('.swipe-indicator');
+            if (indicator) indicator.style.opacity = 0;
+            if (diff > 50) {
+                replyToMsg(msgKey, sName, text, channel);
+            }
+            touchStartPos = null;
         }
 
         document.getElementById('menu-edit').onclick = async () => {
@@ -2030,16 +2286,18 @@
             const text = input.value.trim();
             if (!text) return;
 
+            const extra = { replyTo: activeReplyTo[channel] };
             if (channel === 'hq') {
                 const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                 const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
-                await window.DataManager.sendMessage(senderId, receiverId, text);
+                await window.DataManager.sendMessage(senderId, receiverId, text, null, extra);
             } else if (channel === 'global') {
-                await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text);
+                await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text, null, extra);
             } else if (channel === 'peer') {
-                await window.DataManager.sendMessage(activeMember.id, activePeerId, text);
+                await window.DataManager.sendMessage(activeMember.id, activePeerId, text, null, extra);
             }
             input.value = '';
+            cancelReply(channel);
         }
 
         // ─── FILE UPLOAD (ALL TYPES, ALL BROWSERS) ────────────────────────────────
@@ -2080,6 +2338,8 @@
                     extra = { fileUrl: base64, fileType, fileName: file.name };
                 }
 
+                extra.replyTo = activeReplyTo[channel];
+
                 if (channel === 'hq') {
                     const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                     const rId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
@@ -2089,6 +2349,7 @@
                 } else if (channel === 'peer') {
                     await window.DataManager.sendMessage(activeMember.id, activePeerId, null, image, extra);
                 }
+                cancelReply(channel);
 
                 showToast(`${file.name} sent!`, 'success', 2500);
             } catch (err) {
@@ -2622,12 +2883,14 @@
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     date: new Date().toLocaleDateString(),
                     timestamp: Date.now(),
+                    replyTo: activeReplyTo.status || null,
                     seenBy: { [loggedInUser.id]: Date.now() }
                 };
 
                 await firebase.database().ref('chats/statusFeed').push(statusUpdate);
 
                 document.getElementById('drafter-input').value = '';
+                cancelReply('status');
                 removeStatusImage();
                 showToast('Status broadcast to global feed.', 'success');
             } catch (err) {

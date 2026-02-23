@@ -618,6 +618,7 @@ class DataManager {
             fileName: extra.fileName || null,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now(),
+            replyTo: extra.replyTo || null,
             seenBy: { [senderId]: Date.now() } // Mark as seen by sender immediately
         };
 
@@ -639,6 +640,7 @@ class DataManager {
             fileName: extra.fileName || null,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now(),
+            replyTo: extra.replyTo || null,
             seenBy: { [senderId]: Date.now() }
         };
 
@@ -717,7 +719,8 @@ class DataManager {
             text,
             image: statusImage,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            replyTo: statusImage?.replyTo || null // Or handle extra if needed
         };
 
         await db.ref('chats/statusFeed').push(statusUpdate);
