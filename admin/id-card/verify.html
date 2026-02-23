@@ -1279,103 +1279,126 @@
                 </div>
             </div>
 
-            <!-- SECTION: STATUS — Daily Mission Commit + Global Feed -->
+            <!-- SECTION: STATUS — 2-tab: Post Status | Status Feed -->
             <div id="section-status" class="workspace-section">
-                <!-- Status Drafter -->
-                <div class="card-glass"
-                    style="padding: 2.5rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
-                    <div style="margin-bottom: 2rem;">
-                        <h2
-                            style="font-family:'Orbitron';font-size:0.9rem;margin-bottom:0.8rem;display:flex;align-items:center;gap:10px;color:#fff;">
-                            <i class="fas fa-file-signature" style="font-size:1.1rem;opacity:0.8;"></i> MISSION STATUS
-                            DRAFTER
-                        </h2>
-                        <p style="font-size:0.65rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
-                            Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
-                            MISSION FEED.
-                        </p>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:20px;">
-                        <div id="status-img-preview" class="status-upload-preview" style="margin-bottom:0;">
-                            <span class="remove-preview" onclick="removeStatusImage()"><i
-                                    class="fas fa-times"></i></span>
-                            <div id="status-preview-content">
-                                <img id="status-preview-target" src="" style="display:none;">
-                                <div id="status-file-preview"
-                                    style="display:none;background:rgba(0,243,255,0.05);border:1px solid rgba(0,243,255,0.2);padding:15px;border-radius:12px;display:flex;align-items:center;gap:15px;">
-                                    <i class="fas fa-file-alt"
-                                        style="font-size:1.5rem;color:var(--accent-primary);"></i>
-                                    <div style="flex:1;">
-                                        <div id="status-file-name" style="font-size:0.7rem;color:#fff;">Filename.pdf
+
+                <!-- Status Sub-Nav -->
+                <div class="status-sub-nav" id="status-sub-nav">
+                    <button class="status-sub-btn active" id="sbtn-post" onclick="switchStatusPanel('post')">
+                        <i class="fas fa-file-signature"></i> POST STATUS
+                    </button>
+                    <button class="status-sub-btn" id="sbtn-feed" onclick="switchStatusPanel('feed')">
+                        <i class="fas fa-stream"></i> STATUS FEED
+                    </button>
+                </div>
+
+                <!-- Panel 1: Post Status (Drafter) -->
+                <div class="status-panel active" id="status-panel-post">
+                    <div class="card-glass"
+                        style="padding: 2rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h2
+                                style="font-family:'Orbitron';font-size:0.9rem;margin-bottom:0.8rem;display:flex;align-items:center;gap:10px;color:#fff;">
+                                <i class="fas fa-file-signature" style="font-size:1.1rem;opacity:0.8;"></i> MISSION
+                                STATUS
+                                DRAFTER
+                            </h2>
+                            <p style="font-size:0.65rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
+                                Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
+                                MISSION FEED.
+                            </p>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:20px;">
+                            <div id="status-img-preview" class="status-upload-preview" style="margin-bottom:0;">
+                                <span class="remove-preview" onclick="removeStatusImage()"><i
+                                        class="fas fa-times"></i></span>
+                                <div id="status-preview-content">
+                                    <img id="status-preview-target" src="" style="display:none;">
+                                    <div id="status-file-preview"
+                                        style="display:none;background:rgba(0,243,255,0.05);border:1px solid rgba(0,243,255,0.2);padding:15px;border-radius:12px;display:flex;align-items:center;gap:15px;">
+                                        <i class="fas fa-file-alt"
+                                            style="font-size:1.5rem;color:var(--accent-primary);"></i>
+                                        <div style="flex:1;">
+                                            <div id="status-file-name" style="font-size:0.7rem;color:#fff;">Filename.pdf
+                                            </div>
+                                            <div id="status-file-size" style="font-size:0.5rem;opacity:0.5;">0.0 MB
+                                            </div>
                                         </div>
-                                        <div id="status-file-size" style="font-size:0.5rem;opacity:0.5;">0.0 MB</div>
                                     </div>
                                 </div>
                             </div>
+                            <div style="position:relative;">
+                                <textarea id="drafter-input" class="directive-input"
+                                    placeholder="Enter objectives / accomplishments / blockers..."
+                                    style="min-height:180px;width:100%;padding-bottom:50px;"></textarea>
+                                <div id="rec-indicator-status" class="recording-indicator">
+                                    <div class="rec-dot"></div> RECORDING...
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:10px;left:15px;display:flex;gap:10px;align-items:center;">
+                                    <div class="emoji-picker-wrapper">
+                                        <button class="action-circle-btn" title="Emoji"
+                                            onclick="toggleEmojiPanel('status')" type="button"
+                                            style="width:35px;height:35px;font-size:1rem;background:rgba(255,255,255,0.05);">😊</button>
+                                        <div class="emoji-panel" id="emoji-panel-status"></div>
+                                    </div>
+                                    <label class="action-circle-btn" title="Attach Evidence"
+                                        style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);">
+                                        <i class="fas fa-plus"
+                                            style="font-size:0.8rem;color:var(--accent-primary);"></i>
+                                        <input type="file" id="status-media-input" accept="*" style="display:none;"
+                                            onchange="previewStatusAttachment(event)">
+                                    </label>
+                                    <div id="reply-bar-status" class="reply-preview-container"
+                                        style="margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                        <div class="reply-preview-content">
+                                            <div class="reply-preview-name" id="reply-name-status">REPLYING TO...</div>
+                                            <div class="reply-preview-text" id="reply-text-status">...</div>
+                                        </div>
+                                        <div class="reply-preview-close" onclick="cancelReply('status')">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                    </div>
+                                    <button class="action-circle-btn" id="mic-btn-status" title="Hold to record"
+                                        style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);"
+                                        onmousedown="startRecording('status')" onmouseup="stopRecording('status')"
+                                        ontouchstart="startRecording('status')" ontouchend="stopRecording('status')">
+                                        <i class="fas fa-microphone"
+                                            style="font-size:0.8rem;color:var(--accent-primary);"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="btn-directive" onclick="commitStatus()"
+                                style="margin:0;width:100%;height:55px;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1rem;"></i> BROADCAST TO MISSION
+                                FEED
+                            </button>
                         </div>
-                        <div style="position:relative;">
-                            <textarea id="drafter-input" class="directive-input"
-                                placeholder="Enter objectives / accomplishments / blockers..."
-                                style="min-height:180px;width:100%;padding-bottom:50px;"></textarea>
-                            <div id="rec-indicator-status" class="recording-indicator">
-                                <div class="rec-dot"></div> RECORDING...
-                            </div>
-                            <div
-                                style="position:absolute;bottom:10px;left:15px;display:flex;gap:10px;align-items:center;">
-                                <div class="emoji-picker-wrapper">
-                                    <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('status')"
-                                        type="button"
-                                        style="width:35px;height:35px;font-size:1rem;background:rgba(255,255,255,0.05);">😊</button>
-                                    <div class="emoji-panel" id="emoji-panel-status"></div>
-                                </div>
-                                <label class="action-circle-btn" title="Attach Evidence"
-                                    style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);">
-                                    <i class="fas fa-plus" style="font-size:0.8rem;color:var(--accent-primary);"></i>
-                                    <input type="file" id="status-media-input" accept="*" style="display:none;"
-                                        onchange="previewStatusAttachment(event)">
-                                </label>
-                                <div id="reply-bar-status" class="reply-preview-container"
-                                    style="margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                                    <div class="reply-preview-content">
-                                        <div class="reply-preview-name" id="reply-name-status">REPLYING TO...</div>
-                                        <div class="reply-preview-text" id="reply-text-status">...</div>
-                                    </div>
-                                    <div class="reply-preview-close" onclick="cancelReply('status')">
-                                        <i class="fas fa-times"></i>
-                                    </div>
-                                </div>
-                                <button class="action-circle-btn" id="mic-btn-status" title="Hold to record"
-                                    style="width:35px;height:35px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);"
-                                    onmousedown="startRecording('status')" onmouseup="stopRecording('status')"
-                                    ontouchstart="startRecording('status')" ontouchend="stopRecording('status')">
-                                    <i class="fas fa-microphone"
-                                        style="font-size:0.8rem;color:var(--accent-primary);"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button class="btn-directive" onclick="commitStatus()" style="margin:0;width:100%;height:55px;">
-                            <i class="fas fa-cloud-upload-alt" style="font-size:1rem;"></i> BROADCAST TO MISSION FEED
-                        </button>
                     </div>
                 </div>
 
-                <!-- Global Mission Feed -->
-                <div class="card-glass" style="padding:20px;border-radius:20px;">
-                    <h3
-                        style="font-family:'Orbitron';font-size:0.8rem;margin-bottom:1.2rem;color:var(--accent-primary);display:flex;justify-content:space-between;align-items:center;">
-                        <span><i class="fas fa-stream"></i> GLOBAL MISSION FEED</span>
-                        <span style="font-size:0.5rem;opacity:0.5;">REAL-TIME SYNC</span>
-                    </h3>
-                    <div id="missionlog-feed-list"
-                        style="display:flex;flex-direction:column;gap:15px;max-height:400px;overflow-y:auto;padding-right:5px;">
-                        <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;"><i
-                                class="fas fa-spinner fa-spin"></i> Loading...</div>
+                <!-- Panel 2: Status Feed -->
+                <div class="status-panel" id="status-panel-feed">
+                    <div class="card-glass" style="padding:20px;border-radius:20px;">
+                        <h3
+                            style="font-family:'Orbitron';font-size:0.8rem;margin-bottom:1.2rem;color:var(--accent-primary);display:flex;justify-content:space-between;align-items:center;">
+                            <span><i class="fas fa-stream"></i> GLOBAL MISSION FEED</span>
+                            <span style="font-size:0.5rem;opacity:0.5;">REAL-TIME SYNC</span>
+                        </h3>
+                        <div id="missionlog-feed-list"
+                            style="display:flex;flex-direction:column;gap:15px;overflow-y:auto;padding-right:5px;">
+                            <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;"><i
+                                    class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
                     </div>
                 </div>
+
             </div>
+
 
             <!-- BANK DETAILS SECTION (shown via banner) -->
             <div id="section-bankdetails" class="workspace-section">
+
                 <div class="card-glass" style="padding: 2rem; border-radius: 20px; max-width: 650px; margin: 0 auto;">
                     <div class="section-title" style="margin-bottom: 1rem;">
                         <i class="fas fa-university"></i> FINANCIAL DETAILS SUBMISSION
@@ -2949,6 +2972,25 @@
             <span class="nav-label">SECURITY</span>
         </button>
     </nav>
+
+    <script>
+        // ── Status Section Sub-panel Switcher ──
+        window.switchStatusPanel = function (panel) {
+            // Update panels
+            document.querySelectorAll('.status-panel').forEach(function (p) {
+                p.classList.remove('active');
+            });
+            var active = document.getElementById('status-panel-' + panel);
+            if (active) active.classList.add('active');
+
+            // Update sub-nav buttons
+            document.querySelectorAll('.status-sub-btn').forEach(function (b) {
+                b.classList.remove('active');
+            });
+            var btn = document.getElementById('sbtn-' + panel);
+            if (btn) btn.classList.add('active');
+        };
+    </script>
 
     <script>
         // ═══════════════════════════════════════════════════════════

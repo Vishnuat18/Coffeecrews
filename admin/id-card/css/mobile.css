@@ -327,7 +327,10 @@
     #section-chats {
         padding: 10px 10px calc(var(--mobile-nav-h) + 10px) !important;
         gap: 0 !important;
-        /* override base section padding to manage height precisely */
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        overflow: hidden !important;
     }
 
     /* 3-button sub-nav (HQ | GLOBAL | CREW) */
@@ -361,12 +364,13 @@
     /* Chat panels fill remaining height */
     .chat-container {
         flex: 1 !important;
-        height: auto !important;
+        height: 100% !important;
         min-height: 0 !important;
         border-radius: 14px !important;
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
+        position: relative !important;
     }
 
     .chat-feed {
@@ -380,15 +384,26 @@
     /* Chat input bar */
     .chat-controls {
         gap: 8px !important;
-        padding: 8px 10px !important;
-        margin-top: 0 !important;
+        padding: 10px 12px !important;
+        background: rgba(10, 10, 15, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        margin-top: auto !important;
         flex-shrink: 0 !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 10 !important;
     }
 
     .chat-controls input,
     .chat-controls textarea {
         font-size: 0.85rem !important;
         padding: 10px 13px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
     }
 
     .action-circle-btn {
@@ -453,7 +468,65 @@
 
     /* ── SECTION: STATUS ── */
     #section-status {
-        gap: 12px !important;
+        gap: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        padding: 14px 14px calc(var(--mobile-nav-h) + 10px) !important;
+        overflow: hidden !important;
+    }
+
+    /* Status Sub-Nav */
+    .status-sub-nav {
+        display: flex !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+        background: rgba(0, 0, 0, 0.35) !important;
+        padding: 5px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        flex-shrink: 0 !important;
+    }
+
+    .status-sub-btn {
+        flex: 1 !important;
+        padding: 10px 5px !important;
+        font-size: 0.5rem !important;
+        letter-spacing: 0.5px !important;
+        border-radius: 9px !important;
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.4) !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Orbitron', sans-serif !important;
+        transition: all 0.3s !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+    }
+
+    .status-sub-btn.active {
+        background: rgba(0, 243, 255, 0.12) !important;
+        color: var(--accent-primary) !important;
+        border: 1px solid rgba(0, 243, 255, 0.15) !important;
+    }
+
+    .status-sub-btn i {
+        font-size: 0.8rem !important;
+    }
+
+    .status-panel {
+        display: none !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding-bottom: 20px !important;
+    }
+
+    .status-panel.active {
+        display: flex !important;
     }
 
     #section-status .card-glass {
