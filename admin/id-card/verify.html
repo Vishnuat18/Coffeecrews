@@ -1295,17 +1295,15 @@
                 <!-- Panel 1: Post Status (Drafter) -->
                 <div class="status-panel active" id="status-panel-post">
                     <div class="card-glass"
-                        style="padding: 2rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="margin-bottom: 1.5rem;">
+                        style="padding: 1.2rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="margin-bottom: 1.2rem;">
                             <h2
-                                style="font-family:'Orbitron';font-size:0.9rem;margin-bottom:0.8rem;display:flex;align-items:center;gap:10px;color:#fff;">
-                                <i class="fas fa-file-signature" style="font-size:1.1rem;opacity:0.8;"></i> MISSION
-                                STATUS
+                                style="font-family:'Orbitron';font-size:0.8rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:10px;color:#fff;">
+                                <i class="fas fa-file-signature" style="font-size:1rem;opacity:0.8;"></i> MISSION STATUS
                                 DRAFTER
                             </h2>
-                            <p style="font-size:0.65rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
-                                Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
-                                MISSION FEED.
+                            <p style="font-size:0.6rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
+                                Broadcast your objectives to the GLOBAL MISSION FEED.
                             </p>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:20px;">
@@ -2989,6 +2987,11 @@
             });
             var btn = document.getElementById('sbtn-' + panel);
             if (btn) btn.classList.add('active');
+
+            // Trigger mission feed render if switching to feed
+            if (panel === 'feed' && typeof renderMissionFeed === 'function') {
+                renderMissionFeed();
+            }
         };
     </script>
 
