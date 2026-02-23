@@ -15,7 +15,7 @@ body {
 
 /* --- Workspace Header (Top Level) --- */
 .workspace-header {
-    padding: 15px 40px;
+    padding: 10px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,16 +25,96 @@ body {
     top: 0;
     z-index: 1000;
     background: rgba(5, 5, 5, 0.85);
+    height: 120px;
+}
+
+.desktop-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+#sync-status {
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    color: #fff;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#sync-status i {
+    color: var(--accent-primary);
+    animation: pulse-sync 2s infinite ease-in-out;
+}
+
+#cockpit-btn {
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    color: var(--accent-primary);
+    text-decoration: none;
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    padding: 6px 15px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+#cockpit-btn:hover {
+    background: rgba(0, 243, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+
+.terminate-btn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 8px 18px;
+    font-family: 'Orbitron';
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.terminate-btn:hover {
+    background: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+}
+
+@keyframes pulse-sync {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
 }
 
 .brand-sec {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
     font-family: 'Orbitron';
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 5px;
+    font-weight: 900;
+}
+
+.brand-sec img {
+    height: 180px;
+    width: auto;
+    filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.4));
 }
 
 /* --- Identity Sidebar (Persistent) --- */

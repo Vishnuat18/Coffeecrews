@@ -29,27 +29,95 @@
         left: 0 !important;
         right: 0 !important;
         height: var(--mobile-header-h) !important;
-        z-index: 1100 !important;
+        z-index: 2100 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        /* Center the logo */
+    }
+
+    .desktop-header-actions {
+        display: none !important;
     }
 
     .brand-sec {
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
         gap: 8px !important;
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
     }
 
     .brand-sec img {
-        height: 18px !important;
+        height: 22px !important;
+        filter: drop-shadow(0 0 5px var(--accent-primary)) !important;
     }
 
-    #header-actions {
-        gap: 6px !important;
+    .mobile-menu-btn {
+        display: flex !important;
+        position: absolute !important;
+        right: 14px !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--accent-primary) !important;
+        font-size: 1.2rem !important;
+        cursor: pointer !important;
+        width: 32px !important;
+        height: 32px !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    #header-actions button,
-    #header-actions a {
-        padding: 5px 9px !important;
-        font-size: 0.48rem !important;
-        border-radius: 20px !important;
+    .mobile-dropdown-menu {
+        display: none;
+        position: absolute !important;
+        top: calc(var(--mobile-header-h) - 4px) !important;
+        right: 10px !important;
+        background: rgba(10, 10, 15, 0.98) !important;
+        border: 1px solid rgba(0, 243, 255, 0.2) !important;
+        border-radius: 12px !important;
+        min-width: 180px !important;
+        z-index: 2200 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+        backdrop-filter: blur(20px) !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    .mobile-dropdown-menu.active {
+        display: flex !important;
+    }
+
+    .mobile-dropdown-menu .menu-item {
+        padding: 14px 18px !important;
+        color: #fff !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.6rem !important;
+        letter-spacing: 1px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .mobile-dropdown-menu .menu-item:last-child {
+        border-bottom: none !important;
+    }
+
+    .mobile-dropdown-menu .menu-item i {
+        color: var(--accent-primary) !important;
+        width: 16px !important;
+        text-align: center !important;
+    }
+
+    .mobile-dropdown-menu .menu-item.logout-trigger i {
+        color: #ff003c !important;
+    }
+
+    /* Analytics Dashboard Grid for Mobile */
+    .analytics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
     }
 
     /* Bank banner */
@@ -98,6 +166,8 @@
         background: rgba(5, 5, 10, 0.97) !important;
         box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5) !important;
         padding: 0 !important;
+        backdrop-filter: blur(20px) !important;
+        z-index: 1080 !important;
     }
 
     /* Hide the large photo in its wrapper */
@@ -194,14 +264,16 @@
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         padding: 14px 14px calc(var(--mobile-nav-h) + 10px) !important;
+        background: #05050a !important;
+        /* Force opaque background to prevent "merges" */
         /* scrollbar styling */
         scrollbar-width: thin !important;
         scrollbar-color: rgba(0, 243, 255, 0.2) transparent !important;
+        z-index: 1 !important;
     }
 
     .workspace-section.active {
         display: flex !important;
-        flex-direction: column !important;
     }
 
     /* ─── 8. FIXED BOTTOM NAV ─── */
@@ -211,7 +283,7 @@
         left: 0 !important;
         right: 0 !important;
         height: var(--mobile-nav-h) !important;
-        z-index: 1200 !important;
+        z-index: 2200 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-around !important;
@@ -327,6 +399,8 @@
     /* ── SECTION: CHATS ── */
     #section-chats {
         padding: 10px 10px calc(var(--mobile-nav-h) + 10px) !important;
+        gap: 0 !important;
+        flex-direction: column !important;
         height: 100% !important;
         overflow: hidden !important;
     }
@@ -466,6 +540,8 @@
 
     /* ── SECTION: STATUS ── */
     #section-status {
+        gap: 0 !important;
+        flex-direction: column !important;
         height: 100% !important;
         padding: 14px 14px calc(var(--mobile-nav-h) + 10px) !important;
         overflow: hidden !important;

@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/admin/id-card/css/style.css">
     <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
     <link rel="stylesheet" href="/admin/id-card/css/mobile.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .view-profile-btn {
             background: rgba(0, 243, 255, 0.1);
@@ -915,22 +916,34 @@
 
     <header class="workspace-header">
         <div class="brand-sec">
-            <img src="/assets/favicon.png" alt="Logo"
-                style="height: 25px; filter: drop-shadow(0 0 5px var(--accent-primary));">
+            <img src="/assets/favicon.png" alt="Logo">
             <span>COFFEECREWS</span>
         </div>
-        <div id="header-actions" style="display: flex; align-items: center; gap: 15px;">
-            <div id="sync-status" style="font-family: 'Orbitron'; font-size: 0.7rem; color: var(--safe-green);">
+        <div id="header-actions" class="desktop-header-actions">
+            <div id="sync-status">
                 <i class="fas fa-satellite"></i> HQ ESTABLISHED
             </div>
-            <a href="../index.html" id="cockpit-btn"
-                style="display:none; text-decoration:none; background:rgba(0,243,255,0.1); border:1px solid var(--accent-primary); border-radius:30px; padding:8px 15px; color:var(--accent-primary); cursor:pointer; font-family:'Orbitron'; font-size:0.6rem; transition:0.3s;">
+            <a href="../index.html" id="cockpit-btn" style="display:none; text-decoration:none;">
                 <i class="fas fa-th-large"></i> COCKPIT
             </a>
-            <button onclick="handleLogout()"
-                style="background:rgba(255,0,60,0.1); border:1px solid #ff003c; border-radius:30px; padding:8px 15px; color:#ff003c; cursor:pointer; font-family:'Orbitron'; font-size:0.6rem; transition:0.3s;">
+            <button onclick="handleLogout()" class="terminate-btn">
                 TERMINATE <i class="fas fa-power-off"></i>
             </button>
+        </div>
+        <!-- Mobile Menu Tool -->
+        <button id="mobile-menu-trigger" class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <div id="mobile-context-menu" class="mobile-dropdown-menu">
+            <div class="menu-item profile-trigger" onclick="switchTab('profile'); toggleMobileMenu();">
+                <i class="fas fa-user-circle"></i> PROFILE
+            </div>
+            <a href="../index.html" id="m-cockpit-btn" class="menu-item" style="display:none; text-decoration:none;">
+                <i class="fas fa-th-large"></i> COCKPIT
+            </a>
+            <div class="menu-item logout-trigger" onclick="handleLogout(); toggleMobileMenu();">
+                <i class="fas fa-power-off"></i> TERMINATE SESSION
+            </div>
         </div>
     </header>
 
@@ -997,6 +1010,10 @@
                 </button>
                 <button class="nav-item-btn" onclick="switchTab('status')">
                     <i class="fas fa-file-signature"></i> STATUS
+                </button>
+                <button id="nav-btn-analytics" class="nav-item-btn" onclick="switchTab('analytics')"
+                    style="display:none;">
+                    <i class="fas fa-chart-pie"></i> ANALYTICS
                 </button>
                 <button class="nav-item-btn" onclick="switchTab('missionlog')">
                     <i class="fas fa-calendar-check"></i> MISSION LOG
@@ -1295,15 +1312,17 @@
                 <!-- Panel 1: Post Status (Drafter) -->
                 <div class="status-panel active" id="status-panel-post">
                     <div class="card-glass"
-                        style="padding: 1.2rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="margin-bottom: 1.2rem;">
+                        style="padding: 2rem; border-radius: 20px; background: rgba(10,10,10,0.95); border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="margin-bottom: 1.5rem;">
                             <h2
-                                style="font-family:'Orbitron';font-size:0.8rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:10px;color:#fff;">
-                                <i class="fas fa-file-signature" style="font-size:1rem;opacity:0.8;"></i> MISSION STATUS
+                                style="font-family:'Orbitron';font-size:0.9rem;margin-bottom:0.8rem;display:flex;align-items:center;gap:10px;color:#fff;">
+                                <i class="fas fa-file-signature" style="font-size:1.1rem;opacity:0.8;"></i> MISSION
+                                STATUS
                                 DRAFTER
                             </h2>
-                            <p style="font-size:0.6rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
-                                Broadcast your objectives to the GLOBAL MISSION FEED.
+                            <p style="font-size:0.65rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
+                                Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
+                                MISSION FEED.
                             </p>
                         </div>
                         <div style="display:flex;flex-direction:column;gap:20px;">
@@ -1393,6 +1412,42 @@
 
             </div>
 
+            <!-- SECTION: ANALYTICS — Admin Only -->
+            <div id="section-analytics" class="workspace-section">
+                <div class="card-glass" style="padding: 2rem; border-radius: 20px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px;">
+                        <h2
+                            style="font-family: 'Orbitron'; font-size: 0.9rem; margin: 0; color: var(--accent-primary);">
+                            <i class="fas fa-chart-line"></i> PERSONNEL ANALYTICS
+                        </h2>
+                        <button onclick="renderAnalytics()" class="btn-primary"
+                            style="padding: 8px 15px; font-size: 0.6rem;">
+                            <i class="fas fa-sync-alt"></i> REFRESH DATA
+                        </button>
+                    </div>
+
+                    <div class="analytics-grid"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                        <div class="card-glass"
+                            style="padding: 20px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);">
+                            <h3 style="font-family:'Orbitron'; font-size: 0.7rem; margin-bottom: 15px; opacity: 0.8;">
+                                ATTENDANCE OVERVIEW (7D)</h3>
+                            <div style="height: 250px; position: relative;">
+                                <canvas id="attendanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card-glass"
+                            style="padding: 20px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);">
+                            <h3 style="font-family:'Orbitron'; font-size: 0.7rem; margin-bottom: 15px; opacity: 0.8;">
+                                MISSION COMMIT DISTRIBUTION</h3>
+                            <div style="height: 250px; position: relative;">
+                                <canvas id="commitChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- BANK DETAILS SECTION (shown via banner) -->
             <div id="section-bankdetails" class="workspace-section">
@@ -2458,7 +2513,44 @@
 
             const sidebarId = document.getElementById('p-id-sidebar');
             if (sidebarId) sidebarId.innerText = `CC-${activeMember.ccCode}`;
+
+            if (activeMember.access === 'admin' || dualAccessIds.includes(loggedInUser.id)) {
+                const cockpitBtn = document.getElementById('cockpit-btn');
+                const mCockpitBtn = document.getElementById('m-cockpit-btn');
+                const analyticsBtn = document.getElementById('nav-btn-analytics');
+                const mAnalyticsBtn = document.getElementById('m-btn-analytics');
+
+                if (cockpitBtn) cockpitBtn.style.display = 'block';
+                if (mCockpitBtn) mCockpitBtn.style.display = 'flex';
+                if (analyticsBtn) analyticsBtn.style.display = 'flex';
+                if (mAnalyticsBtn) mAnalyticsBtn.style.display = 'flex';
+            }
+
             switchTab('home');
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-context-menu');
+            if (menu) menu.classList.toggle('active');
+        }
+
+        async function showDailyAttendance(dateStr) {
+            const attendees = await window.DataManager.getDailyAttendance(dateStr);
+            const count = attendees.length;
+
+            let listHtml = count > 0
+                ? `<div style="max-height: 300px; overflow-y: auto; padding-right: 5px;">` +
+                attendees.map(a => `
+                    <div style="display:flex;align-items:center;gap:15px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px;">
+                        <i class="fas fa-user-check" style="color:#0aff0a;font-size:0.9rem;"></i>
+                        <div>
+                            <div style="font-family:'Orbitron';font-size:0.75rem;color:#fff;letter-spacing:0.5px;">${a.memberName}</div>
+                            <div style="font-size:0.6rem;opacity:0.5;margin-top:2px;">TIMESTAMP: ${a.time}</div>
+                        </div>
+                    </div>`).join('') + `</div>`
+                : `<div style="text-align:center;padding:40px;opacity:0.5;font-family:'Orbitron';font-size:0.7rem;">NO MISSION LOGS FOUND FOR THIS DATE.</div>`;
+
+            await tacticalAlert(listHtml, `DAILY LOG: ${dateStr} (${count} PRESENT)`);
         }
 
         function switchTab(tab) {
@@ -2470,6 +2562,7 @@
                 'home': 'section-home',
                 'chats': 'section-chats',
                 'status': 'section-status',
+                'analytics': 'section-analytics',
                 'missionlog': 'section-missionlog',
                 'security': 'section-security',
                 'bankdetails': 'section-bankdetails'
@@ -2477,8 +2570,8 @@
             const sec = document.getElementById(sectionMap[tab]);
             if (sec) sec.classList.add('active');
 
-            // Highlight correct nav button (HOME=0, CHATS=1, STATUS=2, MISSION LOG=3, SECURITY=4)
-            const navMap = { 'home': 0, 'chats': 1, 'status': 2, 'missionlog': 3, 'security': 4 };
+            // Highlight correct nav button
+            const navMap = { 'home': 0, 'chats': 1, 'status': 2, 'analytics': 3, 'missionlog': 4, 'security': 5 };
             const navBtns = document.querySelectorAll('.nav-item-btn');
             if (navMap[tab] !== undefined && navBtns[navMap[tab]]) {
                 navBtns[navMap[tab]].classList.add('active');
@@ -2486,6 +2579,7 @@
 
             if (tab === 'home') renderHome();
             if (tab === 'status') renderMissionFeed();
+            if (tab === 'analytics') renderAnalytics();
             if (tab === 'missionlog') renderCalendar();
             if (tab === 'security') renderSecurity();
         }
@@ -2499,6 +2593,85 @@
 
         let pendingStatusImage = null;
         let pendingStatusExtra = {};
+
+        async function renderAnalytics() {
+            if (activeMember.access !== 'admin') return;
+
+            // 1. Attendance Chart (Last 7 Days)
+            const today = new Date();
+            const labels = [];
+            const dataSets = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const dayStr = d.toISOString().split('T')[0];
+                labels.push(dayStr.split('-').slice(1).join('/')); // MM/DD
+
+                const dayLogs = await window.DataManager.getDailyAttendance(dayStr);
+                dataSets.push(dayLogs.length);
+            }
+
+            const ctx1 = document.getElementById('attendanceChart').getContext('2d');
+            if (window.attChartObj) window.attChartObj.destroy();
+            window.attChartObj = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Present Personnel',
+                        data: dataSets,
+                        backgroundColor: 'rgba(0, 243, 255, 0.2)',
+                        borderColor: '#00f3ff',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)' } },
+                        x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 2. Mission Commit Distribution (Status Feed)
+            const statusSnap = await firebase.database().ref('chats/statusFeed').limitToLast(100).once('value');
+            const statusData = statusSnap.val() || {};
+            const userCounts = {};
+            Object.values(statusData).forEach(s => {
+                userCounts[s.senderName] = (userCounts[s.senderName] || 0) + 1;
+            });
+
+            const commitLabels = Object.keys(userCounts);
+            const commitData = Object.values(userCounts);
+
+            const ctx2 = document.getElementById('commitChart').getContext('2d');
+            if (window.commitChartObj) window.commitChartObj.destroy();
+            window.commitChartObj = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: commitLabels,
+                    datasets: [{
+                        data: commitData,
+                        backgroundColor: [
+                            '#00f3ff', '#ff003c', '#0aff0a', '#ffd700', '#ff5722', '#d946ef', '#f97316'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.7)', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
 
         async function renderHome() {
             if (!activeMember) return;
@@ -2537,16 +2710,16 @@
                     const border = isBroadcast ? 'rgba(255,165,0,0.25)' : 'rgba(0,243,255,0.1)';
                     const bg = isBroadcast ? 'rgba(255,165,0,0.06)' : 'rgba(0,243,255,0.04)';
                     const labelColor = isBroadcast ? '#ff9900' : 'var(--accent-primary)';
-                    return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:12px 15px;">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                            <span style="font-family:'Orbitron';font-size:0.6rem;color:${labelColor};">${label}</span>
-                            <span style="font-size:0.55rem;opacity:0.4;">${msg.time || ''}</span>
-                        </div>
-                        ${msg.text ? `<div style="font-size:0.75rem;line-height:1.5;">${msg.text}</div>` : ''}
-                        ${msg.image ? `<img src="${msg.image}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
-                        ${msg.audioUrl ? `<audio controls src="${msg.audioUrl}" style="width:100%;margin-top:8px;"></audio>` : ''}
-                        ${msg.fileUrl ? `<a href="${msg.fileUrl}" download="${msg.fileName || 'file'}" style="display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--accent-primary);font-size:0.7rem;"><i class="fas fa-file-alt"></i>${msg.fileName || 'Attachment'}</a>` : ''}
-                    </div>`;
+                    return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:12px 15px;margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                                <span style="font-family:'Orbitron';font-size:0.6rem;color:${labelColor};">${label}</span>
+                                <span style="font-size:0.55rem;opacity:0.4;">${msg.time || ''}</span>
+                            </div>
+                            ${msg.text ? `<div style="font-size:0.75rem;line-height:1.5;">${msg.text}</div>` : ''}
+                            ${msg.image ? `<img src="${msg.image}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
+                            ${msg.audioUrl ? `<audio controls src="${msg.audioUrl}" style="width:100%;margin-top:8px;"></audio>` : ''}
+                            ${msg.fileUrl ? `<a href="${msg.fileUrl}" download="${msg.fileName || 'file'}" style="display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--accent-primary);font-size:0.7rem;"><i class="fas fa-file-alt"></i>${msg.fileName || 'Attachment'}</a>` : ''}
+                        </div>`;
                 }).join('');
             } catch (e) {
                 console.error('HQ feed error:', e);
@@ -2863,22 +3036,29 @@
 
                 grid.innerHTML += `
                     <div style="aspect-ratio:1;border-radius:8px;${bg !== '' ? `background:${bg};` : ''}${border !== '' ? `border:${border};` : ''}
-                        display:flex;align-items:center;justify-content:center;
-                        font-family:'Orbitron';font-size:0.6rem;${textColor !== '' ? `color:${textColor};` : ''}
-                        ${todayRing}${todayWeight}cursor:${isToday ? 'pointer' : 'default'};transition:transform 0.15s;"
-                        ${isToday ? 'onclick="markTodayAttendance()"' : ''}
+                        display:flex;flex-direction:column;align-items:center;justify-content:center;
+                        font-family:'Orbitron';font-size:0.65rem;${textColor !== '' ? `color:${textColor};` : ''}
+                        ${todayRing}${todayWeight}cursor:pointer;transition:transform 0.15s;"
+                        onclick="showDailyAttendance('${dateStr}')"
                         title="${dateStr}${isMarked ? ' ✅ Present' : isFuture ? '' : ' ❌ Absent'}"
-                    >${d}</div>`;
+                    >
+                        <span>${d}</span>
+                        ${isToday ? '<div style="width:4px;height:4px;background:var(--accent-primary);border-radius:50%;margin-top:2px;"></div>' : ''}
+                    </div>`;
             }
         }
 
         async function markTodayAttendance() {
             const now = new Date();
             const hour = now.getHours();
+            const minute = now.getMinutes();
 
-            // Strict Window: 08:00 - 10:00
-            if (hour < 8 || hour >= 10) {
-                await tacticalAlert("MISSION LOG ACCESS DENIED. Attendance marking is strictly permitted between 08:00 and 10:00 only.", "OUTSIDE OPERATIONAL WINDOW");
+            // Strict Window: 08:00 - 10:30
+            const isBefore8 = hour < 8;
+            const isAfter1030 = hour > 10 || (hour === 10 && minute > 30);
+
+            if (isBefore8 || isAfter1030) {
+                await tacticalAlert("MISSION LOG ACCESS DENIED. Attendance marking is strictly permitted between 08:00 and 10:30 only.", "OUTSIDE OPERATIONAL WINDOW");
                 return;
             }
 
@@ -2965,6 +3145,11 @@
             <div class="nav-icon-circle"><i class="fas fa-calendar-check"></i></div>
             <span class="nav-label">LOG</span>
         </button>
+        <button class="mobile-nav-btn" id="m-btn-analytics" onclick="mobileSwitchTab('analytics')"
+            style="display:none;">
+            <div class="nav-icon-circle"><i class="fas fa-chart-bar"></i></div>
+            <span class="nav-label">DATA</span>
+        </button>
         <button class="mobile-nav-btn" id="m-btn-security" onclick="mobileSwitchTab('security')">
             <div class="nav-icon-circle"><i class="fas fa-user-shield"></i></div>
             <span class="nav-label">SECURITY</span>
@@ -2987,11 +3172,6 @@
             });
             var btn = document.getElementById('sbtn-' + panel);
             if (btn) btn.classList.add('active');
-
-            // Trigger mission feed render if switching to feed
-            if (panel === 'feed' && typeof renderMissionFeed === 'function') {
-                renderMissionFeed();
-            }
         };
     </script>
 
@@ -3032,6 +3212,7 @@
                         'home': 'section-home',
                         'chats': 'section-chats',
                         'status': 'section-status',
+                        'analytics': 'section-analytics',
                         'missionlog': 'section-missionlog',
                         'security': 'section-security',
                         'bankdetails': 'section-bankdetails'

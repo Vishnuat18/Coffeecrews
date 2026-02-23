@@ -788,8 +788,21 @@ class DataManager {
             time: new Date().toLocaleTimeString()
         };
 
+        // 1. Log to global attendance node
         await db.ref(`attendance/${today}/${id}`).set(log);
-        // Firebase listeners will handle the UI update
+
+        // 2. Update member's own attendance array for UI sync
+        const currentAttendance = member.attendance || [];
+        if (!currentAttendance.includes(today)) {
+            currentAttendance.push(today);
+            const members = await this.getAllMembers();
+            const index = members.findIndex(m => m.id === id);
+            if (index !== -1) {
+                await db.ref(`members/${index}/attendance`).set(currentAttendance);
+            }
+        }
+
+        window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
         return true;
     }
 
