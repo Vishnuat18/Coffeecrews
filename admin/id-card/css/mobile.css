@@ -1,0 +1,769 @@
+/* =========================================================
+   CoffeeCrews — Mobile Workspace Styles
+   Applies to: admin/id-card/verify.html
+   Breakpoint: max-width 768px
+   Design: 5 fully-separated tab sections, fixed bottom nav
+   ========================================================= */
+
+/* ─── VARIABLES ─── */
+:root {
+    --mobile-nav-h: 72px;
+    --mobile-header-h: 52px;
+    --mobile-profile-h: 76px;
+}
+
+@media (max-width: 768px) {
+
+    /* ─── 1. GLOBAL BODY ─── */
+    html,
+    body {
+        overflow-x: hidden !important;
+        height: 100% !important;
+    }
+
+    /* ─── 2. WORKSPACE HEADER (topbar) ─── */
+    .workspace-header {
+        padding: 8px 14px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: var(--mobile-header-h) !important;
+        z-index: 1100 !important;
+    }
+
+    .brand-sec {
+        font-size: 0.8rem !important;
+        gap: 8px !important;
+    }
+
+    .brand-sec img {
+        height: 18px !important;
+    }
+
+    #header-actions {
+        gap: 6px !important;
+    }
+
+    #header-actions button,
+    #header-actions a {
+        padding: 5px 9px !important;
+        font-size: 0.48rem !important;
+        border-radius: 20px !important;
+    }
+
+    /* Bank banner */
+    #bank-form-banner {
+        top: calc(var(--mobile-header-h) + var(--mobile-profile-h)) !important;
+        font-size: 0.52rem !important;
+        padding: 6px 12px !important;
+        z-index: 1050 !important;
+    }
+
+    /* Hide desktop top-tab nav */
+    .workspace-nav {
+        display: none !important;
+    }
+
+    /* ─── 3. OUTER LAYOUT ─── */
+    .dashboard-container {
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        gap: 0 !important;
+        /* Offset for fixed header */
+        padding-top: var(--mobile-header-h) !important;
+        height: 100dvh !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    /* ─── 4. PROFILE SIDEBAR → COMPACT HORIZONTAL STRIP ─── */
+    .profile-sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .identity-card {
+        position: relative !important;
+        top: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(0, 243, 255, 0.12) !important;
+        background: rgba(5, 5, 10, 0.97) !important;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5) !important;
+        padding: 0 !important;
+    }
+
+    /* Hide the large photo in its wrapper */
+    .identity-card .photo-wrapper {
+        display: none !important;
+    }
+
+    /* Profile row: avatar | name+role | eye button */
+    .profile-details {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 10px 14px !important;
+        margin-top: 0 !important;
+        height: var(--mobile-profile-h) !important;
+    }
+
+    .profile-details>div:last-of-type {
+        display: none !important;
+    }
+
+    /* Stats below name — hide on mobile */
+    .stat-pills,
+    .profile-stats {
+        display: none !important;
+    }
+
+    .name-tag {
+        font-size: 0.95rem !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin-bottom: 3px !important;
+    }
+
+    .role-tag {
+        font-size: 0.5rem !important;
+        padding: 2px 7px !important;
+        letter-spacing: 0.8px !important;
+    }
+
+    .view-profile-btn {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+    }
+
+    /* ─── 5. CLONED MOBILE AVATAR ─── */
+    .profile-details.mobile-mode {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        padding: 10px 14px !important;
+        margin-top: 0 !important;
+        gap: 12px !important;
+        height: var(--mobile-profile-h) !important;
+    }
+
+    .profile-details.mobile-mode .mobile-avatar {
+        width: 52px !important;
+        height: 52px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        border: 2px solid var(--accent-primary) !important;
+        box-shadow: 0 0 14px rgba(0, 243, 255, 0.32) !important;
+        flex-shrink: 0 !important;
+        display: block !important;
+    }
+
+    /* ─── 6. MAIN AREA — scrollable container for each section ─── */
+    .dashboard-main {
+        flex: 1 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        position: relative !important;
+        /* Leave room for bottom nav */
+        padding-bottom: var(--mobile-nav-h) !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* ─── 7. WORKSPACE SECTIONS — each is a full-height scrollable panel ─── */
+    .workspace-section {
+        display: none !important;
+        flex-direction: column !important;
+        position: absolute !important;
+        inset: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 14px 14px calc(var(--mobile-nav-h) + 10px) !important;
+        /* scrollbar styling */
+        scrollbar-width: thin !important;
+        scrollbar-color: rgba(0, 243, 255, 0.2) transparent !important;
+    }
+
+    .workspace-section.active {
+        display: flex !important;
+    }
+
+    /* ─── 8. FIXED BOTTOM NAV ─── */
+    .mobile-bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: var(--mobile-nav-h) !important;
+        z-index: 1200 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 6px 8px 10px !important;
+        background: rgba(5, 5, 10, 0.98) !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
+        border-top: 1px solid rgba(0, 243, 255, 0.1) !important;
+        box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .mobile-nav-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        padding: 4px 8px !important;
+        border-radius: 14px !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        position: relative !important;
+        -webkit-tap-highlight-color: transparent !important;
+        min-width: 52px !important;
+    }
+
+    .mobile-nav-btn .nav-icon-circle {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1rem !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.07) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .mobile-nav-btn .nav-label {
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.36rem !important;
+        letter-spacing: 0.3px !important;
+        color: rgba(255, 255, 255, 0.3) !important;
+        text-transform: uppercase !important;
+        transition: color 0.25s !important;
+    }
+
+    .mobile-nav-btn.active .nav-icon-circle {
+        background: rgba(0, 243, 255, 0.13) !important;
+        border-color: var(--accent-primary) !important;
+        color: var(--accent-primary) !important;
+        box-shadow: 0 0 16px rgba(0, 243, 255, 0.28) !important;
+        transform: scale(1.05) !important;
+    }
+
+    .mobile-nav-btn.active .nav-label {
+        color: var(--accent-primary) !important;
+    }
+
+    .mobile-nav-btn:active .nav-icon-circle {
+        transform: scale(0.9) !important;
+    }
+
+    .mobile-nav-btn .m-unread-dot {
+        position: absolute !important;
+        top: 2px !important;
+        right: 6px !important;
+        width: 7px !important;
+        height: 7px !important;
+        background: #ff003c !important;
+        border-radius: 50% !important;
+        border: 1.5px solid rgba(5, 5, 10, 0.95) !important;
+        box-shadow: 0 0 6px #ff003c !important;
+        display: none !important;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION-SPECIFIC STYLES
+       ═══════════════════════════════════════════════════════ */
+
+    /* ── SECTION: HOME ── */
+    #section-home .card-glass {
+        padding: 14px !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #section-home .card-glass h3 {
+        font-size: 0.65rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    #drive-dock {
+        margin-bottom: 10px !important;
+    }
+
+    #home-hq-feed {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        overflow-y: visible !important;
+    }
+
+    .home-grid-layout {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* ── SECTION: CHATS ── */
+    #section-chats {
+        padding: 10px 10px calc(var(--mobile-nav-h) + 10px) !important;
+        gap: 0 !important;
+        /* override base section padding to manage height precisely */
+    }
+
+    /* 3-button sub-nav (HQ | GLOBAL | CREW) */
+    .chat-sub-nav {
+        display: flex !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        background: rgba(0, 0, 0, 0.35) !important;
+        padding: 5px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        flex-shrink: 0 !important;
+    }
+
+    .chat-sub-nav .sub-nav-btn {
+        flex: 1 !important;
+        padding: 9px 4px !important;
+        font-size: 0.48rem !important;
+        letter-spacing: 0.3px !important;
+        border-radius: 9px !important;
+        min-width: unset !important;
+        gap: 4px !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .chat-sub-nav .sub-nav-btn i {
+        font-size: 0.9rem !important;
+    }
+
+    /* Chat panels fill remaining height */
+    .chat-container {
+        flex: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .chat-feed {
+        flex: 1 !important;
+        padding: 12px !important;
+        gap: 8px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Chat input bar */
+    .chat-controls {
+        gap: 8px !important;
+        padding: 8px 10px !important;
+        margin-top: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .chat-controls input,
+    .chat-controls textarea {
+        font-size: 0.85rem !important;
+        padding: 10px 13px !important;
+    }
+
+    .action-circle-btn {
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 0.95rem !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+    }
+
+    .chat-header-updated {
+        padding: 8px 12px !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .chat-header-actions {
+        gap: 5px !important;
+    }
+
+    .btn-header-action {
+        padding: 5px 8px !important;
+        font-size: 0.48rem !important;
+    }
+
+    /* Crew list items */
+    .crew-chat-item {
+        padding: 12px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .crew-chat-item img {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+    }
+
+    /* Chat messages */
+    .chat-msg {
+        max-width: 88% !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* Emoji panel */
+    .emoji-panel {
+        bottom: 50px !important;
+        left: 0 !important;
+        width: 260px !important;
+        max-height: 180px !important;
+        z-index: 999 !important;
+    }
+
+    /* Reply preview */
+    .reply-preview-container {
+        border-radius: 10px 10px 0 0 !important;
+        padding: 7px 12px !important;
+    }
+
+    /* ── SECTION: STATUS ── */
+    #section-status {
+        gap: 12px !important;
+    }
+
+    #section-status .card-glass {
+        padding: 14px !important;
+        border-radius: 14px !important;
+    }
+
+    /* Status drafter textarea */
+    #drafter-input,
+    .directive-input {
+        width: 100% !important;
+        min-height: 130px !important;
+        font-size: 0.88rem !important;
+        padding: 12px 14px !important;
+        border-radius: 11px !important;
+        resize: vertical !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Controls row below textarea */
+    .status-controls-row,
+    .drafter-controls {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        margin-top: 10px !important;
+        align-items: center !important;
+    }
+
+    /* Broadcast button — full width */
+    .btn-directive,
+    #btn-commit-status {
+        width: 100% !important;
+        height: 46px !important;
+        font-size: 0.58rem !important;
+        border-radius: 10px !important;
+        letter-spacing: 1.5px !important;
+        margin-top: 10px !important;
+    }
+
+    /* Status image upload thumbnail */
+    .status-upload-preview {
+        width: 90px !important;
+        height: 90px !important;
+    }
+
+    /* Global mission feed (status scroll list) */
+    #missionlog-feed-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .status-commit-item {
+        padding: 11px !important;
+        border-radius: 12px !important;
+    }
+
+    /* ── SECTION: MISSION LOG (Attendance Calendar) ── */
+    #section-missionlog {
+        gap: 12px !important;
+    }
+
+    #section-missionlog .card-glass {
+        padding: 14px !important;
+        border-radius: 14px !important;
+    }
+
+    .attendance-calendar {
+        padding: 0 !important;
+    }
+
+    /* Month navigator < FEBRUARY 2024 > */
+    .calendar-nav-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        margin-bottom: 14px !important;
+        padding: 8px 2px !important;
+    }
+
+    .calendar-nav-row .cal-month-label,
+    .cal-month-label {
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.72rem !important;
+        letter-spacing: 0.8px !important;
+        color: #fff !important;
+        text-align: center !important;
+    }
+
+    .calendar-nav-row .cal-arrow-btn,
+    .cal-arrow-btn {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: rgba(255, 255, 255, 0.55) !important;
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        font-size: 0.75rem !important;
+        transition: 0.2s !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* 7-column calendar grid */
+    .calendar-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 5px !important;
+    }
+
+    .calendar-day-header {
+        text-align: center !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.42rem !important;
+        color: rgba(255, 255, 255, 0.28) !important;
+        padding: 5px 0 !important;
+        letter-spacing: 0.3px !important;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1 !important;
+        border-radius: 7px !important;
+        font-size: 0.62rem !important;
+        cursor: default !important;
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .calendar-day.marked {
+        background: rgba(10, 255, 10, 0.1) !important;
+        border-color: #0aff0a !important;
+        color: #0aff0a !important;
+        box-shadow: 0 0 8px rgba(10, 255, 10, 0.2) !important;
+    }
+
+    .calendar-day.today {
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 10px rgba(0, 243, 255, 0.22) !important;
+        cursor: pointer !important;
+    }
+
+    .calendar-day.today:active {
+        background: rgba(0, 243, 255, 0.14) !important;
+    }
+
+    .calendar-day.filler {
+        background: transparent !important;
+        border-color: transparent !important;
+    }
+
+    /* MARK TODAY — full-width CTA */
+    .mark-today-btn-mobile,
+    #btn-mark-attendance {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 18px !important;
+        padding: 13px !important;
+        background: rgba(0, 243, 255, 0.07) !important;
+        border: 1px solid rgba(0, 243, 255, 0.28) !important;
+        border-radius: 11px !important;
+        color: var(--accent-primary) !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 0.62rem !important;
+        letter-spacing: 2px !important;
+        text-align: center !important;
+        cursor: pointer !important;
+        transition: all 0.25s !important;
+    }
+
+    /* ── SECTION: SECURITY ── */
+    #section-security {
+        gap: 12px !important;
+    }
+
+    #section-security .card-glass {
+        padding: 14px !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #section-security h3,
+    #section-security .section-header h3 {
+        font-size: 0.65rem !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Security info rows */
+    .security-info-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 13px 11px !important;
+        border-radius: 11px !important;
+        background: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        margin-bottom: 8px !important;
+        transition: 0.2s !important;
+    }
+
+    .security-info-row i {
+        color: var(--accent-primary) !important;
+        width: 20px !important;
+        text-align: center !important;
+        font-size: 0.95rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .security-info-row .sec-row-label {
+        font-size: 0.5rem !important;
+        opacity: 0.42 !important;
+        font-family: 'Orbitron', sans-serif !important;
+        letter-spacing: 0.8px !important;
+        display: block !important;
+        margin-bottom: 2px !important;
+    }
+
+    .security-info-row .sec-row-value {
+        font-size: 0.82rem !important;
+        color: #fff !important;
+        font-family: 'Rajdhani', sans-serif !important;
+    }
+
+    /* Action buttons in security */
+    .security-action-btn,
+    #section-security .btn-primary {
+        width: 100% !important;
+        margin-bottom: 8px !important;
+        font-size: 0.55rem !important;
+        padding: 12px !important;
+        border-radius: 10px !important;
+    }
+
+    /* ── SECTION: BANK DETAILS ── */
+    #section-bankdetails .card-glass {
+        padding: 14px !important;
+        border-radius: 14px !important;
+    }
+
+    #section-bankdetails input {
+        width: 100% !important;
+        font-size: 0.85rem !important;
+        padding: 10px 12px !important;
+        border-radius: 9px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ═══ MISC POLISH ═══ */
+
+    /* Modals — slide up from bottom */
+    .modal-overlay {
+        align-items: flex-end !important;
+    }
+
+    .modal-box {
+        border-radius: 22px 22px 0 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 22px 18px !important;
+        max-height: 88vh !important;
+        overflow-y: auto !important;
+    }
+
+    /* Loader */
+    #loader {
+        font-size: 0.78rem !important;
+        letter-spacing: 3px !important;
+    }
+
+    /* Message context menu */
+    .msg-context-menu {
+        min-width: 140px !important;
+        /* Keep in viewport on mobile */
+        max-width: 200px !important;
+    }
+
+    /* Cockpit admin button */
+    #cockpit-btn {
+        font-size: 0.48rem !important;
+        padding: 6px 10px !important;
+    }
+
+    /* Drive drop zone */
+    .drive-drop-zone {
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    .drive-drop-zone p {
+        font-size: 0.65rem !important;
+    }
+
+    /* Drive file items */
+    .drive-file-item {
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+    }
+
+    /* Prevent any element from overflowing horizontally */
+    .workspace-section>* {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* end @media (max-width: 768px) */

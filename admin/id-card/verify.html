@@ -13,6 +13,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/admin/id-card/css/style.css">
     <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
+    <link rel="stylesheet" href="/admin/id-card/css/mobile.css">
     <style>
         .view-profile-btn {
             background: rgba(0, 243, 255, 0.1);
@@ -2920,6 +2921,162 @@
             }
         }
     </script>
+
+    <!-- ═══════════════════════════════════════════════
+         MOBILE BOTTOM NAVIGATION BAR
+         Only rendered on screens ≤768px wide
+    ═══════════════════════════════════════════════ -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav" style="display:none;">
+        <button class="mobile-nav-btn active" id="m-btn-home" onclick="mobileSwitchTab('home')">
+            <div class="nav-icon-circle"><i class="fas fa-home"></i></div>
+            <span class="nav-label">HOME</span>
+        </button>
+        <button class="mobile-nav-btn" id="m-btn-chats" onclick="mobileSwitchTab('chats')">
+            <div class="nav-icon-circle"><i class="fas fa-comments"></i></div>
+            <span class="nav-label">CHATS</span>
+            <span class="m-unread-dot" id="m-dot-chats"></span>
+        </button>
+        <button class="mobile-nav-btn" id="m-btn-status" onclick="mobileSwitchTab('status')">
+            <div class="nav-icon-circle"><i class="fas fa-file-signature"></i></div>
+            <span class="nav-label">STATUS</span>
+        </button>
+        <button class="mobile-nav-btn" id="m-btn-missionlog" onclick="mobileSwitchTab('missionlog')">
+            <div class="nav-icon-circle"><i class="fas fa-calendar-check"></i></div>
+            <span class="nav-label">LOG</span>
+        </button>
+        <button class="mobile-nav-btn" id="m-btn-security" onclick="mobileSwitchTab('security')">
+            <div class="nav-icon-circle"><i class="fas fa-user-shield"></i></div>
+            <span class="nav-label">SECURITY</span>
+        </button>
+    </nav>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        //  MOBILE BOTTOM NAV — Full Section Switcher
+        //  Works independently from the inline switchTab function by
+        //  delegating through DOMContentLoaded timing.
+        // ═══════════════════════════════════════════════════════════
+        (function () {
+            const MOBILE_BP = 768;
+            const isMobile = () => window.innerWidth <= MOBILE_BP;
+
+            // ── Show/hide the bottom nav based on viewport ──
+            function syncNavVisibility() {
+                const nav = document.getElementById('mobile-bottom-nav');
+                if (!nav) return;
+                nav.style.display = isMobile() ? 'flex' : 'none';
+            }
+
+            // ── Set a mobile nav button as active ──
+            function setMobileActive(tab) {
+                document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+                const btn = document.getElementById('m-btn-' + tab);
+                if (btn) btn.classList.add('active');
+            }
+
+            // ── Main tab switch (does everything switchTab does) ──
+            window.mobileSwitchTab = function (tab) {
+                if (!isMobile()) return;
+
+                // 1. Use the real switchTab if available
+                if (typeof window._ccSwitchTab === 'function') {
+                    window._ccSwitchTab(tab);
+                } else {
+                    // Fallback: replicate switchTab logic directly
+                    const sectionMap = {
+                        'home': 'section-home',
+                        'chats': 'section-chats',
+                        'status': 'section-status',
+                        'missionlog': 'section-missionlog',
+                        'security': 'section-security',
+                        'bankdetails': 'section-bankdetails'
+                    };
+                    document.querySelectorAll('.workspace-section').forEach(s => s.classList.remove('active'));
+                    const sec = document.getElementById(sectionMap[tab]);
+                    if (sec) sec.classList.add('active');
+                }
+
+                // 2. Sync mobile bottom nav active state
+                setMobileActive(tab);
+
+                // 3. Scroll section back to top
+                const activeSection = document.querySelector('.workspace-section.active');
+                if (activeSection) activeSection.scrollTop = 0;
+            };
+
+            // ── Patch switchTab after DOMContentLoaded ──
+            // (switchTab is defined inside DOMContentLoaded in the main script block)
+            window.addEventListener('DOMContentLoaded', () => {
+                // Intercept the global switchTab so mobile nav stays in sync
+                // when switchTab is called from elsewhere (e.g. bank form banner)
+                const originalSwitchTab = window.switchTab;
+                if (typeof originalSwitchTab === 'function') {
+                    window._ccSwitchTab = originalSwitchTab;
+                    window.switchTab = function (tab) {
+                        originalSwitchTab(tab);
+                        if (isMobile()) setMobileActive(tab);
+                    };
+                }
+
+                syncNavVisibility();
+                syncUnreadDots();
+                setupMobileAvatar();
+                // Set HOME as active in mobile nav on load
+                setMobileActive('home');
+            });
+
+            // ── Clone profile photo into compact mobile strip ──
+            function setupMobileAvatar() {
+                if (!isMobile()) return;
+                const details = document.querySelector('.profile-details');
+                if (!details || details.classList.contains('mobile-mode')) return;
+
+                // Wait for p-photo to have a real src (renderWorkspace sets it)
+                const tryInsert = () => {
+                    const photo = document.getElementById('p-photo');
+                    if (!photo || !photo.src || photo.src.endsWith('undefined')) {
+                        setTimeout(tryInsert, 300);
+                        return;
+                    }
+                    if (details.classList.contains('mobile-mode')) return;
+
+                    const photoWrapper = document.querySelector('.photo-wrapper');
+                    if (photoWrapper) photoWrapper.style.display = 'none';
+
+                    const avatar = document.createElement('img');
+                    avatar.src = photo.src;
+                    avatar.className = 'mobile-avatar';
+                    avatar.alt = 'Avatar';
+
+                    details.insertBefore(avatar, details.firstChild);
+                    details.classList.add('mobile-mode');
+
+                    // Keep in sync when renderWorkspace updates p-photo
+                    new MutationObserver(() => { avatar.src = photo.src; })
+                        .observe(photo, { attributes: true, attributeFilter: ['src'] });
+                };
+                tryInsert();
+            }
+
+            // ── Mirror unread dot: desktop -> mobile ──
+            function syncUnreadDots() {
+                const desktopDot = document.getElementById('nav-dot-chats');
+                const mobileDot = document.getElementById('m-dot-chats');
+                if (!desktopDot || !mobileDot) return;
+                new MutationObserver(() => {
+                    mobileDot.style.display = desktopDot.style.display;
+                }).observe(desktopDot, { attributes: true, attributeFilter: ['style'] });
+            }
+
+            // ── Resize: toggle nav + re-apply avatar ──
+            window.addEventListener('resize', () => {
+                syncNavVisibility();
+                if (isMobile()) setupMobileAvatar();
+            });
+
+        })();
+    </script>
+
 </body>
 
 </html>
