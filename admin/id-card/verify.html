@@ -12,8 +12,8 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/admin/id-card/css/style.css">
-    <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
     <link rel="stylesheet" href="/admin/id-card/css/mobile.css">
+    <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .view-profile-btn {
@@ -927,7 +927,7 @@
                 <i class="fas fa-th-large"></i> COCKPIT
             </a>
             <button onclick="handleLogout()" class="terminate-btn">
-                TERMINATE <i class="fas fa-power-off"></i>
+                LOGOUT <i class="fas fa-power-off"></i>
             </button>
         </div>
         <!-- Mobile Menu Tool -->
@@ -937,6 +937,10 @@
         <div id="mobile-context-menu" class="mobile-dropdown-menu">
             <div class="menu-item profile-trigger" onclick="switchTab('profile'); toggleMobileMenu();">
                 <i class="fas fa-user-circle"></i> PROFILE
+            </div>
+            <div id="m-btn-analytics" class="menu-item" style="display:none;"
+                onclick="switchTab('analytics'); toggleMobileMenu();">
+                <i class="fas fa-chart-line"></i> ANALYTICS
             </div>
             <a href="../index.html" id="m-cockpit-btn" class="menu-item" style="display:none; text-decoration:none;">
                 <i class="fas fa-th-large"></i> COCKPIT
@@ -949,7 +953,7 @@
 
     <!-- BANK DETAILS BROADCAST BANNER -->
     <div id="bank-form-banner" onclick="switchTab('bankdetails')"
-        style="display:none; position:fixed; top:60px; left:0; right:0; z-index:9999; background:linear-gradient(90deg,#ff6600,#ff9900); color:#fff; padding:12px 20px; font-family:'Orbitron'; font-size:0.65rem; cursor:pointer; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 4px 20px rgba(255,120,0,0.4);">
+        style="display:none; position:fixed; top:120px; left:0; right:0; z-index:9999; background:linear-gradient(90deg,#ff6600,#ff9900); color:#fff; padding:12px 20px; font-family:'Orbitron'; font-size:0.65rem; cursor:pointer; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 4px 20px rgba(255,120,0,0.4);">
         <span><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i> ⚠️ ACTION REQUIRED: Submit your Bank
             / UPI details — Deadline: <strong>Feb 28, 2026</strong>. Click here to fill the form.</span>
         <span style="opacity:0.8;font-size:0.6rem;">TAP TO OPEN FORM →</span>
@@ -2524,6 +2528,11 @@
                 if (mCockpitBtn) mCockpitBtn.style.display = 'flex';
                 if (analyticsBtn) analyticsBtn.style.display = 'flex';
                 if (mAnalyticsBtn) mAnalyticsBtn.style.display = 'flex';
+            } else {
+                const analyticsBtn = document.getElementById('nav-btn-analytics');
+                const mAnalyticsBtn = document.getElementById('m-btn-analytics');
+                if (analyticsBtn) analyticsBtn.style.display = 'none';
+                if (mAnalyticsBtn) mAnalyticsBtn.style.display = 'none';
             }
 
             switchTab('home');
@@ -2695,9 +2704,24 @@
                     .filter(m => m.senderId === 'HQ');
 
                 // Merge and sort newest first
-                const all = [...threadMsgs, ...broadcastMsgs]
+                let all = [...threadMsgs, ...broadcastMsgs]
                     .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
                     .slice(0, 40);
+
+                // --- Inject "ACTION REQUIRED: BANK FORM" if active and not submitted ---
+                const bankActiveSnap = await firebase.database().ref('flags/bankFormActive').once('value');
+                const alreadySubmitted = localStorage.getItem(`bankFormSubmitted_${activeMember.id}`);
+
+                if (bankActiveSnap.val() === true && !alreadySubmitted) {
+                    all.unshift({
+                        _key: 'bank_action_required',
+                        _source: 'action',
+                        senderId: 'HQ',
+                        text: '⚠️ ACTION REQUIRED: Your Bank / UPI details are missing. Please submit them by Feb 28, 2026.',
+                        time: 'PRIORITY',
+                        priority: true
+                    });
+                }
 
                 if (all.length === 0) {
                     feed.innerHTML = '<div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;">No HQ updates yet</div>';
@@ -2706,11 +2730,12 @@
 
                 feed.innerHTML = all.map(msg => {
                     const isBroadcast = msg._source === 'broadcast';
-                    const label = isBroadcast ? '📢 HQ GLOBAL BROADCAST' : (msg.senderId === 'HQ' ? '📡 HQ COMMAND' : (msg.senderName || msg.senderId));
-                    const border = isBroadcast ? 'rgba(255,165,0,0.25)' : 'rgba(0,243,255,0.1)';
-                    const bg = isBroadcast ? 'rgba(255,165,0,0.06)' : 'rgba(0,243,255,0.04)';
-                    const labelColor = isBroadcast ? '#ff9900' : 'var(--accent-primary)';
-                    return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:12px 15px;margin-bottom:10px;">
+                    const isAction = msg._source === 'action';
+                    const label = isAction ? '🚨 HQ ACTION REQUIRED' : (isBroadcast ? '📢 HQ GLOBAL BROADCAST' : (msg.senderId === 'HQ' ? '📡 HQ COMMAND' : (msg.senderName || msg.senderId)));
+                    const border = isAction ? 'rgba(255,50,0,0.4)' : (isBroadcast ? 'rgba(255,165,0,0.25)' : 'rgba(0,243,255,0.1)');
+                    const bg = isAction ? 'rgba(255,50,0,0.08)' : (isBroadcast ? 'rgba(255,165,0,0.06)' : 'rgba(0,243,255,0.04)');
+                    const labelColor = isAction ? '#ff3200' : (isBroadcast ? '#ff9900' : 'var(--accent-primary)');
+                    return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:12px 15px;margin-bottom:10px;${isAction ? 'cursor:pointer;' : ''}" ${isAction ? 'onclick="switchTab(\'bankdetails\')"' : ''}>
                             <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                                 <span style="font-family:'Orbitron';font-size:0.6rem;color:${labelColor};">${label}</span>
                                 <span style="font-size:0.55rem;opacity:0.4;">${msg.time || ''}</span>
@@ -2855,14 +2880,25 @@
 
             // Only show the banner if not yet submitted (or if rejected, allow resubmit)
             const alreadySubmitted = localStorage.getItem(`bankFormSubmitted_${activeMember.id}`);
-            if (alreadySubmitted) return;
+            if (alreadySubmitted) {
+                const banner = document.getElementById('bank-form-banner');
+                if (banner) banner.style.display = 'none';
+                return;
+            }
 
             try {
-                const snap = await firebase.database().ref('flags/bankFormActive').once('value');
-                if (snap.val() === true) {
+                // Real-time listener for the broadcast flag
+                firebase.database().ref('flags/bankFormActive').on('value', (snap) => {
                     const banner = document.getElementById('bank-form-banner');
-                    if (banner) banner.style.display = 'flex';
-                }
+                    const isActive = snap.val() === true;
+                    if (isActive) {
+                        if (banner) banner.style.display = 'flex';
+                    } else {
+                        if (banner) banner.style.display = 'none';
+                    }
+                    // Refresh home feed to show/hide the action item in real-time
+                    if (currentTab === 'home') renderHome();
+                });
             } catch (e) { /* silent */ }
         }
 
