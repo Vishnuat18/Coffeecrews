@@ -743,7 +743,235 @@
             width: 100%;
         }
 
+        /* Attachment wrapper for image/video with download overlay */
+        .msg-attachment-wrap {
+            position: relative;
+            display: inline-block;
+            max-width: 260px;
+            width: 100%;
+            margin-top: 6px;
+        }
+
+        .msg-attachment-wrap .msg-img,
+        .msg-attachment-wrap .msg-video {
+            margin-top: 0;
+            display: block;
+            width: 100%;
+        }
+
+        .msg-dl-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            text-decoration: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .msg-attachment-wrap:hover .msg-dl-btn,
+        .msg-dl-btn:focus {
+            opacity: 1;
+        }
+
+        /* Always show on touch/mobile */
+        @media (hover: none) {
+            .msg-dl-btn {
+                opacity: 1 !important;
+            }
+        }
+
+        /* Audio wrap: player + download side-by-side */
+        .msg-audio-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 6px;
+            max-width: 260px;
+        }
+
+        .msg-dl-audio {
+            position: static;
+            width: auto;
+            height: auto;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.6rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            align-self: flex-start;
+            transition: opacity 0.2s, background 0.2s;
+        }
+
+        .msg-dl-audio::after {
+            content: ' DOWNLOAD';
+            font-size: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .msg-dl-audio:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ─── MEDIA LIGHTBOX ──────────────────────────────────────────────── */
+        #media-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: lbFadeIn 0.18s ease;
+        }
+
+        @keyframes lbFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lb-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            cursor: zoom-out;
+        }
+
+        .lb-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 92vw;
+            max-height: 95vh;
+            background: rgba(15, 15, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .lb-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 10px;
+        }
+
+        .lb-filename {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            opacity: 0.5;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            color: #fff;
+        }
+
+        .lb-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .lb-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .lb-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .lb-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 12px;
+            max-height: calc(95vh - 60px);
+        }
+
+        .lb-content img {
+            max-width: 88vw;
+            max-height: 82vh;
+            border-radius: 10px;
+            object-fit: contain;
+            display: block;
+            user-select: none;
+        }
+
+        .lb-content video {
+            max-width: 88vw;
+            max-height: 82vh;
+            border-radius: 10px;
+            display: block;
+            outline: none;
+        }
+
+        /* Video thumbnail "Tap to play" hint */
+        .vp-video-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.55);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
         /* Edited label */
+
+
         .msg-edited-label {
             font-size: 0.5rem;
             opacity: 0.45;
@@ -1004,8 +1232,7 @@
             <div class="menu-item profile-trigger" onclick="switchTab('profile'); toggleMobileMenu();">
                 <i class="fas fa-user-circle"></i> PROFILE
             </div>
-            <div id="m-btn-analytics" class="menu-item" style="display:none;"
-                onclick="switchTab('analytics'); toggleMobileMenu();">
+            <div id="m-menu-analytics" class="menu-item" onclick="switchTab('analytics'); toggleMobileMenu();">
                 <i class="fas fa-chart-line"></i> ANALYTICS
             </div>
             <a href="../index.html" id="m-cockpit-btn" class="menu-item" style="display:none; text-decoration:none;">
@@ -2323,25 +2550,53 @@
             // Build attachment HTML
             let attachHTML = '';
             if (msg.image) {
-                attachHTML += `<img src="${msg.image}" class="msg-img" onclick="window.open(this.src)">`;
+                attachHTML += `
+                    <div class="msg-attachment-wrap">
+                        <img src="${msg.image}" class="msg-img" onclick="openLightbox('${msg.image.replace(/'/g, "\\'")}',' image')" style="cursor:zoom-in">
+                        <a class="msg-dl-btn" href="${msg.image}" download="image.jpg" title="Download image">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>`;
             }
             if (msg.audioUrl) {
-                attachHTML += `<audio class="msg-audio" controls src="${msg.audioUrl}"></audio>`;
+                attachHTML += `
+                    <div class="msg-audio-wrap">
+                        <audio class="msg-audio" controls src="${msg.audioUrl}"></audio>
+                        <a class="msg-dl-btn msg-dl-audio" href="${msg.audioUrl}" download="voice.webm" title="Download audio">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>`;
             }
             if (msg.fileUrl) {
                 const ftype = msg.fileType || '';
                 if (ftype.startsWith('video/')) {
-                    attachHTML += `<video class="msg-video" controls src="${msg.fileUrl}"></video>`;
+                    attachHTML += `
+                        <div class="msg-attachment-wrap">
+                            <video class="msg-video" src="${msg.fileUrl}" style="cursor:zoom-in" onclick="openLightbox('${(msg.fileUrl || '').replace(/'/g, "\\'").substring(0, 200)}','video','${(msg.fileName || 'video').replace(/'/g, "\\'")}')"></video>
+                            <div class="vp-video-hint"><i class="fas fa-play-circle"></i> Tap to play</div>
+                            <a class="msg-dl-btn" href="${msg.fileUrl}" download="${msg.fileName || 'video'}" title="Download video">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>`;
                 } else if (ftype.startsWith('image/')) {
-                    attachHTML += `<img src="${msg.fileUrl}" class="msg-img" onclick="window.open(this.src)">`;
+                    attachHTML += `
+                        <div class="msg-attachment-wrap">
+                            <img src="${msg.fileUrl}" class="msg-img" onclick="openLightbox('${(msg.fileUrl || '').replace(/'/g, "\\'").substring(0, 500)}','image','${(msg.fileName || 'image').replace(/'/g, "\\'")}')"
+                                style="cursor:zoom-in">
+                            <a class="msg-dl-btn" href="${msg.fileUrl}" download="${msg.fileName || 'image'}" title="Download image">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>`;
                 } else {
                     const icon = getFileIcon(ftype);
                     attachHTML += `<a class="msg-file-card" href="${msg.fileUrl}" download="${msg.fileName || 'file'}" target="_blank">
                         <i class="fas ${icon} file-icon"></i>
                         <span class="file-name">${msg.fileName || 'Download File'}</span>
+                        <i class="fas fa-download" style="margin-left:auto;opacity:0.6;font-size:0.75rem;"></i>
                     </a>`;
                 }
             }
+
 
             if (!msg.text && !attachHTML) return '';
 
@@ -3390,7 +3645,58 @@
             }
         }
 
-        // --- Export Functions to Global Scope ---
+        // ─── MEDIA LIGHTBOX ─────────────────────────────────────────────
+        function openLightbox(src, type = 'image', filename = '') {
+            const lb = document.getElementById('media-lightbox');
+            const content = document.getElementById('lb-content');
+            const dlBtn = document.getElementById('lb-dl-btn');
+            const fnEl = document.getElementById('lb-filename');
+
+            if (!lb || !content) return;
+
+            // Set filename label
+            fnEl.textContent = filename || (type === 'video' ? 'VIDEO' : 'IMAGE');
+
+            // Set download link
+            dlBtn.href = src;
+            dlBtn.download = filename || (type === 'video' ? 'video.mp4' : 'image.jpg');
+
+            // Inject media
+            if (type === 'video') {
+                content.innerHTML = `<video controls autoplay src="${src}" style="max-width:88vw;max-height:82vh;border-radius:10px;"></video>`;
+            } else {
+                content.innerHTML = `<img src="${src}" style="max-width:88vw;max-height:82vh;border-radius:10px;object-fit:contain;"
+                    ondblclick="closeLightbox()" title="Double-click to close">` ;
+            }
+
+            lb.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Escape to close
+            lb._escHandler = (e) => { if (e.key === 'Escape') closeLightbox(); };
+            document.addEventListener('keydown', lb._escHandler);
+        }
+
+        function closeLightbox() {
+            const lb = document.getElementById('media-lightbox');
+            const content = document.getElementById('lb-content');
+            if (!lb) return;
+
+            // Pause any playing video
+            const vid = content && content.querySelector('video');
+            if (vid) { vid.pause(); vid.src = ''; }
+
+            lb.style.display = 'none';
+            if (content) content.innerHTML = '';
+            document.body.style.overflow = '';
+
+            if (lb._escHandler) {
+                document.removeEventListener('keydown', lb._escHandler);
+                lb._escHandler = null;
+            }
+        }
+
+
         window.switchTab = switchTab;
         window.submitBankDetails = submitBankDetails;
         window.handleLogout = handleLogout;
@@ -3426,6 +3732,8 @@
         window.loadBankStatus = loadBankStatus;
         window.checkBankFormBroadcast = checkBankFormBroadcast;
         window.updateAttendanceBtn = updateAttendanceBtn;
+        window.openLightbox = openLightbox;
+        window.closeLightbox = closeLightbox;
 
     </script>
 
@@ -3451,11 +3759,7 @@
             <div class="nav-icon-circle"><i class="fas fa-calendar-check"></i></div>
             <span class="nav-label">LOG</span>
         </button>
-        <button class="mobile-nav-btn" id="m-btn-analytics" onclick="mobileSwitchTab('analytics')"
-            style="display:none;">
-            <div class="nav-icon-circle"><i class="fas fa-chart-bar"></i></div>
-            <span class="nav-label">DATA</span>
-        </button>
+        <!-- Analytics only shown in the 3-dot dropdown menu, not in bottom nav -->
         <button class="mobile-nav-btn" id="m-btn-security" onclick="mobileSwitchTab('security')">
             <div class="nav-icon-circle"><i class="fas fa-user-shield"></i></div>
             <span class="nav-label">SECURITY</span>
@@ -3609,6 +3913,31 @@
         })();
     </script>
 
+
+    <!-- ═══════════════════════════════════════
+         MEDIA LIGHTBOX MODAL
+    ═══════════════════════════════════════ -->
+    <div id="media-lightbox" style="display:none;">
+        <div class="lb-backdrop" onclick="closeLightbox()"></div>
+        <div class="lb-container">
+            <div class="lb-toolbar">
+                <span class="lb-filename" id="lb-filename"></span>
+                <div class="lb-actions">
+                    <a id="lb-dl-btn" class="lb-btn" download title="Download">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button class="lb-btn" onclick="closeLightbox()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="lb-content" id="lb-content">
+                <!-- img or video injected here -->
+            </div>
+        </div>
+    </div>
+
 </body>
+
 
 </html>
