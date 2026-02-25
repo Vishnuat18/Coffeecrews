@@ -887,6 +887,72 @@
             border-color: #ff003c !important;
             color: #ff003c !important;
             box-shadow: 0 0 15px rgba(255, 0, 60, 0.3) !important;
+            animation: pulse-rec 1s infinite;
+        }
+
+        /* Voice message preview bar */
+        .voice-preview-bar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 243, 255, 0.06);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .voice-preview-bar.active {
+            display: flex;
+        }
+
+        .voice-preview-bar audio {
+            flex: 1;
+            height: 36px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .voice-preview-bar .vp-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .voice-preview-bar .vp-send {
+            background: rgba(10, 255, 10, 0.15);
+            border: 1px solid #0aff0a;
+            color: #0aff0a;
+        }
+
+        .voice-preview-bar .vp-send:hover {
+            background: rgba(10, 255, 10, 0.3);
+        }
+
+        .voice-preview-bar .vp-cancel {
+            background: rgba(255, 0, 60, 0.12);
+            border: 1px solid rgba(255, 0, 60, 0.4);
+            color: #ff003c;
+        }
+
+        .voice-preview-bar .vp-cancel:hover {
+            background: rgba(255, 0, 60, 0.25);
+        }
+
+        .rec-timer {
+            font-family: 'Orbitron';
+            font-size: 0.65rem;
+            color: #ff003c;
+            min-width: 40px;
         }
 
         /* Reset chat button */
@@ -1080,10 +1146,29 @@
                     </div>
                     <div class="chat-container">
                         <div id="chat-feed-hq" class="chat-feed"></div>
-                        <div class="recording-indicator" id="rec-indicator-hq">
-                            <div class="rec-dot"></div> RECORDING...
-                        </div>
                         <div class="chat-controls">
+                            <!-- Voice Preview Bar -->
+                            <div id="voice-preview-bar-hq" class="voice-preview-bar" style="width:100%;">
+                                <audio id="voice-preview-audio-hq" controls></audio>
+                                <button class="vp-btn vp-send" onclick="sendVoiceMessage('hq')" title="Send">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                                <button class="vp-btn vp-cancel" onclick="cancelVoiceMessage('hq')" title="Cancel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="recording-indicator" id="rec-indicator-hq" style="width:100%;">
+                                <div class="rec-dot"></div> REC <span class="rec-timer" id="rec-timer-hq">0:00</span>
+                            </div>
+                            <div id="reply-bar-hq" class="reply-preview-container">
+                                <div class="reply-preview-content">
+                                    <div class="reply-preview-name" id="reply-name-hq">REPLYING TO...</div>
+                                    <div class="reply-preview-text" id="reply-text-hq">...</div>
+                                </div>
+                                <div class="reply-preview-close" onclick="cancelReply('hq')">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
                             <div class="emoji-picker-wrapper">
                                 <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('hq')"
                                     type="button">😊</button>
@@ -1094,20 +1179,10 @@
                                 <input type="file" id="media-upload-hq" style="display: none;"
                                     onchange="handleMediaUpload(event, 'hq')">
                             </label>
-                            <div id="reply-bar-hq" class="reply-preview-container">
-                                <div class="reply-preview-content">
-                                    <div class="reply-preview-name" id="reply-name-hq">REPLYING TO...</div>
-                                    <div class="reply-preview-text" id="reply-text-hq">...</div>
-                                </div>
-                                <div class="reply-preview-close" onclick="cancelReply('hq')">
-                                    <i class="fas fa-times"></i>
-                                </div>
-                            </div>
                             <input type="text" id="chat-input-hq" placeholder="Report to HQ..."
                                 onkeypress="if(event.key==='Enter') sendMsg('hq')">
-                            <button class="action-circle-btn" id="mic-btn-hq" title="Hold to record voice"
-                                onmousedown="startRecording('hq')" onmouseup="stopRecording('hq')"
-                                ontouchstart="startRecording('hq')" ontouchend="stopRecording('hq')">
+                            <button class="action-circle-btn" id="mic-btn-hq" title="Click to record voice"
+                                onclick="toggleRecording('hq')">
                                 <i class="fas fa-microphone"></i>
                             </button>
                             <button class="action-circle-btn" onclick="sendMsg('hq')"><i
@@ -1134,10 +1209,30 @@
                     </div>
                     <div class="chat-container">
                         <div id="chat-feed-global" class="chat-feed"></div>
-                        <div class="recording-indicator" id="rec-indicator-global">
-                            <div class="rec-dot"></div> RECORDING...
-                        </div>
                         <div class="chat-controls">
+                            <!-- Voice Preview Bar -->
+                            <div id="voice-preview-bar-global" class="voice-preview-bar" style="width:100%;">
+                                <audio id="voice-preview-audio-global" controls></audio>
+                                <button class="vp-btn vp-send" onclick="sendVoiceMessage('global')" title="Send">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                                <button class="vp-btn vp-cancel" onclick="cancelVoiceMessage('global')" title="Cancel">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="recording-indicator" id="rec-indicator-global" style="width:100%;">
+                                <div class="rec-dot"></div> REC <span class="rec-timer"
+                                    id="rec-timer-global">0:00</span>
+                            </div>
+                            <div id="reply-bar-global" class="reply-preview-container">
+                                <div class="reply-preview-content">
+                                    <div class="reply-preview-name" id="reply-name-global">REPLYING TO...</div>
+                                    <div class="reply-preview-text" id="reply-text-global">...</div>
+                                </div>
+                                <div class="reply-preview-close" onclick="cancelReply('global')">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
                             <div class="emoji-picker-wrapper">
                                 <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('global')"
                                     type="button">😊</button>
@@ -1148,20 +1243,10 @@
                                 <input type="file" id="media-upload-global" style="display: none;"
                                     onchange="handleMediaUpload(event, 'global')">
                             </label>
-                            <div id="reply-bar-global" class="reply-preview-container">
-                                <div class="reply-preview-content">
-                                    <div class="reply-preview-name" id="reply-name-global">REPLYING TO...</div>
-                                    <div class="reply-preview-text" id="reply-text-global">...</div>
-                                </div>
-                                <div class="reply-preview-close" onclick="cancelReply('global')">
-                                    <i class="fas fa-times"></i>
-                                </div>
-                            </div>
                             <input type="text" id="chat-input-global" placeholder="Transmit to all personnel..."
                                 onkeypress="if(event.key==='Enter') sendMsg('global')">
-                            <button class="action-circle-btn" id="mic-btn-global" title="Hold to record voice"
-                                onmousedown="startRecording('global')" onmouseup="stopRecording('global')"
-                                ontouchstart="startRecording('global')" ontouchend="stopRecording('global')">
+                            <button class="action-circle-btn" id="mic-btn-global" title="Click to record voice"
+                                onclick="toggleRecording('global')">
                                 <i class="fas fa-microphone"></i>
                             </button>
                             <button class="action-circle-btn" onclick="sendMsg('global')"><i
@@ -1194,10 +1279,31 @@
                         </div>
                         <div class="chat-container">
                             <div id="chat-feed-peer" class="chat-feed"></div>
-                            <div class="recording-indicator" id="rec-indicator-peer">
-                                <div class="rec-dot"></div> RECORDING...
-                            </div>
                             <div class="chat-controls">
+                                <!-- Voice Preview Bar -->
+                                <div id="voice-preview-bar-peer" class="voice-preview-bar" style="width:100%;">
+                                    <audio id="voice-preview-audio-peer" controls></audio>
+                                    <button class="vp-btn vp-send" onclick="sendVoiceMessage('peer')" title="Send">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    <button class="vp-btn vp-cancel" onclick="cancelVoiceMessage('peer')"
+                                        title="Cancel">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="recording-indicator" id="rec-indicator-peer" style="width:100%;">
+                                    <div class="rec-dot"></div> REC <span class="rec-timer"
+                                        id="rec-timer-peer">0:00</span>
+                                </div>
+                                <div id="reply-bar-peer" class="reply-preview-container">
+                                    <div class="reply-preview-content">
+                                        <div class="reply-preview-name" id="reply-name-peer">REPLYING TO...</div>
+                                        <div class="reply-preview-text" id="reply-text-peer">...</div>
+                                    </div>
+                                    <div class="reply-preview-close" onclick="cancelReply('peer')">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                </div>
                                 <div class="emoji-picker-wrapper">
                                     <button class="action-circle-btn" title="Emoji" onclick="toggleEmojiPanel('peer')"
                                         type="button">😊</button>
@@ -1208,20 +1314,10 @@
                                     <input type="file" id="media-upload-peer" style="display: none;"
                                         onchange="handleMediaUpload(event, 'peer')">
                                 </label>
-                                <div id="reply-bar-peer" class="reply-preview-container">
-                                    <div class="reply-preview-content">
-                                        <div class="reply-preview-name" id="reply-name-peer">REPLYING TO...</div>
-                                        <div class="reply-preview-text" id="reply-text-peer">...</div>
-                                    </div>
-                                    <div class="reply-preview-close" onclick="cancelReply('peer')">
-                                        <i class="fas fa-times"></i>
-                                    </div>
-                                </div>
                                 <input type="text" id="chat-input-peer" placeholder="Secure peer transmission..."
                                     onkeypress="if(event.key==='Enter') sendMsg('peer')">
-                                <button class="action-circle-btn" id="mic-btn-peer" title="Hold to record voice"
-                                    onmousedown="startRecording('peer')" onmouseup="stopRecording('peer')"
-                                    ontouchstart="startRecording('peer')" ontouchend="stopRecording('peer')">
+                                <button class="action-circle-btn" id="mic-btn-peer" title="Click to record voice"
+                                    onclick="toggleRecording('peer')">
                                     <i class="fas fa-microphone"></i>
                                 </button>
                                 <button class="action-circle-btn" onclick="sendMsg('peer')"><i
@@ -1918,68 +2014,149 @@
             }
         });
 
-        // ─── VOICE RECORDING ────────────────────────────────────────────────────
+        // ─── VOICE RECORDING (Click-to-Start / Click-to-Stop + Preview) ─────────
         let activeRecorder = null;
         let activeRecordChannel = null;
         let recordedChunks = [];
+        let recordedBlob = null; // holds blob for preview before send
+        let recTimerInterval = null;
+        let recSeconds = 0;
 
-        async function startRecording(channel) {
+        function _updateRecTimer(channel) {
+            recSeconds++;
+            const m = Math.floor(recSeconds / 60);
+            const s = String(recSeconds % 60).padStart(2, '0');
+            const el = document.getElementById(`rec-timer-${channel}`);
+            if (el) el.textContent = `${m}:${s}`;
+        }
+
+        async function toggleRecording(channel) {
+            // If already recording on THIS channel → stop and show preview
+            if (activeRecorder && activeRecordChannel === channel) {
+                _stopAndPreview(channel);
+                return;
+            }
+            // If recording on a different channel → ignore (shouldn't happen)
+            if (activeRecorder) return;
+
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const recorder = new MediaRecorder(stream);
+
+                // Prefer a widely-supported MIME type
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                    ? 'audio/webm;codecs=opus'
+                    : MediaRecorder.isTypeSupported('audio/webm')
+                        ? 'audio/webm'
+                        : 'audio/ogg;codecs=opus';
+
+                const recorder = new MediaRecorder(stream, { mimeType });
                 activeRecorder = recorder;
                 activeRecordChannel = channel;
                 recordedChunks = [];
-                recorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-                recorder.start();
-                document.getElementById(`mic-btn-${channel}`).classList.add('recording');
-                document.getElementById(`rec-indicator-${channel}`).classList.add('active');
+                recSeconds = 0;
+
+                recorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                recorder.start(250); // collect chunks every 250ms
+
+                // UI: mic button → red / show rec indicator
+                const micBtn = document.getElementById(`mic-btn-${channel}`);
+                if (micBtn) { micBtn.classList.add('recording'); micBtn.title = 'Click to stop'; }
+                const ind = document.getElementById(`rec-indicator-${channel}`);
+                if (ind) ind.classList.add('active');
+
+                // Start timer
+                const timerEl = document.getElementById(`rec-timer-${channel}`);
+                if (timerEl) timerEl.textContent = '0:00';
+                recTimerInterval = setInterval(() => _updateRecTimer(channel), 1000);
+
             } catch (e) {
+                console.error('Mic error:', e);
                 showToast('Microphone access denied. Please allow mic permission.', 'error');
             }
         }
 
-        async function stopRecording(channel) {
+        function _stopAndPreview(channel) {
             if (!activeRecorder || activeRecorder.state === 'inactive') return;
-            activeRecorder.stop();
-            document.getElementById(`mic-btn-${channel}`).classList.remove('recording');
-            document.getElementById(`rec-indicator-${channel}`).classList.remove('active');
-            activeRecorder.onstop = async () => {
-                const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+
+            clearInterval(recTimerInterval);
+
+            activeRecorder.onstop = () => {
+                const mimeType = activeRecorder.mimeType || 'audio/webm';
+                recordedBlob = new Blob(recordedChunks, { type: mimeType });
+
+                // Stop mic stream
                 activeRecorder.stream.getTracks().forEach(t => t.stop());
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    const audioBase64 = ev.target.result;
-                    const ch = activeRecordChannel;
-                    if (ch === 'hq') {
-                        const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
-                        const rId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
-                        await window.DataManager.sendMessage(sId, rId, null, null, { audioUrl: audioBase64 });
-                    } else if (ch === 'global') {
-                        await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, { audioUrl: audioBase64 });
-                    } else if (ch === 'peer') {
-                        await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, { audioUrl: audioBase64 });
-                    } else if (ch === 'status') {
-                        const statusUpdate = {
-                            id: Date.now(),
-                            senderId: activeMember.id,
-                            senderName: activeMember.name,
-                            senderImage: activeMember.image,
-                            text: '',
-                            audioUrl: audioBase64,
-                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                            date: new Date().toLocaleDateString(),
-                            timestamp: Date.now(),
-                            seenBy: { [loggedInUser.id]: Date.now() }
-                        };
-                        await firebase.database().ref('chats/statusFeed').push(statusUpdate);
-                    }
-                    showToast('Voice message sent!', 'success', 2500);
-                };
-                reader.readAsDataURL(blob);
+
+                // Show preview bar
+                const audioEl = document.getElementById(`voice-preview-audio-${channel}`);
+                if (audioEl) {
+                    audioEl.src = URL.createObjectURL(recordedBlob);
+                    audioEl.load();
+                }
+                const previewBar = document.getElementById(`voice-preview-bar-${channel}`);
+                if (previewBar) previewBar.classList.add('active');
+
+                // Reset UI (mic btn, indicator)
+                const micBtn = document.getElementById(`mic-btn-${channel}`);
+                if (micBtn) { micBtn.classList.remove('recording'); micBtn.title = 'Click to record voice'; }
+                const ind = document.getElementById(`rec-indicator-${channel}`);
+                if (ind) ind.classList.remove('active');
+
                 activeRecorder = null;
             };
+
+            activeRecorder.stop();
         }
+
+        async function sendVoiceMessage(channel) {
+            if (!recordedBlob) return;
+
+            const btn = document.querySelector(`#voice-preview-bar-${channel} .vp-send`);
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const audioBase64 = ev.target.result;
+                const extra = { audioUrl: audioBase64, replyTo: activeReplyTo[channel] };
+                try {
+                    if (channel === 'hq') {
+                        const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
+                        const rId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
+                        await window.DataManager.sendMessage(sId, rId, null, null, extra);
+                    } else if (channel === 'global') {
+                        await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, extra);
+                    } else if (channel === 'peer') {
+                        await window.DataManager.sendMessage(activeMember.id, activePeerId, null, null, extra);
+                    }
+                    showToast('Voice message sent! 🎤', 'success', 2500);
+                    cancelVoiceMessage(channel);
+                    cancelReply(channel);
+                } catch (err) {
+                    console.error('Voice send error:', err);
+                    showToast('Failed to send. Try again.', 'error');
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i>'; }
+                }
+            };
+            reader.readAsDataURL(recordedBlob);
+        }
+
+        function cancelVoiceMessage(channel) {
+            recordedBlob = null;
+            recordedChunks = [];
+            const previewBar = document.getElementById(`voice-preview-bar-${channel}`);
+            if (previewBar) previewBar.classList.remove('active');
+            const audioEl = document.getElementById(`voice-preview-audio-${channel}`);
+            if (audioEl) { audioEl.pause(); audioEl.src = ''; }
+            const btn = document.querySelector(`#voice-preview-bar-${channel} .vp-send`);
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i>'; }
+        }
+
+        // Legacy stubs (buttons removed from HTML but kept for safety)
+        async function startRecording(channel) { await toggleRecording(channel); }
+        async function stopRecording(channel) { _stopAndPreview(channel); }
 
         // ─── RESIZE IMAGE ────────────────────────────────────────────────────────
         function resizeImage(base64Str, maxWidth = 600, maxHeight = 600) {
@@ -2022,7 +2199,7 @@
             if (_unsubStatus) { _unsubStatus(); _unsubStatus = null; }
         }
 
-        // ─── CHAT CHANNEL SWITCHING ──────────────────────────────────────────────
+        // ─── CHAT CHANNEL SWITCHING ────────────────────────────────────────────────
         async function switchChatChannel(channel) {
             currentChatChannel = channel;
             document.querySelectorAll('.sub-nav-btn').forEach(btn => {
@@ -2036,9 +2213,12 @@
             document.querySelectorAll('.chat-channel').forEach(ch => ch.classList.remove('active'));
             document.getElementById(`chat-channel-${channel}`).classList.add('active');
 
-            if (channel === 'hq') { /* Global sub handles feed */ }
-            else if (channel === 'global') { /* Global sub handles feed */ }
-            else if (channel === 'crew') {
+            if (channel === 'hq') {
+                // HQ subscription is always live — just ensure feed is visible
+            } else if (channel === 'global') {
+                // Immediately load all existing global messages on tab open
+                await renderGlobalChat();
+            } else if (channel === 'crew') {
                 if (activePeerId) subscribePeerChat(activePeerId);
                 else await renderCrewList();
             }
@@ -2053,9 +2233,28 @@
 
         // Global subscriptions handle these feeds now to avoid redundancy.
         function subscribeHQChat() { }
-        async function renderHQChat() { }
         function subscribeGlobalChat() { }
-        async function renderGlobalChat() { }
+
+        // Fetches and renders all global messages immediately (called on tab switch)
+        async function renderGlobalChat() {
+            const feed = document.getElementById('chat-feed-global');
+            if (!feed || !loggedInUser) return;
+            try {
+                const snap = await firebase.database().ref('chats/global').orderByChild('timestamp').once('value');
+                const data = snap.val() || {};
+                const messages = Object.entries(data)
+                    .map(([k, v]) => ({ ...v, _key: k }))
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                const myId = activeMember ? activeMember.id : loggedInUser.id;
+                feed.innerHTML = messages
+                    .map(msg => renderMessageHTML(msg, myId, {}, 'chats/global'))
+                    .join('');
+                smartScrollToBottom(feed);
+                window.DataManager.markAsSeen('global', null, myId);
+            } catch (err) {
+                console.error('renderGlobalChat error:', err);
+            }
+        }
 
         async function renderCrewList() {
             const container = document.getElementById('crew-list-container');
@@ -3082,19 +3281,22 @@
                         ${isToday ? '<div style="width:4px;height:4px;background:var(--accent-primary);border-radius:50%;margin-top:2px;"></div>' : ''}
                     </div>`;
             }
+            // Update button state after grid renders
+            updateAttendanceBtn();
         }
 
         async function markTodayAttendance() {
             const now = new Date();
             const hour = now.getHours();
-            const minute = now.getMinutes();
 
-            // Strict Window: 08:00 - 10:30
-            const isBefore8 = hour < 8;
-            const isAfter1030 = hour > 10 || (hour === 10 && minute > 30);
+            // Strict Window: 08:00 – 09:59 (must be before 10:00 AM)
+            const isInWindow = hour === 8 || hour === 9;
 
-            if (isBefore8 || isAfter1030) {
-                await tacticalAlert("MISSION LOG ACCESS DENIED. Attendance marking is strictly permitted between 08:00 and 10:30 only.", "OUTSIDE OPERATIONAL WINDOW");
+            if (!isInWindow) {
+                await tacticalAlert(
+                    "MISSION LOG ACCESS DENIED.\nAttendance marking is strictly permitted between 08:00 and 10:00 only.",
+                    "OUTSIDE OPERATIONAL WINDOW"
+                );
                 return;
             }
 
@@ -3102,8 +3304,38 @@
                 if (await window.DataManager.markAttendance(activeMember.id)) {
                     activeMember = await window.DataManager.getMemberById(activeMember.id);
                     renderCalendar();
-                    showToast("ATTENDANCE MARKED SUCCESSFULLY", "success");
+                    updateAttendanceBtn();
+                    showToast("ATTENDANCE MARKED SUCCESSFULLY ✅", "success");
                 }
+            }
+        }
+
+        // Updates the attendance button state based on current time and existing mark
+        function updateAttendanceBtn() {
+            const btn = document.getElementById('btn-attendance');
+            if (!btn) return;
+
+            const now = new Date();
+            const hour = now.getHours();
+            const alreadyMarked = activeMember && activeMember.attendance &&
+                activeMember.attendance.includes(now.toISOString().split('T')[0]);
+            const inWindow = hour === 8 || hour === 9;
+
+            if (alreadyMarked) {
+                btn.textContent = '✅ ATTENDANCE MARKED';
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'default';
+            } else if (!inWindow) {
+                btn.innerHTML = '⏰ CLOCK-IN WINDOW: 08:00 – 10:00';
+                btn.disabled = true;
+                btn.style.opacity = '0.4';
+                btn.style.cursor = 'not-allowed';
+            } else {
+                btn.innerHTML = '✓ MARK TODAY PRESENT';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
             }
         }
 
@@ -3177,6 +3409,9 @@
         window.toggleEmojiPanel = toggleEmojiPanel;
         window.startRecording = startRecording;
         window.stopRecording = stopRecording;
+        window.toggleRecording = toggleRecording;
+        window.sendVoiceMessage = sendVoiceMessage;
+        window.cancelVoiceMessage = cancelVoiceMessage;
         window.handleMediaUpload = handleMediaUpload;
         window.resetChat = resetChat;
         window.clearChat = clearChat;
@@ -3190,6 +3425,7 @@
         window._ccSwitchTab = switchTab; // Link for mobile nav
         window.loadBankStatus = loadBankStatus;
         window.checkBankFormBroadcast = checkBankFormBroadcast;
+        window.updateAttendanceBtn = updateAttendanceBtn;
 
     </script>
 

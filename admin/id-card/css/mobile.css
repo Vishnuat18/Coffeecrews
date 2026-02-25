@@ -141,20 +141,25 @@
         margin: 0 !important;
         max-width: 100% !important;
         gap: 0 !important;
-        /* Offset for fixed header */
-        padding-top: var(--mobile-header-h) !important;
+        /* stack: fixed header + sticky profile + scrollable main */
+        padding-top: calc(var(--mobile-header-h) + var(--mobile-profile-h)) !important;
         height: 100dvh !important;
         height: 100vh !important;
         overflow: hidden !important;
     }
 
-    /* ─── 4. PROFILE SIDEBAR → COMPACT HORIZONTAL STRIP ─── */
+    /* ─── 4. PROFILE SIDEBAR → fixed horizontal strip below header ─── */
     .profile-sidebar {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         flex-shrink: 0 !important;
+        position: fixed !important;
+        top: var(--mobile-header-h) !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1090 !important;
     }
 
     .identity-card {
@@ -241,35 +246,37 @@
         display: block !important;
     }
 
-    /* ─── 6. MAIN AREA — scrollable container for each section ─── */
+    /* ─── 6. MAIN AREA — holds absolutely-positioned sections ─── */
     .dashboard-main {
         flex: 1 !important;
         width: 100% !important;
         padding: 0 !important;
         overflow: hidden !important;
         position: relative !important;
-        /* Leave room for bottom nav */
-        padding-bottom: var(--mobile-nav-h) !important;
-        display: flex !important;
-        flex-direction: column !important;
+        /* fills the space between profile strip and bottom nav */
+        height: calc(100dvh - var(--mobile-header-h) - var(--mobile-profile-h) - var(--mobile-nav-h)) !important;
+        display: block !important;
     }
 
-    /* ─── 7. WORKSPACE SECTIONS — each is a full-height scrollable panel ─── */
+    /* ─── 7. WORKSPACE SECTIONS — each fills the main area ─── */
     .workspace-section {
         display: none !important;
         flex-direction: column !important;
         position: absolute !important;
-        inset: 0 !important;
-        overflow-y: auto !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        overflow-y: scroll !important;
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
-        padding: 14px 14px calc(var(--mobile-nav-h) + 10px) !important;
+        /* padding-bottom leaves gap so last card clears the nav */
+        padding: 14px 14px 24px !important;
         background: #05050a !important;
-        /* Force opaque background to prevent "merges" */
-        /* scrollbar styling */
         scrollbar-width: thin !important;
         scrollbar-color: rgba(0, 243, 255, 0.2) transparent !important;
         z-index: 1 !important;
+        box-sizing: border-box !important;
     }
 
     .workspace-section.active {
@@ -396,13 +403,13 @@
         gap: 12px !important;
     }
 
-    /* ── SECTION: CHATS ── */
+    /* ── SECTION: CHATS — no scroll on section; chat-feed scrolls internally ── */
     #section-chats {
-        padding: 10px 10px calc(var(--mobile-nav-h) + 10px) !important;
+        padding: 10px 10px 10px !important;
         gap: 0 !important;
         flex-direction: column !important;
-        height: 100% !important;
         overflow: hidden !important;
+        /* section does NOT scroll */
     }
 
     /* 3-button sub-nav (HQ | GLOBAL | CREW) */
@@ -433,10 +440,20 @@
         font-size: 0.9rem !important;
     }
 
-    /* Chat panels fill remaining height */
+    /* Chat channel panels — each fills remaining height */
+    .chat-channel {
+        flex: 1 !important;
+        min-height: 0 !important;
+        display: none !important;
+        flex-direction: column !important;
+    }
+
+    .chat-channel.active {
+        display: flex !important;
+    }
+
     .chat-container {
         flex: 1 !important;
-        height: 100% !important;
         min-height: 0 !important;
         border-radius: 14px !important;
         overflow: hidden !important;
@@ -445,12 +462,15 @@
         position: relative !important;
     }
 
+    /* ONLY the feed div scrolls — input bar stays pinned */
     .chat-feed {
         flex: 1 !important;
+        min-height: 0 !important;
         padding: 12px !important;
         gap: 8px !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
     }
 
     /* Chat input bar */
@@ -538,13 +558,12 @@
         padding: 7px 12px !important;
     }
 
-    /* ── SECTION: STATUS ── */
+    /* ── SECTION: STATUS — sub-nav fixed, panels scroll ── */
     #section-status {
         gap: 0 !important;
         flex-direction: column !important;
-        height: 100% !important;
-        padding: 14px 14px calc(var(--mobile-nav-h) + 10px) !important;
         overflow: hidden !important;
+        padding: 14px 14px 14px !important;
     }
 
     /* Status Sub-Nav */
