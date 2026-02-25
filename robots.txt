@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /tmp/
+Sitemap: https://coffeecrews.co.in/sitemap.xml

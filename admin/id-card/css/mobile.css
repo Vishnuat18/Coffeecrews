@@ -452,6 +452,15 @@
 
     .chat-channel.active {
         display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Fixed containment for peer chat specifically */
+    #active-peer-chat.active {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        min-height: 0 !important;
     }
 
     .chat-container {
@@ -480,6 +489,7 @@
     .chat-controls {
         gap: 8px !important;
         padding: 10px 12px !important;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
         background: rgba(10, 10, 15, 0.98) !important;
         backdrop-filter: blur(10px) !important;
         border-top: 1px solid rgba(0, 243, 255, 0.08) !important;
@@ -512,15 +522,23 @@
         padding: 8px 12px !important;
         margin: 0 !important;
         flex-shrink: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
     }
 
     .chat-header-actions {
         gap: 5px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
     }
 
     .btn-header-action {
         padding: 5px 8px !important;
         font-size: 0.48rem !important;
+        white-space: nowrap !important;
     }
 
     /* Crew list items */
@@ -842,6 +860,10 @@
         margin-bottom: 2px !important;
     }
 
+    #section-security input {
+        box-sizing: border-box !important;
+    }
+
     .security-info-row .sec-row-value {
         font-size: 0.82rem !important;
         color: #fff !important;
@@ -928,6 +950,12 @@
     .workspace-section>* {
         max-width: 100% !important;
         box-sizing: border-box !important;
+    }
+
+    /* Fixed Banner Positioning for Mobile */
+    #bank-form-banner {
+        top: var(--mobile-header-h) !important;
+        height: auto !important;
     }
 }
 

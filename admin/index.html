@@ -105,6 +105,42 @@
             text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile specific nav styles */
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+                padding: 20px 0;
+                border-top: 1px solid var(--glass-border);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-link {
+                width: 100%;
+                padding: 10px 0;
+                font-size: 0.8rem;
+            }
+        }
+
         /* Hero / Cockpit Header */
         .admin-container {
             max-width: 1400px;
@@ -372,17 +408,19 @@
             }
 
             .top-nav {
-                justify-content: center;
-            }
-
-            .nav-links {
-                justify-content: center;
+                justify-content: space-between;
+                padding: 1rem 5%;
             }
 
             .stats-bar {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .member-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             }
         }
+
 
         @media (max-width: 480px) {
             .stats-bar {
@@ -397,21 +435,25 @@
                 grid-template-columns: 1fr;
             }
 
-            /* Table Refinement for Small Screens */
-            .table-container {
-                border-radius: 10px;
-            }
-
-            .table th,
-            .table td {
-                padding: 0.75rem 0.5rem;
+            .nav-brand {
                 font-size: 0.8rem;
             }
+        }
 
-            .btn-action {
-                padding: 8px 15px;
-                font-size: 0.6rem;
-            }
+        /* Table Refinement for Small Screens */
+        .table-container {
+            border-radius: 10px;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-action {
+            padding: 8px 15px;
+            font-size: 0.6rem;
         }
 
         /* Animations */
@@ -439,7 +481,12 @@
             <img src="/assets/favicon.png" alt="Logo" style="height: 30px;">
             COFFEECREWS // HQ
         </a>
-        <div class="nav-links">
+
+        <button class="mobile-toggle" onclick="toggleNav()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="nav-links" id="navLinks">
             <a href="/index.html" class="nav-link"><i class="fas fa-home"></i> MAIN SITE</a>
             <a href="/admin/index.html" class="nav-link active"><i class="fas fa-th-large"></i> COCKPIT</a>
             <a href="/admin/id-card/reports.html" class="nav-link"><i class="fas fa-tower-broadcast"></i> BROADCAST</a>
@@ -947,6 +994,11 @@
         async function openGlobalConfig() {
             const members = await DataManager.getAllMembers();
             await tacticalAlert(`Global Configuration: ${members.length} personnel records active.`, "SYSTEM DATA");
+        }
+
+        function toggleNav() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
         }
     </script>
 </body>
