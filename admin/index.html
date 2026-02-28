@@ -430,6 +430,172 @@
         .animate-up {
             animation: slideUp 0.8s ease forwards;
         }
+
+        /* Admin Group Chat */
+        .admin-chat-wrap {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .admin-chat-header {
+            padding: 14px 20px;
+            background: rgba(0, 243, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .admin-chat-header h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            margin: 0;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-chat-header .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #0aff0a;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #0aff0a;
+            animation: blink 1.2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .admin-chat-feed {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .admin-chat-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .admin-chat-msg.self {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .admin-chat-msg.other {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .admin-chat-bubble {
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+
+        .admin-chat-msg.self .admin-chat-bubble {
+            background: rgba(0, 243, 255, 0.15);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #fff;
+        }
+
+        .admin-chat-msg.other .admin-chat-bubble {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ccc;
+        }
+
+        .admin-chat-meta {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.5rem;
+            opacity: 0.4;
+            margin-bottom: 4px;
+        }
+
+        .admin-chat-controls {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(0, 243, 255, 0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .admin-chat-controls input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            color: #fff;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .admin-chat-controls input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.15);
+        }
+
+        .admin-chat-send-btn {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .admin-chat-send-btn:hover {
+            background: var(--accent-primary);
+            color: #000;
+        }
+
+        .admin-chat-clear-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            color: rgba(255, 0, 60, 0.7);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .admin-chat-clear-btn:hover {
+            border-color: #ff003c;
+            color: #ff003c;
+        }
     </style>
 </head>
 
@@ -468,6 +634,37 @@
                 </div>
             </div>
         </header>
+
+        <!-- Admin Command Chat (admin-only) -->
+        <section id="admin-group-chat-section" class="animate-up mb-5" style="animation-delay: 0.07s; display: none;">
+            <div>
+                <span class="section-label">Secure Channel</span>
+                <h2 class="section-title" style="margin-bottom: 1rem;">Admin Command Chat</h2>
+            </div>
+            <div class="admin-chat-wrap">
+                <div class="admin-chat-header">
+                    <h4>
+                        <div class="live-dot"></div>
+                        <i class="fas fa-shield-halved"></i> ADMIN PRIVATE CHANNEL
+                    </h4>
+                    <button class="admin-chat-clear-btn" onclick="clearAdminGroupChat()">
+                        <i class="fas fa-trash-can"></i> CLEAR CHAT
+                    </button>
+                </div>
+                <div class="admin-chat-feed" id="admin-chat-feed">
+                    <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;">
+                        <i class="fas fa-spinner fa-spin"></i> Connecting...
+                    </div>
+                </div>
+                <div class="admin-chat-controls">
+                    <input type="text" id="admin-chat-input" placeholder="Send a secure admin message..."
+                        onkeypress="if(event.key==='Enter') sendAdminGroupMsg()">
+                    <button class="admin-chat-send-btn" onclick="sendAdminGroupMsg()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
         <!-- Commander Profile Section -->
         <section id="commander-profile" class="animate-up mb-5" style="animation-delay: 0.05s; display: none;">
@@ -678,7 +875,7 @@
 
     <!-- Path updated to relative from admin/ -->
     <script src="/admin/js/auth-guard.js?v=3.2"></script>
-    <script src="/admin/id-card/js/data.js?v=3.2"></script>
+    <script src="/admin/id-card/js/data.js?v=3.3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // Role Check (Auth check is handled by auth-guard.js)
@@ -698,6 +895,17 @@
                 workspaceLink.innerHTML = '<i class="fas fa-id-card"></i> MY WORKSPACE';
                 navLinks.insertBefore(workspaceLink, navLinks.firstChild);
             }
+
+            // Show admin group chat for admin users
+            const adminChatSection = document.getElementById('admin-group-chat-section');
+            if (adminChatSection) {
+                adminChatSection.style.display = 'block';
+                // Subscribe to real-time admin chat
+                DataManager.subscribeToAdminChat((messages) => {
+                    renderAdminChat(messages, session.id);
+                });
+            }
+
 
             // --- REAL-TIME REACTIVE SUBSCRIPTIONS ---
 
@@ -947,6 +1155,73 @@
         async function openGlobalConfig() {
             const members = await DataManager.getAllMembers();
             await tacticalAlert(`Global Configuration: ${members.length} personnel records active.`, "SYSTEM DATA");
+        }
+
+        // ─── ADMIN GROUP CHAT FUNCTIONS ───────────────────────────────────────
+        function renderAdminChat(messages, myId) {
+            const feed = document.getElementById('admin-chat-feed');
+            if (!feed) return;
+
+            if (!messages || messages.length === 0) {
+                feed.innerHTML = '<div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:30px;font-family:\'Orbitron\',sans-serif;">NO TRANSMISSIONS YET. CHANNEL SECURED.</div>';
+                return;
+            }
+
+            feed.innerHTML = messages.map(msg => {
+                const isSelf = msg.senderId === myId;
+                return `
+                <div class="admin-chat-msg ${isSelf ? 'self' : 'other'}">
+                    <div class="admin-chat-meta">${msg.senderName || msg.senderId} // ${msg.time || ''}</div>
+                    <div class="admin-chat-bubble">
+                        ${msg.text ? msg.text : ''}
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Scroll to bottom
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        async function sendAdminGroupMsg() {
+            const input = document.getElementById('admin-chat-input');
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+
+            const session = JSON.parse(sessionStorage.getItem('cc_session') || '{}');
+            if (!session.id) return;
+
+            input.value = '';
+            input.disabled = true;
+
+            try {
+                const member = await DataManager.getMemberById(session.id);
+                const senderName = member ? member.name : (session.id || 'Admin');
+                const senderImage = member ? (member.image || '/assets/favicon.png') : '/assets/favicon.png';
+
+                await DataManager.sendAdminGroupMessage(session.id, senderName, senderImage, text);
+
+                // Notify other admins via email
+                if (window.EmailNotifier) {
+                    window.EmailNotifier.notifyAdmins({
+                        subject: `🛡️ Admin Chat: ${senderName}`,
+                        message: `New message in Admin Command Chat:\n\n"${text}"`,
+                        senderName
+                    }).catch(() => { });
+                }
+            } catch (e) {
+                console.error('Admin chat send error:', e);
+                showToast('Failed to send message.', 'error');
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        async function clearAdminGroupChat() {
+            if (!await tacticalConfirm('Clear all Admin Command Chat messages? This cannot be undone.', 'CLEAR ADMIN CHANNEL')) return;
+            await DataManager.clearAdminChat();
+            showToast('Admin channel cleared.', 'success');
         }
     </script>
 </body>

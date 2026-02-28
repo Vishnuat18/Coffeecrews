@@ -1015,6 +1015,79 @@ class DataManager {
         ref.on('value', listener);
         return () => ref.off('value', listener);
     }
+
+    // ─── ADMIN GROUP CHAT ────────────────────────────────────────────────────
+    static async sendAdminGroupMessage(senderId, senderName, senderImage, text, extra = {}) {
+        const message = {
+            id: Date.now(),
+            senderId,
+            senderName,
+            senderImage: senderImage || '/assets/favicon.png',
+            text: text || null,
+            image: extra.image || null,
+            audioUrl: extra.audioUrl || null,
+            fileUrl: extra.fileUrl || null,
+            fileType: extra.fileType || null,
+            fileName: extra.fileName || null,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: Date.now(),
+            replyTo: extra.replyTo || null,
+            seenBy: { [senderId]: Date.now() }
+        };
+        await db.ref('chats/admin').push(message);
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+        return message;
+    }
+
+    static subscribeToAdminChat(callback) {
+        const ref = db.ref('chats/admin');
+        const listener = (snapshot) => {
+            const data = snapshot.val();
+            if (!data) { callback([]); return; }
+            const msgs = Object.entries(data).map(([key, val]) => ({ ...val, _key: key }));
+            callback(msgs);
+        };
+        ref.on('value', listener);
+        return () => ref.off('value', listener);
+    }
+
+    static async clearAdminChat() {
+        await db.ref('chats/admin').remove();
+        window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+    }
+
+    // ─── CC LIVE FEED ───────────────────────────────────────────────────────
+    // Push a message/directive to the shared live feed (Home tab)
+    static async pushToLiveFeed(entry) {
+        const item = {
+            id: Date.now(),
+            senderId: entry.senderId || 'HQ',
+            senderName: entry.senderName || 'HQ COMMAND',
+            text: entry.text || null,
+            image: entry.image || null,
+            audioUrl: entry.audioUrl || null,
+            type: entry.type || 'directive', // 'directive' | 'broadcast' | 'status'
+            recipientId: entry.recipientId || null, // null = global
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: Date.now()
+        };
+        await db.ref('chats/liveFeed').push(item);
+        return item;
+    }
+
+    static subscribeToLiveFeed(callback) {
+        const ref = db.ref('chats/liveFeed').orderByChild('timestamp').limitToLast(50);
+        const listener = (snapshot) => {
+            const data = snapshot.val();
+            if (!data) { callback([]); return; }
+            const items = Object.entries(data)
+                .map(([key, val]) => ({ ...val, _key: key }))
+                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            callback(items);
+        };
+        ref.on('value', listener);
+        return () => ref.off('value', listener);
+    }
     static async syncPermanentCodes() {
         try {
             const snapshot = await db.ref('members').once('value');
@@ -1057,3 +1130,86 @@ DataManager.syncPermanentCodes();
 
 // Export for use in other scripts
 window.DataManager = DataManager;
+
+// ─── EMAIL NOTIFIER (Web3Forms — free, no EmailJS) ────────────────────────────
+// Register at https://web3forms.com to get your ACCESS KEY
+// The key is tied to your email — all notifications will be sent from/to it.
+const WEB3FORMS_ACCESS_KEY = '9488a5c6-f018-425d-887d-89b55d406a38';
+
+class EmailNotifier {
+    // Send an email notification to a single recipient email
+    static async sendEmail({ toEmail, toName, subject, message }) {
+        if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY === 'YOUR_WEB3FORMS_ACCESS_KEY_HERE') {
+            console.warn('[EmailNotifier] Web3Forms access key not set. Skipping email.');
+            return false;
+        }
+        try {
+            const res = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    to: toEmail,
+                    name: toName || 'CoffeeCrews Member',
+                    subject: subject || '📡 CoffeeCrews HQ Notification',
+                    message: message
+                })
+            });
+            const data = await res.json();
+            return data.success === true;
+        } catch (e) {
+            console.error('[EmailNotifier] Email failed:', e);
+            return false;
+        }
+    }
+
+    // Notify ALL crew members with an email on file
+    static async notifyAll({ subject, message, senderName }) {
+        const members = await DataManager.getAllMembers();
+        const emailMembers = members.filter(m => m.contact?.email && m.contact.email !== '#');
+        const body = `${message}\n\n— Sent by: ${senderName || 'HQ Command'}\nCoffeeCrews Platform`;
+        const promises = emailMembers.map(m => this.sendEmail({
+            toEmail: m.contact.email,
+            toName: m.name,
+            subject,
+            message: `Hi ${m.name},\n\n${body}`
+        }));
+        const results = await Promise.allSettled(promises);
+        const sent = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+        console.log(`[EmailNotifier] Sent to ${sent}/${emailMembers.length} members`);
+        return sent;
+    }
+
+    // Notify a specific member by their member ID
+    static async notifyMember(memberId, { subject, message, senderName }) {
+        const member = await DataManager.getMemberById(memberId);
+        if (!member || !member.contact?.email || member.contact.email === '#') return false;
+        return this.sendEmail({
+            toEmail: member.contact.email,
+            toName: member.name,
+            subject,
+            message: `Hi ${member.name},\n\n${message}\n\n— ${senderName || 'HQ Command'}\nCoffeeCrews Platform`
+        });
+    }
+
+    // Notify all admins only
+    static async notifyAdmins({ subject, message, senderName }) {
+        const members = await DataManager.getAllMembers();
+        const adminIds = ['vishnu', 'prasanna', 'dharani', 'kiran'];
+        const admins = members.filter(m =>
+            (m.access === 'admin' || adminIds.includes(m.id)) &&
+            m.contact?.email && m.contact.email !== '#'
+        );
+        const body = `${message}\n\n— ${senderName || 'Admin Group'}\nCoffeeCrews Admin Channel`;
+        const promises = admins.map(m => this.sendEmail({
+            toEmail: m.contact.email,
+            toName: m.name,
+            subject,
+            message: `Hi ${m.name},\n\n${body}`
+        }));
+        const results = await Promise.allSettled(promises);
+        return results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+    }
+}
+
+window.EmailNotifier = EmailNotifier;

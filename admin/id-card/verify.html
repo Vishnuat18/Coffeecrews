@@ -1341,16 +1341,16 @@
             <div id="section-chats" class="workspace-section">
                 <!-- Sub-nav for channels -->
                 <div class="chat-sub-nav">
-                    <button id="btn-hq" class="sub-nav-btn active" onclick="switchChatChannel('hq')">
-                        <i class="fas fa-tower-broadcast"></i> HQ DIRECT
+                    <button id="btn-crew" class="sub-nav-btn active" onclick="switchChatChannel('crew')">
+                        <i class="fas fa-users"></i> CREW
                         <div class="nav-unread-dot"></div>
                     </button>
                     <button id="btn-global" class="sub-nav-btn" onclick="switchChatChannel('global')">
                         <i class="fas fa-globe"></i> GLOBAL
                         <div class="nav-unread-dot"></div>
                     </button>
-                    <button id="btn-crew" class="sub-nav-btn" onclick="switchChatChannel('crew')">
-                        <i class="fas fa-users"></i> CREW
+                    <button id="btn-hq" class="sub-nav-btn" onclick="switchChatChannel('hq')">
+                        <i class="fas fa-tower-broadcast"></i> HQ DIRECT
                         <div class="nav-unread-dot"></div>
                     </button>
                 </div>
@@ -1629,10 +1629,10 @@
                 <!-- Status Sub-Nav -->
                 <div class="status-sub-nav" id="status-sub-nav">
                     <button class="status-sub-btn active" id="sbtn-post" onclick="switchStatusPanel('post')">
-                        <i class="fas fa-file-signature"></i> POST STATUS
+                        <i class="fas fa-pen-to-square"></i> UPDATE MY STATUS
                     </button>
                     <button class="status-sub-btn" id="sbtn-feed" onclick="switchStatusPanel('feed')">
-                        <i class="fas fa-stream"></i> STATUS FEED
+                        <i class="fas fa-stream"></i> STATUS
                     </button>
                 </div>
 
@@ -1946,7 +1946,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script src="/admin/js/auth-guard.js?v=3.2"></script>
-    <script src="/admin/id-card/js/data.js?v=3.2"></script>
+    <script src="/admin/id-card/js/data.js?v=3.3"></script>
     <script>
         // ── CC NOTIFY ENGINE ──────────────────────────────────────────────────
         // Handles browser push notifications for HQ directives, chat, and status.
@@ -1980,7 +1980,7 @@
         let activeMember = null; // The member whose workspace this is
         let loggedInUser = null; // The person currently using the browser
         let currentTab = 'home';
-        let currentChatChannel = 'hq'; // hq, global, crew
+        let currentChatChannel = 'crew'; // crew, global, hq
         let activePeerId = null;
         let activeReplyTo = { hq: null, global: null, peer: null, status: null };
 
@@ -2353,6 +2353,15 @@
                         const sId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                         const rId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
                         await window.DataManager.sendMessage(sId, rId, null, null, extra);
+
+                        // Push voice msg to CC Live Feed
+                        window.DataManager.pushToLiveFeed({
+                            senderId: sId,
+                            senderName: loggedInUser.role === 'admin' ? 'HQ COMMAND' : loggedInUser.name,
+                            text: '🎤 Voice message received.',
+                            type: 'directive',
+                            recipientId: activeMember.id
+                        }).catch(() => { });
                     } else if (channel === 'global') {
                         await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, null, null, extra);
                     } else if (channel === 'peer') {
@@ -2836,6 +2845,32 @@
                 const senderId = loggedInUser.role === 'admin' ? 'HQ' : activeMember.id;
                 const receiverId = loggedInUser.role === 'admin' ? activeMember.id : 'HQ';
                 await window.DataManager.sendMessage(senderId, receiverId, text, null, extra);
+
+                // Push HQ Direct messages to CC Live Feed (visible on Home tab)
+                window.DataManager.pushToLiveFeed({
+                    senderId,
+                    senderName: loggedInUser.role === 'admin' ? 'HQ COMMAND' : loggedInUser.name,
+                    text,
+                    type: 'directive',
+                    recipientId: activeMember.id
+                }).catch(() => { });
+
+                // Email notification: admin → member gets email; member → HQ all admins get email
+                if (window.EmailNotifier) {
+                    if (loggedInUser.role === 'admin') {
+                        window.EmailNotifier.notifyMember(activeMember.id, {
+                            subject: '📡 HQ Direct Message from Command',
+                            message: text,
+                            senderName: loggedInUser.name || 'HQ Command'
+                        }).catch(() => { });
+                    } else {
+                        window.EmailNotifier.notifyAdmins({
+                            subject: `📩 Message from ${loggedInUser.name || activeMember.name}`,
+                            message: `${loggedInUser.name || activeMember.name} sent a message via HQ Direct:\n\n"${text}"`,
+                            senderName: loggedInUser.name || activeMember.name
+                        }).catch(() => { });
+                    }
+                }
             } else if (channel === 'global') {
                 await window.DataManager.sendGlobalMessage(loggedInUser.id, loggedInUser.name, text, null, extra);
             } else if (channel === 'peer') {
