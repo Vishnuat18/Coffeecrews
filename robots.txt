@@ -8,4 +8,4 @@ Disallow: /countdown.html
 Disallow: /test.html
 
 # Sitemap location
-Sitemap: https://coffeecrews.com/sitemap.xml
+Sitemap: https://coffee-crews.co.in/sitemap.xml
