@@ -1249,7 +1249,17 @@
         style="display:none; position:fixed; top:120px; left:0; right:0; z-index:9999; background:linear-gradient(90deg,#ff6600,#ff9900); color:#fff; padding:12px 20px; font-family:'Orbitron'; font-size:0.65rem; cursor:pointer; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 4px 20px rgba(255,120,0,0.4);">
         <span><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i> ⚠️ ACTION REQUIRED: Submit your Bank
             / UPI details — Deadline: <strong>Feb 28, 2026</strong>. Click here to fill the form.</span>
-        <span style="opacity:0.8;font-size:0.6rem;">TAP TO OPEN FORM →</span>
+        <span style="display:flex;align-items:center;gap:12px;">
+            <span style="opacity:0.8;font-size:0.6rem;">TAP TO OPEN FORM →</span>
+            <button
+                onclick="event.stopPropagation(); document.getElementById('bank-form-banner').style.display='none'; sessionStorage.setItem('bannerDismissed','1');"
+                title="Dismiss"
+                style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.4);color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:background 0.2s;"
+                onmouseover="this.style.background='rgba(0,0,0,0.45)'"
+                onmouseout="this.style.background='rgba(0,0,0,0.25)'">
+                &times;
+            </button>
+        </span>
     </div>
 
     <div class="dashboard-container">
@@ -3381,7 +3391,7 @@
                     const banner = document.getElementById('bank-form-banner');
                     const isActive = snap.val() === true;
                     if (isActive) {
-                        if (banner) banner.style.display = 'flex';
+                        if (banner && !sessionStorage.getItem('bannerDismissed')) banner.style.display = 'flex';
                     } else {
                         if (banner) banner.style.display = 'none';
                     }
