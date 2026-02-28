@@ -401,8 +401,10 @@
             const validPass = currentMember.passcode || currentMember.ccCode;
 
             if (cleanCode === validPass) {
-                // CHECK IF BLOCKED
-                if (currentMember.blockedUntil && currentMember.blockedUntil > Date.now()) {
+                // CHECK IF BLOCKED (admins are immune to suspension)
+                const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
+                const isAdmin = dualAccessIds.includes(currentMember.id) || currentMember.access === 'admin';
+                if (!isAdmin && currentMember.blockedUntil && currentMember.blockedUntil > Date.now()) {
                     const remainingMs = currentMember.blockedUntil - Date.now();
                     const days = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
                     const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
@@ -430,8 +432,7 @@
                 btn.style.color = "#000";
 
                 // Set session
-                const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
-                const role = (dualAccessIds.includes(currentMember.id) || currentMember.access === 'admin') ? 'admin' : 'crew';
+                const role = isAdmin ? 'admin' : 'crew';
 
                 console.log("Auth Success for:", currentMember.id, "Role assigned:", role);
 
