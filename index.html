@@ -4,12 +4,161 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>CoffeeCrews | Home</title>
+
+    <!-- ═══════════════════════════════════════════
+         PRIMARY SEO TAGS
+    ═══════════════════════════════════════════ -->
+    <title>CoffeeCrews | Premium Web Development & IT Solutions Company</title>
+    <meta name="description"
+        content="CoffeeCrews is a premier IT solutions collective specialising in web development, mobile app development, UI/UX design, AI integration, cloud solutions, and digital strategy. We build high-impact digital experiences that transform businesses.">
+    <meta name="keywords"
+        content="CoffeeCrews, web development company, IT solutions, UI UX design, mobile app development, full stack development, cloud solutions, AI integration, digital strategy, software company, best web developers, premium design agency, React developers, Node.js development, web design company India">
+    <meta name="author" content="CoffeeCrews">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow">
+    <link rel="canonical" href="https://coffeecrews.com/">
+
+    <!-- ═══════════════════════════════════════════
+         OPEN GRAPH (Facebook / LinkedIn)
+    ═══════════════════════════════════════════ -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CoffeeCrews">
+    <meta property="og:title" content="CoffeeCrews | Premium Web Development & IT Solutions">
+    <meta property="og:description"
+        content="A collective of visionary engineers and designers delivering premium web development, mobile apps, UI/UX design, AI integration, and cloud solutions. Built from ideas shared over tea.">
+    <meta property="og:url" content="https://coffeecrews.com/">
+    <meta property="og:image" content="https://coffeecrews.com/assets/og-banner.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="CoffeeCrews - Premium IT Solutions">
+    <meta property="og:locale" content="en_IN">
+
+    <!-- ═══════════════════════════════════════════
+         TWITTER CARD
+    ═══════════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@CoffeeCrews">
+    <meta name="twitter:title" content="CoffeeCrews | Premium Web Development & IT Solutions">
+    <meta name="twitter:description"
+        content="A collective of visionary engineers and designers delivering premium web development, mobile apps, UI/UX design, and AI integration.">
+    <meta name="twitter:image" content="https://coffeecrews.com/assets/og-banner.png">
+    <meta name="twitter:image:alt" content="CoffeeCrews - Premium IT Solutions">
+
+    <!-- ═══════════════════════════════════════════
+         MOBILE & PWA
+    ═══════════════════════════════════════════ -->
+    <meta name="theme-color" content="#7b3fe4">
+    <meta name="msapplication-TileColor" content="#7b3fe4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CoffeeCrews">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/assets/favicon.png">
+
+    <!-- ═══════════════════════════════════════════
+         STRUCTURED DATA — JSON-LD
+    ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://coffeecrews.com/#organization",
+          "name": "CoffeeCrews",
+          "alternateName": "Coffee Crews IT Solutions",
+          "url": "https://coffeecrews.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://coffeecrews.com/assets/favicon.png"
+          },
+          "description": "CoffeeCrews is a premium IT solutions collective specialising in web development, mobile apps, UI/UX design, cloud solutions, and AI integration.",
+          "email": "contact@coffeecrews.com",
+          "foundingDate": "2024",
+          "numberOfEmployees": {"@type": "QuantitativeValue", "value": 12},
+          "areaServed": "Worldwide",
+          "serviceType": ["Web Development", "Mobile App Development", "UI/UX Design", "AI Integration", "Cloud Solutions", "SEO Optimization", "Digital Strategy"],
+          "sameAs": [
+            "https://github.com/Vishnuat18"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://coffeecrews.com/#website",
+          "url": "https://coffeecrews.com",
+          "name": "CoffeeCrews",
+          "description": "Premium IT solutions — web development, mobile apps, UI/UX design, AI integration, and cloud solutions.",
+          "publisher": {"@id": "https://coffeecrews.com/#organization"},
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {"@type": "EntryPoint", "urlTemplate": "https://coffeecrews.com/?s={search_term_string}"},
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://coffeecrews.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What services does CoffeeCrews offer?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "CoffeeCrews offers full-stack web development, mobile app development, UI/UX design, AI integration, cloud solutions, automation, SEO optimization, poster and graphic design, IT support, and training & workshops."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is CoffeeCrews good for startups?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. CoffeeCrews has extensive experience working with startups like Patora AI, building complete digital platforms from scratch with high-end visual aesthetics and scalable architecture."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What technologies does CoffeeCrews use?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "We use React, Vue.js, Node.js, Python, Firebase, PostgreSQL, MongoDB, AWS, and Three.js among other modern technologies to build robust and scalable digital systems."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How can I contact CoffeeCrews?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You can reach CoffeeCrews via the contact page at coffeecrews.com/contact.html or email us directly at contact@coffeecrews.com."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Does CoffeeCrews build mobile-friendly websites?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Absolutely. Every website and application we build is fully responsive and optimised for mobile, tablet, and desktop devices with seamless user experiences across all screen sizes."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is CoffeeCrews' most notable client project?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "One of our flagship client projects is Nitha Aerospace (nithaaerospace.in) — we designed and developed the complete digital infrastructure including their FIS (Fasteners Intelligence System), IEPAIR Portal, and Advanced Material Specification management platform."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- Assets & Fonts -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="mobile-redirect.js"></script>
     <link rel="shortcut icon" href="/assets/favicon.png">
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&family=Anton&display=swap"
         rel="stylesheet">
@@ -425,6 +574,111 @@
                     CONVERGING TALENT INTO REALITY
                 </p>
                 <a href="crew.html" class="btn-innovative-glow">Explore the Full Collective</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SEO CONTENT SECTION — Keywords & FAQ
+    ═══════════════════════════════════════════ -->
+    <section class="page-section" id="seo-faq"
+        style="background: radial-gradient(circle at center, rgba(123,63,228,0.04) 0%, transparent 70%);">
+        <div class="container">
+            <span class="section-label">Everything You Need to Know</span>
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="text-theme-muted mb-5" style="max-width:700px;font-size:1.05rem;">
+                Got questions about our services, process, or how we can help your business? Here are the most common
+                questions we receive from clients looking for a reliable web development and IT solutions partner.
+            </p>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h3 style="font-size:1.05rem;">What services does CoffeeCrews offer?</h3>
+                        <p class="text-secondary" style="font-size:0.95rem;">We offer end-to-end IT solutions including
+                            <strong>full-stack web development</strong>, <strong>mobile app development</strong>,
+                            <strong>UI/UX design</strong>, <strong>AI integration</strong>, <strong>cloud
+                                solutions</strong>, <strong>SEO optimization</strong>, <strong>automation</strong>,
+                            <strong>IT support</strong>, <strong>poster & graphic design</strong>, and <strong>training
+                                workshops</strong> — everything a modern business needs in one place.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h3 style="font-size:1.05rem;">Is CoffeeCrews suitable for startups?</h3>
+                        <p class="text-secondary" style="font-size:0.95rem;">Absolutely. We specialize in taking startup
+                            ideas from concept to launch. Our work with <strong>Patora AI</strong> — a student-led AI
+                            startup — shows how we craft complete digital platforms with premium UI/UX aesthetics and
+                            performant backends, even for early-stage companies with tight timelines.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h3 style="font-size:1.05rem;">What technologies does CoffeeCrews specialise in?</h3>
+                        <p class="text-secondary" style="font-size:0.95rem;">Our tech stack covers the full spectrum:
+                            <strong>React, Vue.js, Next.js</strong> for frontend; <strong>Node.js, Python,
+                                Django</strong> for backend; <strong>Firebase, PostgreSQL, MongoDB</strong> for
+                            databases; <strong>AWS, Google Cloud</strong> for hosting; and <strong>Three.js,
+                                GSAP</strong> for immersive interactive experiences.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h3 style="font-size:1.05rem;">Do you build mobile-friendly websites?</h3>
+                        <p class="text-secondary" style="font-size:0.95rem;">Yes — every single project we deliver is
+                            <strong>fully responsive</strong>, built mobile-first and tested across all screen sizes
+                            from small smartphones to ultra-wide desktops. We also build Progressive Web Apps (PWAs)
+                            that work offline and feel like native mobile applications.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h3 style="font-size:1.05rem;">What is CoffeeCrews' most notable project?</h3>
+                        <p class="text-secondary" style="font-size:0.95rem;">Our flagship client engagement is
+                            <strong>Nitha Aerospace</strong> (nithaaerospace.in) — a precision engineering leader in
+                            superalloy fasteners for <strong>aerospace, defence, and nuclear sectors</strong>. We built
+                            their entire digital infrastructure including FIS™ (Fasteners Intelligence System), IEPAIR
+                            Portal, and AMS Interface for traceable manufacturing.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <h3 style="font-size:1.05rem;">How do I get started with CoffeeCrews?</h3>
+                        <p class="text-secondary" style="font-size:0.95rem;">Simply visit our <a href="contact.html"
+                                style="color:var(--accent-1);">Contact page</a> or email us at <a
+                                href="mailto:contact@coffeecrews.com"
+                                style="color:var(--accent-1);">contact@coffeecrews.com</a>. We'll schedule a free
+                            discovery call to understand your requirements and propose a tailored solution. From web
+                            portals to AI-powered dashboards, we're ready to build it.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keyword-rich closing paragraph for crawlers -->
+            <div class="mt-5 p-4"
+                style="border:1px solid var(--border-color);border-radius:16px;background:var(--bg-accent);">
+                <h2 class="section-title" style="font-size:1.4rem;">Why Choose CoffeeCrews as Your IT Partner?</h2>
+                <p class="text-theme-muted" style="font-size:0.95rem;line-height:1.9;">
+                    <strong>CoffeeCrews</strong> is not just another <em>web development company</em> — we are a
+                    collective of passionate engineers, visionary designers, and strategic thinkers united by one shared
+                    dream: to build technology that truly matters. Whether you need a <strong>custom e-commerce
+                        platform</strong>, a <strong>SaaS web application</strong>, a <strong>mobile-first
+                        website</strong>, or a complete <strong>digital transformation strategy</strong>, our
+                    multidisciplinary team delivers results that exceed expectations.
+                    <br><br>
+                    Our clients — from <strong>aerospace giants</strong> to <strong>AI startups</strong> — trust us
+                    because we combine <strong>premium UI/UX design</strong> with <strong>rock-solid
+                        engineering</strong>. We have delivered projects using <strong>React, Node.js, Python, Firebase,
+                        Three.js, Vue.js</strong>, and more. Our portfolio spans <strong>chit fund management systems
+                        (Chitly)</strong>, <strong>cognitive learning platforms (iX Platform)</strong>, <strong>smart
+                        inventory systems</strong>, and <strong>real-time gaming applications</strong>.
+                    <br><br>
+                    Located across India with a globally distributed team, CoffeeCrews offers <strong>affordable,
+                        world-class IT solutions</strong> for businesses of all sizes. From small business websites to
+                    enterprise-grade software, we are your one-stop destination for <strong>digital excellence</strong>.
+                    Explore our <a href="services.html" style="color:var(--accent-1);">services</a>, check out our <a
+                        href="products.html" style="color:var(--accent-1);">products</a>, or <a href="contact.html"
+                        style="color:var(--accent-1);">get in touch</a> today.
+                </p>
             </div>
         </div>
     </section>
