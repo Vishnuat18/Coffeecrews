@@ -1141,6 +1141,30 @@ class DataManager {
             console.error("Sync failed:", e);
         }
     }
+
+    // ─── MILESTONES / ACHIEVEMENTS GATING ────────────────────────────────────
+    /**
+     * Permanent unlock for full release.
+     * Replaces old time-gate and setting-flag logic.
+     */
+    static async checkMilestonesUnlockStatus() {
+        // Feature is now live for all users permanently
+        return true;
+    }
+
+    /**
+     * Mark milestones as unlocked in global settings.
+     * Legacy support for launch button (can be called but now checkMilestonesUnlockStatus overrides it).
+     */
+    static async unlockMilestones() {
+        try {
+            await db.ref('settings/milestonesUnlocked').set(true);
+            return true;
+        } catch (e) {
+            console.error("Failed to unlock milestones:", e);
+            return false;
+        }
+    }
 }
 
 // Global sync on load
@@ -1332,12 +1356,26 @@ class AchievementsEngine {
             }
             const isPrevMonthPerfect = perfectCount === daysInPrevMonth;
 
-            // 3. Drafting Count
-            const statusFeedRaw = await db.ref('chats/statusFeed').once('value');
+            // 3. Drafting Count (Sync with Analytics - Status Feed + HQ Transmissions)
             let drafts = 0;
-            if (statusFeedRaw.exists()) {
-                const statuses = Object.values(statusFeedRaw.val());
-                drafts = statuses.filter(s => s.senderId === userId).length;
+            try {
+                // Count status feed updates
+                const statusFeedRaw = await db.ref('chats/statusFeed').once('value');
+                if (statusFeedRaw.exists()) {
+                    const statuses = Object.values(statusFeedRaw.val());
+                    drafts += statuses.filter(s => s.senderId === userId).length;
+                }
+
+                // Count messages sent to HQ (Private Threads)
+                const threadId = DataManager.getThreadId(userId, 'HQ');
+                const hqThreadRaw = await db.ref(`chats/threads/${threadId}`).once('value');
+                if (hqThreadRaw.exists()) {
+                    const messages = Object.values(hqThreadRaw.val());
+                    // Only count messages SENT by the user, not HQ responses
+                    drafts += messages.filter(m => m.senderId === userId).length;
+                }
+            } catch (err) {
+                console.warn("Drafting count partial failure:", err);
             }
 
             // 4. Tenure Math
