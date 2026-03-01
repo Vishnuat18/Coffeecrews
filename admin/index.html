@@ -596,6 +596,74 @@
             border-color: #ff003c;
             color: #ff003c;
         }
+
+        /* Workspace Sections (Tab Switching) */
+        .workspace-section {
+            display: none;
+            animation: fadeSlideUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .workspace-section.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Secondary Workspace Navigation (from verify.html) */
+        .workspace-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+        }
+
+        .nav-item-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Orbitron';
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-item-btn.active {
+            background: var(--accent-primary);
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .nav-item-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -606,22 +674,9 @@
             COFFEECREWS // HQ
         </a>
         <div class="nav-links">
-            <a href="#personnel-command" class="nav-link"><i class="fas fa-users"></i> PERSONNEL</a>
-            <div class="dropdown">
-                <a href="#" class="nav-link dropdown-toggle" id="reportsDropdown" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <i class="fas fa-chart-bar"></i> REPORTS
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark glass" aria-labelledby="reportsDropdown">
-                    <li><a class="dropdown-item nav-link" href="#attendance-report"><i
-                                class="fas fa-calendar-check"></i> Attendance</a></li>
-                    <li><a class="dropdown-item nav-link" href="#status-feed"><i class="fas fa-stream"></i> Status
-                            Drafter</a></li>
-                </ul>
-            </div>
-            <a href="#admin-group-chat-section" class="nav-link"><i class="fas fa-comments"></i> ADMIN CHAT PANEL</a>
-            <a href="#security-operations" class="nav-link"><i class="fas fa-shield-alt"></i> SECURITY OPERATIONS</a>
-            <a href="#recruitment-pipeline" class="nav-link"><i class="fas fa-user-plus"></i> RECRUITMENT PIPELINE</a>
+            <a href="/index.html" class="nav-link"><i class="fas fa-home"></i> MAIN SITE</a>
+            <a href="/admin/index.html" class="nav-link active"><i class="fas fa-th-large"></i> COCKPIT</a>
+            <a href="/admin/id-card/reports.html" class="nav-link"><i class="fas fa-tower-broadcast"></i> BROADCAST</a>
             <button onclick="handleLogout()" class="nav-link"
                 style="background:none; border:none; color:var(--accent-red);">
                 <i class="fas fa-power-off"></i> LOGOUT
@@ -648,39 +703,8 @@
             </div>
         </header>
 
-        <!-- Admin Command Chat (admin-only) -->
-        <section id="admin-group-chat-section" class="animate-up mb-5" style="animation-delay: 0.07s; display: none;">
-            <div>
-                <span class="section-label">Secure Channel</span>
-                <h2 class="section-title" style="margin-bottom: 1rem;">Admin Command Chat</h2>
-            </div>
-            <div class="admin-chat-wrap">
-                <div class="admin-chat-header">
-                    <h4>
-                        <div class="live-dot"></div>
-                        <i class="fas fa-shield-halved"></i> ADMIN PRIVATE CHANNEL
-                    </h4>
-                    <button class="admin-chat-clear-btn" onclick="clearAdminGroupChat()">
-                        <i class="fas fa-trash-can"></i> CLEAR CHAT
-                    </button>
-                </div>
-                <div class="admin-chat-feed" id="admin-chat-feed">
-                    <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;">
-                        <i class="fas fa-spinner fa-spin"></i> Connecting...
-                    </div>
-                </div>
-                <div class="admin-chat-controls">
-                    <input type="text" id="admin-chat-input" placeholder="Send a secure admin message..."
-                        onkeypress="if(event.key==='Enter') sendAdminGroupMsg()">
-                    <button class="admin-chat-send-btn" onclick="sendAdminGroupMsg()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
         <!-- Commander Profile Section -->
-        <section id="commander-profile" class="animate-up mb-5" style="animation-delay: 0.05s; display: none;">
+        <section id="commander-profile" class="animate-up mb-5" style="animation-delay: 0.05s;">
             <div class="glass p-4" style="border-left: 4px solid var(--accent-primary);">
                 <div class="row align-items-center">
                     <div class="col-md-auto text-center mb-3 mb-md-0">
@@ -730,7 +754,7 @@
         </section>
 
         <!-- Stats Overview -->
-        <section class="stats-bar animate-up" style="animation-delay: 0.1s;">
+        <section class="stats-bar animate-up" style="animation-delay: 0.1s; margin-bottom: 2rem;">
             <div class="stat-card glass">
                 <div class="stat-value" id="stat-total">0</div>
                 <div class="stat-label">Total Crew</div>
@@ -749,12 +773,74 @@
             </div>
         </section>
 
+        <!-- Secondary Workspace Navigation -->
+        <nav class="workspace-nav animate-up" style="animation-delay: 0.05s;">
+            <button class="nav-item-btn active" onclick="switchAdminSection('personnel-command', this)">
+                <i class="fas fa-users"></i> PERSONNEL
+            </button>
+            <button class="nav-item-btn" onclick="switchAdminSection('attendance-view', this)">
+                <i class="fas fa-calendar-check"></i> ATTENDANCE
+            </button>
+            <button class="nav-item-btn" onclick="switchAdminSection('status-feed', this)">
+                <i class="fas fa-stream"></i> STATUS DRAFTER
+            </button>
+            <button class="nav-item-btn" onclick="switchAdminSection('admin-group-chat-section', this)">
+                <i class="fas fa-comments"></i> ADMIN CHAT
+            </button>
+            <button class="nav-item-btn" onclick="switchAdminSection('security-operations', this)">
+                <i class="fas fa-shield-alt"></i> SECURITY OPS
+            </button>
+            <button class="nav-item-btn" onclick="switchAdminSection('recruitment-pipeline', this)">
+                <i class="fas fa-user-plus"></i> RECRUITMENT
+            </button>
+        </nav>
+
+        <!-- Admin Command Chat (admin-only) -->
+        <section id="admin-group-chat-section" class="workspace-section animate-up mb-5"
+            style="animation-delay: 0.07s;">
+            <div>
+                <span class="section-label">Secure Channel</span>
+                <h2 class="section-title" style="margin-bottom: 1rem;">Admin Command Chat</h2>
+            </div>
+            <div class="admin-chat-wrap">
+                <div class="admin-chat-header">
+                    <h4>
+                        <div class="live-dot"></div>
+                        <i class="fas fa-shield-halved"></i> ADMIN PRIVATE CHANNEL
+                    </h4>
+                    <button class="admin-chat-clear-btn" onclick="clearAdminGroupChat()">
+                        <i class="fas fa-trash-can"></i> CLEAR CHAT
+                    </button>
+                </div>
+                <div class="admin-chat-feed" id="admin-chat-feed">
+                    <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;">
+                        <i class="fas fa-spinner fa-spin"></i> Connecting...
+                    </div>
+                </div>
+                <div class="admin-chat-controls">
+                    <input type="text" id="admin-chat-input" placeholder="Send a secure admin message..."
+                        onkeypress="if(event.key==='Enter') sendAdminGroupMsg()">
+                    <button class="admin-chat-send-btn" onclick="sendAdminGroupMsg()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+
         <!-- Attendance Tracker: PRESENT -->
-        <section id="attendance-report" class="animate-up mb-5" style="animation-delay: 0.15s;">
+        <section id="attendance-report" class="workspace-section animate-up mb-5" style="animation-delay: 0.15s;">
             <div class="glass p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="section-label text-success">Roll Call [ON TIME]</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="section-label text-success">Roll Call [ON TIME]</span>
+                            <button onclick="downloadAttendancePDF()" class="btn-action"
+                                style="padding: 4px 10px; font-size: 0.6rem; border-color: rgba(255,255,255,0.2);">
+                                <i class="fas fa-file-pdf"></i> EXPORT LOG
+                            </button>
+                        </div>
                         <h3 class="orbitron m-0" style="font-size: 1rem;"><i
                                 class="fas fa-check-circle text-success"></i> PRESENT (08:00 - 10:00)</h3>
                     </div>
@@ -769,7 +855,7 @@
         </section>
 
         <!-- Attendance Tracker: LATE LOGINS -->
-        <section id="late-logins-report" class="animate-up mb-5" style="animation-delay: 0.15s;">
+        <section id="late-logins-report" class="workspace-section animate-up mb-5" style="animation-delay: 0.15s;">
             <div class="glass p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
@@ -788,16 +874,21 @@
         </section>
 
         <!-- Status Feed -->
-        <section id="status-feed" class="animate-up mb-5" style="animation-delay: 0.2s;">
+        <section id="status-feed" class="workspace-section animate-up mb-5" style="animation-delay: 0.2s;">
             <div class="glass p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="section-label">Mission Updates</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="section-label">Mission Updates</span>
+                            <button onclick="downloadStatusPDF()" class="btn-action"
+                                style="padding: 4px 10px; font-size: 0.6rem; border-color: rgba(255,255,255,0.2);">
+                                <i class="fas fa-file-pdf"></i> EXPORT LOG
+                            </button>
+                        </div>
                         <h3 class="orbitron m-0" style="font-size: 1rem;">Status Drafter Feed</h3>
                     </div>
                 </div>
-                <div id="admin-status-feed-list"
-                    style="display:flex;flex-direction:column;gap:15px;max-height: 400px;overflow-y:auto;padding-right:5px;">
+                <div id="admin-status-feed-list" style="display:flex;flex-direction:column;gap:15px;padding-right:5px;">
                     <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;"><i
                             class="fas fa-spinner fa-spin"></i> Loading...</div>
                 </div>
@@ -839,7 +930,7 @@
         </section> -->
 
         <!-- Personnel Search -->
-        <section id="personnel-command" class="animate-up" style="animation-delay: 0.3s;">
+        <section id="personnel-command" class="workspace-section active animate-up" style="animation-delay: 0.3s;">
             <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
                 <div>
                     <span class="section-label">Deployment</span>
@@ -856,7 +947,8 @@
         </section>
 
         <!-- Recruitment Pipeline -->
-        <section id="recruitment-pipeline" class="animate-up" style="animation-delay: 0.4s; margin-bottom: 5rem;">
+        <section id="recruitment-pipeline" class="workspace-section animate-up"
+            style="animation-delay: 0.4s; margin-bottom: 5rem;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <span class="section-label">Incoming Talent</span>
@@ -887,7 +979,8 @@
         </section>
 
         <!-- Security Operations -->
-        <section id="security-operations" class="animate-up" style="animation-delay: 0.5s; margin-bottom: 5rem;">
+        <section id="security-operations" class="workspace-section animate-up"
+            style="animation-delay: 0.5s; margin-bottom: 5rem;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <span class="section-label">Sentinel Protocol</span>
@@ -950,7 +1043,6 @@
             // Show admin group chat for admin users
             const adminChatSection = document.getElementById('admin-group-chat-section');
             if (adminChatSection) {
-                adminChatSection.style.display = 'block';
                 // Subscribe to real-time admin chat
                 DataManager.subscribeToAdminChat((messages) => {
                     renderAdminChat(messages, session.id);
@@ -1326,7 +1418,105 @@
             await DataManager.clearAdminChat();
             showToast('Admin channel cleared.', 'success');
         }
+
+        // Master Navigation Switcher
+        function switchAdminSection(sectionId, element) {
+            // 1. Update active tab styling
+            document.querySelectorAll('.nav-item-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            }
+
+            // 2. Hide all workspace sections
+            document.querySelectorAll('.workspace-section').forEach(sec => sec.classList.remove('active'));
+
+            // 3. Show targeted section
+            if (sectionId === 'attendance-view') {
+                // Attendance is split into two boxes
+                document.getElementById('attendance-report').classList.add('active');
+                document.getElementById('late-logins-report').classList.add('active');
+            } else {
+                const target = document.getElementById(sectionId);
+                if (target) {
+                    target.classList.add('active');
+                }
+            }
+        }
+
+        // --- PDF GENERATION FUNCTIONS ---
+        function downloadAttendancePDF() {
+            const dateStr = new Date().toISOString().split('T')[0];
+            const presentHtml = document.getElementById('attendance-list').innerHTML;
+            const lateHtml = document.getElementById('late-list').innerHTML;
+
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 40px; color: #000; background: #fff;">
+                    <h2 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 10px;">DAILY ATTENDANCE LOG // CC-HQ</h2>
+                    <p><strong>Date:</strong> ${dateStr}</p>
+                    <p><strong>Generated at:</strong> ${new Date().toLocaleTimeString()}</p>
+                    
+                    <h3 style="color: #28a745; margin-top: 30px;">[ON TIME] PRESENT (08:00 - 10:00)</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #28a745;">
+                        ${presentHtml.replace(/background: rgba\(60, 255, 125, 0.05\);/g, 'background: #fff; border: 1px solid #ddd; margin-bottom: 5px;').replace(/color: #3cff7d/g, 'color: #000')}
+                    </div>
+
+                    <h3 style="color: #ffc107; margin-top: 30px;">[DELAYED] LATE LOGINS (After 10:00)</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107;">
+                        ${lateHtml.replace(/background: rgba\(255, 215, 0, 0.05\);/g, 'background: #fff; border: 1px solid #ddd; margin-bottom: 5px;').replace(/color: #ffd700/g, 'color: #000')}
+                    </div>
+                    
+                    <div style="margin-top: 50px; text-align: center; font-size: 0.8em; color: #777;">
+                        Auto-generated secure document. CoffeeCrews Command Panel.
+                    </div>
+                </div>
+            `;
+
+            html2pdf().set({
+                margin: 10,
+                filename: `Attendance_Log_${dateStr}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
+
+            showToast('Generating Attendance Record PDF...', 'success');
+        }
+
+        function downloadStatusPDF() {
+            const dateStr = new Date().toISOString().split('T')[0];
+            const updatesHtml = document.getElementById('admin-status-feed-list').innerHTML;
+
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 40px; color: #000; background: #fff;">
+                    <h2 style="color: #333; border-bottom: 2px solid #ccc; padding-bottom: 10px;">MISSION UPDATES // STATUS DRAFTER</h2>
+                    <p><strong>Date:</strong> ${dateStr}</p>
+                    <p><strong>Export Time:</strong> ${new Date().toLocaleTimeString()}</p>
+                    
+                    <h3 style="color: #00f3ff; margin-top: 30px;">DAILY AGENT DIRECTIVES</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #00f3ff;">
+                        ${updatesHtml.replace(/color: #fff/g, 'color: #000').replace(/background: rgba\(255, 255, 255, 0\.03\)/g, 'background: #fff; border: 1px solid #ddd; margin-bottom: 15px; padding: 10px;')}
+                    </div>
+                    
+                    <div style="margin-top: 50px; text-align: center; font-size: 0.8em; color: #777;">
+                        Auto-generated secure document. CoffeeCrews Command Panel.
+                    </div>
+                </div>
+            `;
+
+            html2pdf().set({
+                margin: 10,
+                filename: `Status_Report_${dateStr}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
+
+            showToast('Generating Strategy Pulse PDF...', 'success');
+        }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 
 </html>
