@@ -13,6 +13,13 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- EARLY ACCESS GATE -->
+    <script>
+        window.FEATURE_MILESTONES_UNLOCK_TIME = new Date("2026-03-01T19:00:00+05:30").getTime();
+        window.isMilestonesUnlocked = function () {
+            return new Date().getTime() >= window.FEATURE_MILESTONES_UNLOCK_TIME;
+        };
+    </script>
     <style>
         :root {
             --bg-color: #030303;
@@ -557,62 +564,64 @@
             const badgeIcon = document.getElementById('top-title-icon');
             const badgeText = document.getElementById('top-title-text');
 
-            if (member.stats && member.stats.achievements && member.stats.achievements.length > 0 && window.ACHIEVEMENT_DEFINITIONS) {
-                // Determine 'highest' rarity based on tier (legendary > epic > rare > common)
-                const rarityOrder = { 'legendary': 4, 'epic': 3, 'rare': 2, 'common': 1 };
+            if (window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
+                if (member.stats && member.stats.achievements && member.stats.achievements.length > 0 && window.ACHIEVEMENT_DEFINITIONS) {
+                    // Determine 'highest' rarity based on tier (legendary > epic > rare > common)
+                    const rarityOrder = { 'legendary': 4, 'epic': 3, 'rare': 2, 'common': 1 };
 
-                let topAch = null;
-                let highestScore = -1;
+                    let topAch = null;
+                    let highestScore = -1;
 
-                member.stats.achievements.forEach(achId => {
-                    const def = window.ACHIEVEMENT_DEFINITIONS[achId];
-                    if (def) {
-                        const score = rarityOrder[def.tier] || 0;
-                        if (score > highestScore) {
-                            highestScore = score;
-                            topAch = def;
+                    member.stats.achievements.forEach(achId => {
+                        const def = window.ACHIEVEMENT_DEFINITIONS[achId];
+                        if (def) {
+                            const score = rarityOrder[def.tier] || 0;
+                            if (score > highestScore) {
+                                highestScore = score;
+                                topAch = def;
+                            }
                         }
+                    });
+
+                    if (topAch) {
+                        badgeContainer.style.display = 'flex';
+                        badgeIcon.className = 'fas ' + topAch.icon;
+                        badgeIcon.style.color = topAch.color;
+                        badgeText.textContent = topAch.title;
+                        badgeText.style.color = topAch.color;
+                        badgeText.style.textShadow = `0 0 10px ${topAch.color}`;
+                        badgeContainer.style.borderColor = topAch.color;
+                        badgeContainer.style.boxShadow = `0 0 20px ${topAch.color}40, inset 0 0 10px ${topAch.color}20`;
+                        badgeContainer.style.background = `linear-gradient(90deg, ${topAch.color}11, transparent)`;
                     }
-                });
+                } else if (member.achievements && Array.isArray(member.achievements) && member.achievements.length > 0 && window.ACHIEVEMENT_DEFINITIONS) {
+                    // Fallback for flat array structure
+                    const rarityOrder = { 'legendary': 4, 'epic': 3, 'rare': 2, 'common': 1 };
+                    let topAch = null;
+                    let highestScore = -1;
 
-                if (topAch) {
-                    badgeContainer.style.display = 'flex';
-                    badgeIcon.className = 'fas ' + topAch.icon;
-                    badgeIcon.style.color = topAch.color;
-                    badgeText.textContent = topAch.title;
-                    badgeText.style.color = topAch.color;
-                    badgeText.style.textShadow = `0 0 10px ${topAch.color}`;
-                    badgeContainer.style.borderColor = topAch.color;
-                    badgeContainer.style.boxShadow = `0 0 20px ${topAch.color}40, inset 0 0 10px ${topAch.color}20`;
-                    badgeContainer.style.background = `linear-gradient(90deg, ${topAch.color}11, transparent)`;
-                }
-            } else if (member.achievements && Array.isArray(member.achievements) && member.achievements.length > 0 && window.ACHIEVEMENT_DEFINITIONS) {
-                // Fallback for flat array structure
-                const rarityOrder = { 'legendary': 4, 'epic': 3, 'rare': 2, 'common': 1 };
-                let topAch = null;
-                let highestScore = -1;
-
-                member.achievements.forEach(achId => {
-                    const def = window.ACHIEVEMENT_DEFINITIONS[achId];
-                    if (def) {
-                        const score = rarityOrder[def.tier] || 0;
-                        if (score > highestScore) {
-                            highestScore = score;
-                            topAch = def;
+                    member.achievements.forEach(achId => {
+                        const def = window.ACHIEVEMENT_DEFINITIONS[achId];
+                        if (def) {
+                            const score = rarityOrder[def.tier] || 0;
+                            if (score > highestScore) {
+                                highestScore = score;
+                                topAch = def;
+                            }
                         }
-                    }
-                });
+                    });
 
-                if (topAch) {
-                    badgeContainer.style.display = 'flex';
-                    badgeIcon.className = 'fas ' + topAch.icon;
-                    badgeIcon.style.color = topAch.color;
-                    badgeText.textContent = topAch.title;
-                    badgeText.style.color = topAch.color;
-                    badgeText.style.textShadow = `0 0 10px ${topAch.color}`;
-                    badgeContainer.style.borderColor = topAch.color;
-                    badgeContainer.style.boxShadow = `0 0 20px ${topAch.color}40, inset 0 0 10px ${topAch.color}20`;
-                    badgeContainer.style.background = `linear-gradient(90deg, ${topAch.color}11, transparent)`;
+                    if (topAch) {
+                        badgeContainer.style.display = 'flex';
+                        badgeIcon.className = 'fas ' + topAch.icon;
+                        badgeIcon.style.color = topAch.color;
+                        badgeText.textContent = topAch.title;
+                        badgeText.style.color = topAch.color;
+                        badgeText.style.textShadow = `0 0 10px ${topAch.color}`;
+                        badgeContainer.style.borderColor = topAch.color;
+                        badgeContainer.style.boxShadow = `0 0 20px ${topAch.color}40, inset 0 0 10px ${topAch.color}20`;
+                        badgeContainer.style.background = `linear-gradient(90deg, ${topAch.color}11, transparent)`;
+                    }
                 }
             }
         }

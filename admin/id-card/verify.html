@@ -2358,6 +2358,14 @@
             if (hAnalytics) {
                 hAnalytics.style.display = (loggedInUser.role === 'admin') ? 'flex' : 'none';
             }
+
+            // Gamification Visibility (Time Gate)
+            if (window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
+                const hMilestones = document.getElementById('h-nav-milestones');
+                const mMilestones = document.getElementById('m-menu-achievements');
+                if (hMilestones) hMilestones.style.display = 'flex';
+                if (mMilestones) mMilestones.style.display = 'flex';
+            }
             document.getElementById('loader').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
