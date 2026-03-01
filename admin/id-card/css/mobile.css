@@ -872,6 +872,92 @@
         box-sizing: border-box !important;
     }
 
+    /* ── SECTION: ACHIEVEMENTS / MILESTONES ── */
+    #section-achievements {
+        padding: 14px 14px 14px !important;
+        overflow-x: hidden !important;
+    }
+
+    #section-achievements h2 {
+        font-size: 1.1rem !important;
+    }
+
+    .achievements-filter-nav {
+        gap: 8px !important;
+        margin-bottom: 20px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        padding-bottom: 10px !important;
+    }
+
+    .achievements-filter-nav .sub-nav-btn {
+        flex: 1 !important;
+        min-width: unset !important;
+        padding: 10px 4px !important;
+        font-size: 0.45rem !important;
+        gap: 5px !important;
+        border-radius: 8px !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .achievements-filter-nav .sub-nav-btn i {
+        font-size: 0.7rem !important;
+    }
+
+    #achievements-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    .achievement-card {
+        padding: 18px 15px !important;
+    }
+
+    .achievement-icon {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 1.1rem !important;
+    }
+
+    .achievement-details h4 {
+        font-size: 0.85rem !important;
+    }
+
+    .achievement-details p {
+        font-size: 0.6rem !important;
+    }
+
+    .achievement-progress-text {
+        font-size: 0.5rem !important;
+    }
+
+    #achievement-popup {
+        width: 90% !important;
+        left: 5% !important;
+        bottom: 85px !important;
+        /* Above mobile bottom nav */
+        padding: 12px 15px !important;
+        transform: translateY(150%) scale(0.9) !important;
+    }
+
+    #achievement-popup.show {
+        transform: translateY(0) scale(1) !important;
+    }
+
+    #popup-icon {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 1rem !important;
+    }
+
+    #popup-details h4 {
+        font-size: 0.75rem !important;
+    }
+
+    #popup-details p {
+        font-size: 0.55rem !important;
+    }
+
     /* ═══ MISC POLISH ═══ */
 
     /* Modals — slide up from bottom */

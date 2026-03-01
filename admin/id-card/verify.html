@@ -1202,6 +1202,236 @@
             border-color: #ff003c;
             color: #ff003c;
         }
+
+        /* MILESTONE LIVE BADGE */
+        .milestone-live-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .milestone-live-badge .m-icon {
+            font-size: 1.5rem;
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .milestone-live-badge .m-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .milestone-live-badge .m-title {
+            font-family: 'Orbitron';
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .milestone-live-badge .m-tag {
+            font-family: 'Orbitron';
+            font-size: 0.5rem;
+            opacity: 0.6;
+            letter-spacing: 2px;
+        }
+
+        /* MILESTONE UNLOCK POPUP */
+        #milestone-unlock-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .milestone-unlock-card {
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 450px;
+            padding: 40px 30px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 243, 255, 0.1);
+            animation: mPopupIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        @keyframes mPopupIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .m-card-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .m-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 10;
+        }
+
+        .m-close-btn:hover {
+            color: #fff;
+        }
+
+        .m-badge-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+        }
+
+        .m-icon-bg {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: var(--accent-primary);
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            position: relative;
+            z-index: 2;
+            transform: rotate(-5deg);
+        }
+
+        .m-hologram {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            background: var(--accent-primary);
+            filter: blur(20px);
+            opacity: 0.2;
+            animation: mPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes mPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.4;
+            }
+        }
+
+        .m-unlock-tag {
+            font-family: 'Orbitron';
+            font-size: 0.65rem;
+            color: var(--accent-primary);
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+        }
+
+        #m-popup-title {
+            font-family: 'Orbitron';
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        #m-popup-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            margin-bottom: 35px;
+        }
+
+        .m-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .m-btn-share {
+            background: var(--accent-primary);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Orbitron';
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .m-btn-share:hover {
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .m-btn-close {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            font-family: 'Orbitron';
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .m-btn-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -1217,6 +1447,12 @@
             <div id="sync-status">
                 <i class="fas fa-satellite"></i> HQ ESTABLISHED
             </div>
+            <button id="h-nav-analytics" class="header-nav-btn" onclick="switchTab('analytics')" style="display:none;">
+                <i class="fas fa-chart-pie"></i> ANALYTICS
+            </button>
+            <button id="h-nav-milestones" class="header-nav-btn" onclick="location.href='milestones.html'">
+                <i class="fas fa-medal"></i> MILESTONES
+            </button>
             <a href="../index.html" id="cockpit-btn" style="display:none; text-decoration:none;">
                 <i class="fas fa-th-large"></i> COCKPIT
             </a>
@@ -1234,6 +1470,9 @@
             </div>
             <div id="m-menu-analytics" class="menu-item" onclick="switchTab('analytics'); toggleMobileMenu();">
                 <i class="fas fa-chart-line"></i> ANALYTICS
+            </div>
+            <div id="m-menu-achievements" class="menu-item" onclick="location.href='milestones.html';">
+                <i class="fas fa-trophy"></i> MILESTONES
             </div>
             <a href="../index.html" id="m-cockpit-btn" class="menu-item" style="display:none; text-decoration:none;">
                 <i class="fas fa-th-large"></i> COCKPIT
@@ -1260,6 +1499,32 @@
                 &times;
             </button>
         </span>
+    </div>
+
+    </style>
+
+    <!-- MILESTONE UNLOCK MODAL -->
+    <div id="milestone-unlock-modal">
+        <div class="milestone-unlock-card">
+            <div class="m-card-glow"></div>
+            <button class="m-close-btn" onclick="closeMilestoneUnlock()">&times;</button>
+            <div class="m-badge-container">
+                <div class="m-hologram"></div>
+                <div class="m-icon-bg">
+                    <i id="m-popup-badge" class="fas fa-medal"></i>
+                </div>
+            </div>
+            <div class="m-unlock-tag">MILESTONE UNLOCKED</div>
+            <h2 id="m-popup-title">TITAN OF INDUSTRY</h2>
+            <p id="m-popup-desc">You've reached a significant milestone in your career at CoffeeCrews. This achievement
+                has been recorded in your permanent record.</p>
+            <div class="m-actions">
+                <button id="m-popup-share-btn" class="m-btn-share">
+                    <i class="fas fa-paper-plane"></i> SHARE TO MISSION FEED
+                </button>
+                <button class="m-btn-close" onclick="closeMilestoneUnlock()">DISMISS</button>
+            </div>
+        </div>
     </div>
 
     <div class="dashboard-container">
@@ -1318,16 +1583,13 @@
                 <button class="nav-item-btn" onclick="switchTab('status')">
                     <i class="fas fa-file-signature"></i> STATUS
                 </button>
-                <button id="nav-btn-analytics" class="nav-item-btn" onclick="switchTab('analytics')"
-                    style="display:none;">
-                    <i class="fas fa-chart-pie"></i> ANALYTICS
-                </button>
                 <button class="nav-item-btn" onclick="switchTab('missionlog')">
                     <i class="fas fa-calendar-check"></i> MISSION LOG
                 </button>
                 <button class="nav-item-btn" onclick="switchTab('security')">
                     <i class="fas fa-user-shield"></i> SECURITY
                 </button>
+
             </nav>
 
             <!-- SECTION: HOME — HQ Live Announcements -->
@@ -1347,6 +1609,8 @@
                 </div>
             </div>
 
+
+
             <!-- SECTION: CREW CHATS (Multi-Channel Comms) -->
             <div id="section-chats" class="workspace-section">
                 <!-- Sub-nav for channels -->
@@ -1364,6 +1628,8 @@
                         <div class="nav-unread-dot"></div>
                     </button>
                 </div>
+
+
 
                 <!-- HQ INTEL: Direct Thread with Admin -->
                 <div id="chat-channel-hq" class="chat-channel active">
@@ -1575,7 +1841,8 @@
                                 style="font-family: 'Orbitron'; font-size: 0.9rem; margin: 0 0 4px; color: var(--accent-primary);">
                                 <i class="fas fa-calendar-alt"></i> MISSION LOG
                             </h2>
-                            <p style="font-size: 0.6rem; opacity: 0.4; margin: 0;">Track your daily presence and mission
+                            <p style="font-size: 0.6rem; opacity: 0.4; margin: 0;">Track your daily presence and
+                                mission
                                 commits</p>
                         </div>
                         <button id="btn-attendance" onclick="markTodayAttendance()" class="btn-primary"
@@ -1658,7 +1925,8 @@
                                 DRAFTER
                             </h2>
                             <p style="font-size:0.65rem;opacity:0.4;letter-spacing:0.5px;font-weight:300;">
-                                Draft your daily mission objectives and progress. This will be broadcast to the GLOBAL
+                                Draft your daily mission objectives and progress. This will be broadcast to the
+                                GLOBAL
                                 MISSION FEED.
                             </p>
                         </div>
@@ -1673,7 +1941,8 @@
                                         <i class="fas fa-file-alt"
                                             style="font-size:1.5rem;color:var(--accent-primary);"></i>
                                         <div style="flex:1;">
-                                            <div id="status-file-name" style="font-size:0.7rem;color:#fff;">Filename.pdf
+                                            <div id="status-file-name" style="font-size:0.7rem;color:#fff;">
+                                                Filename.pdf
                                             </div>
                                             <div id="status-file-size" style="font-size:0.5rem;opacity:0.5;">0.0 MB
                                             </div>
@@ -1706,7 +1975,8 @@
                                     <div id="reply-bar-status" class="reply-preview-container"
                                         style="margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
                                         <div class="reply-preview-content">
-                                            <div class="reply-preview-name" id="reply-name-status">REPLYING TO...</div>
+                                            <div class="reply-preview-name" id="reply-name-status">REPLYING TO...
+                                            </div>
                                             <div class="reply-preview-text" id="reply-text-status">...</div>
                                         </div>
                                         <div class="reply-preview-close" onclick="cancelReply('status')">
@@ -1890,7 +2160,8 @@
                         <i class="fas fa-key"></i> AUTHENTICATION SECURITY
                     </div>
                     <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 2rem;">
-                        Request a change to your CC Passcode. Your request will be reviewed and approved by HQ Command.
+                        Request a change to your CC Passcode. Your request will be reviewed and approved by HQ
+                        Command.
                     </p>
 
                     <div class="security-form" style="display: flex; flex-direction: column; gap: 20px;">
@@ -2066,7 +2337,16 @@
                 location.href = '/admin/id-card/login.html?error=not_found&id=' + (id || '');
                 return;
             }
+            console.log("Initializing Workspace...");
             renderWorkspace();
+
+            document.getElementById('p-dept').innerText = activeMember.dept || '---';
+
+            // Header Nav visibility
+            const hAnalytics = document.getElementById('h-nav-analytics');
+            if (hAnalytics) {
+                hAnalytics.style.display = (loggedInUser.role === 'admin') ? 'flex' : 'none';
+            }
             document.getElementById('loader').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
@@ -2074,8 +2354,10 @@
                 checkBankFormBroadcast();
             }, 500);
 
-            // Request browser notification permission
             await CCNotify.init();
+
+            // Initial Tab load
+            switchTab('home');
 
             // SYNC HANDLERS (Firebase Real-time)
             const hqThreadId = window.DataManager.getThreadId(activeMember.id, 'HQ');
@@ -2616,6 +2898,19 @@
                 }
             }
 
+            // Milestone Badge HTML
+            if (msg.milestone) {
+                const m = msg.milestone;
+                attachHTML += `
+                    <div class="milestone-live-badge" style="border: 1px solid ${m.color}66; background: ${m.color}11;">
+                        <div class="m-icon" style="color: ${m.color};"><i class="fas ${m.icon}"></i></div>
+                        <div class="m-info">
+                            <div class="m-title" style="color: ${m.color};">${m.title.toUpperCase()}</div>
+                            <div class="m-tag">MILESTONE UNLOCKED</div>
+                        </div>
+                    </div>
+                `;
+            }
 
             if (!msg.text && !attachHTML) return '';
 
@@ -2796,14 +3091,14 @@
                         const m = members.find(mem => mem.id === uid) || { name: uid, image: '/assets/favicon.png' };
                         const date = new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                         seenHTML += `
-                            <div class="seen-item">
-                                <img src="${m.image || '/assets/favicon.png'}" alt="">
-                                <div style="flex:1">
-                                    <div style="font-size:0.7rem; color:#fff;">${m.name}</div>
-                                    <div style="font-size:0.5rem; opacity:0.5;">Seen at ${date}</div>
-                                </div>
-                                <i class="fas fa-check-double" style="color:var(--accent-primary); font-size:0.6rem;"></i>
-                            </div>`;
+            <div class="seen-item">
+            <img src="${m.image || '/assets/favicon.png'}" alt="">
+                <div style="flex:1">
+                    <div style="font-size:0.7rem; color:#fff;">${m.name}</div>
+                    <div style="font-size:0.5rem; opacity:0.5;">Seen at ${date}</div>
+                </div>
+                <i class="fas fa-check-double" style="color:var(--accent-primary); font-size:0.6rem;"></i>
+            </div>`;
                     }
                 }
             } else {
@@ -3033,8 +3328,12 @@
                 if (analyticsBtn) analyticsBtn.style.display = 'none';
                 if (mAnalyticsBtn) mAnalyticsBtn.style.display = 'none';
             }
+            // Tab reset removed to allow persistent navigation
 
-            switchTab('home');
+            // Gamification Engine Start
+            if (window.AchievementsEngine) {
+                setTimeout(() => window.AchievementsEngine.checkAll(activeMember.id), 2000);
+            }
         }
 
         function toggleMobileMenu() {
@@ -3073,13 +3372,14 @@
                 'analytics': 'section-analytics',
                 'missionlog': 'section-missionlog',
                 'security': 'section-security',
-                'bankdetails': 'section-bankdetails'
+                'bankdetails': 'section-bankdetails',
+                'achievements': 'section-achievements'
             };
             const sec = document.getElementById(sectionMap[tab]);
             if (sec) sec.classList.add('active');
 
             // Highlight correct nav button
-            const navMap = { 'home': 0, 'chats': 1, 'status': 2, 'analytics': 3, 'missionlog': 4, 'security': 5 };
+            const navMap = { 'home': 0, 'chats': 1, 'status': 2, 'missionlog': 3, 'security': 4, 'achievements': 5 };
             const navBtns = document.querySelectorAll('.nav-item-btn');
             if (navMap[tab] !== undefined && navBtns[navMap[tab]]) {
                 navBtns[navMap[tab]].classList.add('active');
@@ -3090,7 +3390,101 @@
             if (tab === 'analytics') renderAnalytics();
             if (tab === 'missionlog') renderCalendar();
             if (tab === 'security') renderSecurity();
+            if (tab === 'achievements') renderAchievements('all');
         }
+
+        // --- ACHIEVEMENTS RENDERER ---
+        async function renderAchievements(filter = 'all') {
+            const grid = document.getElementById('achievements-grid');
+            if (!grid) return;
+
+            // Run an immediate sync
+            if (window.AchievementsEngine) {
+                await window.AchievementsEngine.checkAll(activeMember.id);
+            }
+
+            // Fetch latest member data
+            const memberData = await window.DataManager.getMemberById(activeMember.id);
+            const userEarned = memberData.achievements || [];
+
+            document.getElementById('achievement-count-label').innerHTML = `< span style = "color: var(--accent-gold); font-weight: bold;" > ${userEarned.length} / 15 UNLOCKED</span > `;
+
+            // Active button states
+            document.querySelectorAll('#section-achievements .sub-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`filter - btn - ${filter}`).classList.add('active');
+
+            grid.innerHTML = '';
+
+            const defs = window.ACHIEVEMENT_DEFINITIONS || {};
+            let keys = Object.keys(defs);
+
+            if (filter === 'unlocked') keys = keys.filter(k => userEarned.includes(k));
+            if (filter === 'locked') keys = keys.filter(k => !userEarned.includes(k));
+
+            if (keys.length === 0) {
+                grid.innerHTML = '<div style="opacity:0.3; text-align:center; padding:30px; grid-column: 1/-1;">NO RECORDS FOUND FOR THIS FILTER.</div>';
+                return;
+            }
+
+            keys.forEach(k => {
+                const def = defs[k];
+                const isUnlocked = userEarned.includes(k);
+
+                // Color overrides
+                const cssFilter = isUnlocked ? '' : 'filter: grayscale(100%); opacity: 0.4;';
+                const ringColor = isUnlocked ? def.color : 'rgba(255,255,255,0.1)';
+
+                const card = document.createElement('div');
+                card.className = `glass achievement - card ${isUnlocked ? 'unlocked animate-up' : ''}`;
+                card.style.cssText = `
+                    padding: 20px;
+            border - radius: 20px;
+            display: flex;
+            align - items: center;
+            gap: 20px;
+            border: 1px solid ${ringColor};
+            background: linear - gradient(135deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.5));
+            transition: 0.3s transform;
+                    ${isUnlocked ? 'box-shadow: 0 0 20px ' + def.color + '33;' : ''}
+            `;
+
+                // Sub-HTML for card
+                card.innerHTML = `
+                < div style = "width: 60px; height: 60px; border-radius: 50%; background: ${ringColor}22; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: ${ringColor}; ${cssFilter}" >
+                    <i class="fas ${def.icon}"></i>
+                    </div >
+                <div style="flex: 1; ${cssFilter}">
+                    <h4 style="font-family: 'Orbitron'; font-size: 1rem; margin: 0; color: ${isUnlocked ? '#fff' : 'rgba(255,255,255,0.5)'};">${def.title}</h4>
+                    <p style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin: 5px 0 0 0;">${def.desc}</p>
+                </div>
+                    ${isUnlocked ? `<button title="Share to Status Drafter" onclick="shareAchievement('${k}')" style="background:none; border:none; color: var(--accent-primary); font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.2s;"><i class="fas fa-share-nodes"></i></button>` : `<div style="opacity: 0.2; font-size: 1.2rem;"><i class="fas fa-lock"></i></div>`}
+            `;
+
+                grid.appendChild(card);
+            });
+        }
+        window.renderAchievements = renderAchievements;
+
+        // Share to feed helper
+        window.shareAchievement = function (key) {
+            const def = window.ACHIEVEMENT_DEFINITIONS[key];
+            if (!def) return;
+            const text = `🏆 Automatically Shared: I just unlocked the ** ${def.title}** Milestone!(${def.desc})`;
+
+            tacticalConfirm(`Share "${def.title}" to Mission Updates ? `, "BROADCAST ACHIEVEMENT").then(res => {
+                if (res) {
+                    window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image)
+                        .then(() => {
+                            showToast("Broadcast sent!", "success");
+                            switchTab('status');
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showToast("Failed to share.", "error");
+                        });
+                }
+            });
+        };
 
         // Month offset for calendar navigation
         let calViewMonth = 0; // 0 = current month, -1 = previous, etc.
@@ -3235,10 +3629,10 @@
                     const bg = isAction ? 'rgba(255,50,0,0.08)' : (isBroadcast ? 'rgba(255,165,0,0.06)' : 'rgba(0,243,255,0.04)');
                     const labelColor = isAction ? '#ff3200' : (isBroadcast ? '#ff9900' : 'var(--accent-primary)');
                     return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:12px 15px;margin-bottom:10px;${isAction ? 'cursor:pointer;' : ''}" ${isAction ? 'onclick="switchTab(\'bankdetails\')"' : ''}>
-                            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                                <span style="font-family:'Orbitron';font-size:0.6rem;color:${labelColor};">${label}</span>
-                                <span style="font-size:0.55rem;opacity:0.4;">${msg.time || ''}</span>
-                            </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                    <span style="font-family:'Orbitron';font-size:0.6rem;color:${labelColor};">${label}</span>
+                    <span style="font-size:0.55rem;opacity:0.4;">${msg.time || ''}</span>
+                </div>
                             ${msg.text ? `<div style="font-size:0.75rem;line-height:1.5;">${msg.text}</div>` : ''}
                             ${msg.image ? `<img src="${msg.image}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
                             ${msg.audioUrl ? `<audio controls src="${msg.audioUrl}" style="width:100%;margin-top:8px;"></audio>` : ''}
@@ -3351,14 +3745,14 @@
                 };
                 const cfg = configs[status] || configs.pending;
 
-                el.style.cssText = `display:flex; margin-bottom:1.5rem; padding:14px 18px; border-radius:12px; font-family:'Orbitron'; font-size:0.6rem; letter-spacing:1px; border:1px solid ${cfg.border}; background:${cfg.bg}; color:${cfg.color}; align-items:flex-start; gap:12px; flex-direction:column;`;
+                el.style.cssText = `display: flex; margin-bottom: 1.5rem; padding: 14px 18px; border-radius: 12px; font-family: 'Orbitron'; font-size: 0.6rem; letter-spacing: 1px; border: 1px solid ${cfg.border}; background:${cfg.bg}; color:${cfg.color}; align-items: flex-start; gap: 12px; flex-direction: column;`;
                 el.innerHTML = `
-                    <div style="display:flex;align-items:center;gap:10px;">
+                <div style="display:flex;align-items:center;gap:10px;">
                         <i class="fas ${cfg.icon}" style="font-size:1rem;"></i>
                         <span>${cfg.label}</span>
                     </div>
-                    <div style="font-family:'Inter',sans-serif; font-size:0.7rem; opacity:0.75; line-height:1.5; letter-spacing:0;">${cfg.sub}</div>
-                `;
+                <div style="font-family:'Inter',sans-serif; font-size:0.7rem; opacity:0.75; line-height:1.5; letter-spacing:0;">${cfg.sub}</div>
+            `;
 
                 // If rejected, remove the localStorage flag so the banner can appear again for resubmission
                 if (status === 'rejected') {
@@ -3417,7 +3811,7 @@
                 if (req.status === 'rejected') statusColor = '#ff003c';
 
                 return `
-                    <div class="stat-pill" style="justify-content: space-between; padding: 15px;">
+                <div class="stat-pill" style="justify-content: space-between; padding: 15px;">
                         <div>
                             <div style="font-size: 0.75rem;">CC CODE CHANGE REQUEST</div>
                             <div style="font-size: 0.5rem; opacity: 0.5;">${req.date} // ${req.id}</div>
@@ -3463,7 +3857,7 @@
 
             const LIMIT_MB = 10;
             if (file.size > 1024 * 1024 * LIMIT_MB) {
-                await tacticalAlert(`File too large. Max ${LIMIT_MB}MB allowed.`, 'PAYLOAD ERROR');
+                await tacticalAlert(`File too large.Max ${LIMIT_MB}MB allowed.`, 'PAYLOAD ERROR');
                 return;
             }
 
@@ -3520,7 +3914,7 @@
             dock.innerHTML = '';
             (activeMember.driveLinks || []).forEach(link => {
                 dock.innerHTML += `
-                    <a href="${link.url}" target="_blank" class="drive-btn card-glass">
+                <a href="${link.url}" target="_blank" class="drive-btn card-glass">
                         <i class="fab ${link.icon || 'fa-google-drive'}"></i>
                         <span>${link.title}</span>
                     </a>`;
@@ -3556,7 +3950,11 @@
 
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const isMarked = activeMember && activeMember.attendance && activeMember.attendance.includes(dateStr);
+                // Resilient check: Handle both Array (legacy) and Object (new)
+                const isMarked = activeMember && activeMember.attendance && (
+                    (Array.isArray(activeMember.attendance) && activeMember.attendance.includes(dateStr)) ||
+                    (!Array.isArray(activeMember.attendance) && activeMember.attendance[dateStr])
+                );
                 const isToday = dateStr === todayStr;
                 const isFuture = dateStr > todayStr;
 
@@ -3566,18 +3964,18 @@
                 if (isMarked) { bg = 'rgba(10,255,10,0.18)'; border = '1px solid #0aff0a'; textColor = '#0aff0a'; }
                 if (isFuture) { bg = 'rgba(0,243,255,0.04)'; border = '1px solid rgba(0,243,255,0.1)'; textColor = 'rgba(255,255,255,0.25)'; }
 
-                const todayRing = isToday ? `box-shadow:0 0 0 2px var(--accent-primary);` : '';
-                const todayWeight = isToday ? `font-weight:bold;` : '';
+                const todayRing = isToday ? `box-shadow: 0 0 0 2px var(--accent-primary);` : '';
+                const todayWeight = isToday ? `font-weight: bold;` : '';
 
                 grid.innerHTML += `
-                    <div style="aspect-ratio:1;border-radius:8px;${bg !== '' ? `background:${bg};` : ''}${border !== '' ? `border:${border};` : ''}
-                        display:flex;flex-direction:column;align-items:center;justify-content:center;
-                        font-family:'Orbitron';font-size:0.65rem;${textColor !== '' ? `color:${textColor};` : ''}
-                        ${todayRing}${todayWeight}cursor:pointer;transition:transform 0.15s;"
-                        onclick="showDailyAttendance('${dateStr}')"
-                        title="${dateStr}${isMarked ? ' ✅ Present' : isFuture ? '' : ' ❌ Absent'}"
-                    >
-                        <span>${d}</span>
+                <div style="aspect-ratio:1;border-radius:8px;${bg !== '' ? `background:${bg};` : ''}${border !== '' ? `border:${border};` : ''}
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: 'Orbitron'; font-size: 0.65rem;${textColor !== '' ? `color:${textColor};` : ''}
+                        ${todayRing}${todayWeight} cursor: pointer; transition:transform 0.15s;"
+            onclick="showDailyAttendance('${dateStr}')"
+            title="${dateStr}${isMarked ? ' ✅ Present' : isFuture ? '' : ' ❌ Absent'}"
+                >
+                <span>${d}</span>
                         ${isToday ? '<div style="width:4px;height:4px;background:var(--accent-primary);border-radius:50%;margin-top:2px;"></div>' : ''}
                     </div>`;
             }
@@ -3617,9 +4015,13 @@
 
             const now = new Date();
             const hour = now.getHours();
-            const alreadyMarked = activeMember && activeMember.attendance &&
-                activeMember.attendance.includes(now.toISOString().split('T')[0]);
-            const inWindow = hour >= 8 && hour <= 10;
+            const todayStr = now.toISOString().split('T')[0];
+            const alreadyMarked = activeMember && activeMember.attendance && (
+                (Array.isArray(activeMember.attendance) && activeMember.attendance.includes(todayStr)) ||
+                (!Array.isArray(activeMember.attendance) && activeMember.attendance[todayStr])
+            );
+            // Time window restriction removed per user request
+            const inWindow = true;
 
             if (alreadyMarked) {
                 btn.textContent = '✅ ATTENDANCE MARKED';
@@ -3711,7 +4113,7 @@
                 content.innerHTML = `<video controls autoplay src="${src}" style="max-width:88vw;max-height:82vh;border-radius:10px;"></video>`;
             } else {
                 content.innerHTML = `<img src="${src}" style="max-width:88vw;max-height:82vh;border-radius:10px;object-fit:contain;"
-                    ondblclick="closeLightbox()" title="Double-click to close">` ;
+            ondblclick="closeLightbox()" title="Double-click to close">`;
             }
 
             lb.style.display = 'flex';
@@ -3741,6 +4143,95 @@
             }
         }
 
+
+        // ─── MILESTONE UNLOCK SYSTEM ────────────────────────────────────
+        function showMilestoneUnlock(achievementId) {
+            const def = ACHIEVEMENT_DEFINITIONS[achievementId];
+            if (!def) return;
+
+            const modal = document.getElementById('milestone-unlock-modal');
+            const title = document.getElementById('m-popup-title');
+            const desc = document.getElementById('m-popup-desc');
+            const badge = document.getElementById('m-popup-badge');
+            const shareBtn = document.getElementById('m-popup-share-btn');
+
+            if (!modal || !title || !desc || !badge) return;
+
+            title.innerText = def.title;
+            desc.innerText = def.desc;
+            badge.className = `fas ${def.icon}`;
+            badge.parentElement.style.color = def.color || 'var(--accent-primary)';
+            badge.parentElement.style.borderColor = (def.color || 'var(--accent-primary)') + '4D'; // 30% alpha
+
+            // Setup Share Button
+            shareBtn.onclick = () => shareMilestone(achievementId);
+
+            modal.style.display = 'flex';
+
+            // Play a sound if available
+            try {
+                const audio = new Audio('/assets/unlock.mp3');
+                audio.volume = 0.5;
+                audio.play();
+            } catch (e) { }
+
+            // Confetti effect if GSAP is loaded
+            if (window.confetti) {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: [def.color || '#00f3ff', '#ffffff']
+                });
+            }
+        }
+
+        function closeMilestoneUnlock() {
+            const modal = document.getElementById('milestone-unlock-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function shareMilestone(achievementId) {
+            const def = ACHIEVEMENT_DEFINITIONS[achievementId];
+            if (!def) return;
+
+            const shareBtn = document.getElementById('m-popup-share-btn');
+            const origHTML = shareBtn.innerHTML;
+            shareBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SHARING...';
+            shareBtn.disabled = true;
+
+            try {
+                const message = `I just unlocked the ${def.title} milestone! 🚀\n"${def.desc}"`;
+
+                // Use DataManager.commitStatus with milestone metadata
+                const result = await window.DataManager.commitStatus(activeMember.id, message, null, {
+                    milestone: {
+                        id: achievementId,
+                        title: def.title,
+                        icon: def.icon,
+                        color: def.color
+                    }
+                });
+
+                if (result) {
+                    showToast("Achievement shared to Mission Feed!", "success");
+                    closeMilestoneUnlock();
+                }
+            } catch (err) {
+                console.error("Share failed:", err);
+                showToast("Failed to share achievement.", "error");
+            } finally {
+                shareBtn.innerHTML = origHTML;
+                shareBtn.disabled = false;
+            }
+        }
+
+        // Add to DOMContentLoaded
+        document.addEventListener('cc_achievement_unlocked', (e) => {
+            if (e.detail && e.detail.userId === activeMember.id) {
+                showMilestoneUnlock(e.detail.achievementId);
+            }
+        });
 
         window.switchTab = switchTab;
         window.submitBankDetails = submitBankDetails;
@@ -3982,6 +4473,89 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════
+         ACHIEVEMENT POPUP (GAMIFICATION)
+    ═══════════════════════════════════════ -->
+    <div id="achievement-popup" class="achievement-popup">
+        <div class="ach-popup-content" style="display: flex; align-items: center; gap: 15px;">
+            <div class="ach-icon"><i class="fas fa-medal"></i></div>
+            <div class="ach-text">
+                <div class="ach-label">MILESTONE UNLOCKED</div>
+                <div class="ach-title" id="ach-popup-title">Title</div>
+            </div>
+        </div>
+        <button onclick="location.href='milestones.html'"
+            style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:5px 12px; border-radius:20px; font-family:'Orbitron'; font-size:0.5rem; cursor:pointer; margin-left:10px; pointer-events:auto;">
+            VIEW ALL
+        </button>
+    </div>
+
+    <style>
+        .achievement-popup {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(10, 10, 15, 0.95), rgba(0, 243, 255, 0.05));
+            border: 1px solid var(--accent-gold);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(15px);
+            border-radius: 50px;
+            padding: 10px 25px 10px 10px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        .achievement-popup.show {
+            bottom: 40px;
+        }
+
+        .ach-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .ach-label {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .ach-title {
+            font-family: 'Orbitron';
+            color: #fff;
+            font-size: 1rem;
+        }
+    </style>
+    <script>
+        window.addEventListener('cc_achievement_unlocked', (e) => {
+            const def = e.detail;
+            const popup = document.getElementById('achievement-popup');
+            document.getElementById('ach-popup-title').innerText = def.title;
+            const iconWrap = popup.querySelector('.ach-icon');
+            iconWrap.innerHTML = `<i class="fas ${def.icon}"></i>`;
+            iconWrap.style.color = def.color;
+            iconWrap.style.background = def.color + '22';
+            popup.style.borderColor = def.color;
+            popup.style.boxShadow = `0 0 30px ${def.color}33`;
+
+            popup.classList.add('show');
+            setTimeout(() => { popup.classList.remove('show'); }, 5000);
+        });
+    </script>
 </body>
 
 

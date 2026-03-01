@@ -710,22 +710,20 @@ class DataManager {
         window.dispatchEvent(new CustomEvent('cc_chat_sync'));
     }
 
-    static async commitStatus(senderId, senderName, text, senderImage, statusImage = null) {
-        const statusUpdate = {
+    static async commitStatus(userId, userName, text, userImage, extra = {}) {
+        const item = {
             id: Date.now(),
-            senderId,
-            senderName,
-            senderImage,
+            senderId: userId,
+            senderName: userName,
+            senderImage: userImage || '/assets/favicon.png',
             text,
-            image: statusImage,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             timestamp: Date.now(),
-            replyTo: statusImage?.replyTo || null // Or handle extra if needed
+            milestone: extra.milestone || null
         };
-
-        await db.ref('chats/statusFeed').push(statusUpdate);
+        await db.ref('chats/statusFeed').push(item);
         window.dispatchEvent(new CustomEvent('cc_chat_sync'));
-        return statusUpdate;
+        return item;
     }
 
     static async markAsSeen(channel, threadIdOrKey, userId) {
@@ -776,46 +774,55 @@ class DataManager {
         return this.sendGlobalMessage('HQ', adminName, `[HQ DIRECTIVE] ${text}`);
     }
 
-    static async markAttendance(id) {
-        const member = await this.getMemberById(id);
-        if (!member) return false;
+    static async markAttendance(userId) {
+        try {
+            const member = await this.getMemberById(userId);
+            if (!member) return false;
 
-        const now = new Date();
-        const hour = now.getHours();
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // Enforce 8 AM to 10 AM rule
-        let attendanceStatus = 'late';
-        if (hour >= 8 && hour <= 10) {
-            attendanceStatus = 'present';
-        }
+            // Determine status based on clock-in time (threshold 09:30 AM)
+            const hour = now.getHours();
+            const mins = now.getMinutes();
+            const isLate = (hour > 9) || (hour === 9 && mins > 30);
+            const status = isLate ? 'late' : 'present';
 
-        const today = now.toISOString().split('T')[0];
-        const log = {
-            memberId: id,
-            memberName: member.name,
-            status: attendanceStatus,
-            timestamp: Date.now(),
-            time: new Date().toLocaleTimeString()
-        };
+            // 1. Update Global Daily Node (for Mission Log daily view)
+            const log = {
+                memberId: userId,
+                memberName: member.name,
+                status: status,
+                timestamp: Date.now(),
+                time: time
+            };
+            await db.ref(`attendance/${today}/${userId}`).set(log);
 
-        // 1. Log to global attendance node
-        await db.ref(`attendance/${today}/${id}`).set(log);
-
-        // 2. Update member's own attendance array for UI sync ONLY if present
-        if (attendanceStatus === 'present') {
-            const currentAttendance = member.attendance || [];
-            if (!currentAttendance.includes(today)) {
-                currentAttendance.push(today);
-                const members = await this.getAllMembers();
-                const index = members.findIndex(m => m.id === id);
-                if (index !== -1) {
-                    await db.ref(`members/${index}/attendance`).set(currentAttendance);
-                }
+            // 2. Update Member's Personal Node (for Streaks & Milestones)
+            let attendance = {};
+            if (Array.isArray(member.attendance)) {
+                // Migrate legacy array data
+                member.attendance.forEach(d => {
+                    if (d && typeof d === 'string') {
+                        attendance[d] = { status: 'present', time: '09:00 AM', migrated: true };
+                    }
+                });
+            } else if (member.attendance && typeof member.attendance === 'object') {
+                attendance = member.attendance;
             }
-        }
 
-        window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
-        return true;
+            if (!attendance[today]) {
+                attendance[today] = { status, time, timestamp: Date.now() };
+                await db.ref(`members/${userId}`).update({ attendance });
+            }
+
+            window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id: userId } }));
+            return true;
+        } catch (e) {
+            console.error("Failed to mark attendance:", e);
+            return false;
+        }
     }
 
     static async getDailyAttendance(date = null) {
@@ -890,6 +897,7 @@ class DataManager {
         };
 
         await db.ref('requests').push(newRequest);
+        await db.ref(`crew/${memberId}/passcodeChanged`).set(true);
         window.dispatchEvent(new CustomEvent('cc_security_update'));
         return { success: true, message: "Passcode change request submitted to HQ." };
     }
@@ -1225,3 +1233,199 @@ class EmailNotifier {
 }
 
 window.EmailNotifier = EmailNotifier;
+
+
+/**
+ * Gamification & Achievement Engine
+ * Analyzes mathematical milestones and pushes unlock events
+ */
+const ACHIEVEMENT_DEFINITIONS = {
+    // ---- ATTENDANCE STREAKS ----
+    'streak_25': { category: 'streak', title: 'Relentless Base', desc: 'Maintain a 25-day continuous attendance streak.', icon: 'fa-fire', color: '#ff6600' },
+    'streak_50': { category: 'streak', title: 'Unbroken Rhythm', desc: 'Maintain a 50-day continuous attendance streak.', icon: 'fa-bolt', color: '#ff9900' },
+    'streak_100': { category: 'streak', title: 'The Century Mark', desc: 'Maintain a 100-day continuous attendance streak.', icon: 'fa-medal', color: '#ffd700' },
+    'streak_200': { category: 'streak', title: 'Iron Will', desc: 'Maintain a 200-day continuous attendance streak.', icon: 'fa-dumbbell', color: '#ffb300' },
+
+    // ---- TENURE (LOYALTY) ----
+    'tenure_1yr': { category: 'tenure', title: 'Veteran Bean', desc: 'Active CoffeeCrews member for 1 Year.', icon: 'fa-award', color: '#ff003c' },
+    'tenure_2yr': { category: 'tenure', title: 'Caffeine Elder', desc: 'Active CoffeeCrews member for 2 Years.', icon: 'fa-crown', color: '#ff003c' },
+
+    // ---- DRAFTING (MESSAGES) ----
+    'draft_1': { category: 'drafting', title: 'Breaking the Ice', desc: 'Drafted your first Status Feed update.', icon: 'fa-comment-dots', color: '#3cff7d' },
+    'draft_10': { category: 'drafting', title: 'Chatterbox', desc: 'Sent 10 updates to the Status Feed.', icon: 'fa-bullhorn', color: '#3cff7d' },
+    'draft_20': { category: 'drafting', title: 'Active Reporter', desc: 'Sent 20 updates to the Status Feed.', icon: 'fa-paper-plane', color: '#3cff7d' },
+    'draft_50': { category: 'drafting', title: 'Vocal Operator', desc: 'Sent 50 Status Updates.', icon: 'fa-walkie-talkie', color: '#00f3ff' },
+    'draft_75': { category: 'drafting', title: 'Signal Master', desc: 'Sent 75 Status Updates.', icon: 'fa-broadcast-tower', color: '#00f3ff' },
+    'draft_100': { category: 'drafting', title: 'Keyboard Warrior', desc: 'Drafted 100 Status Updates.', icon: 'fa-keyboard', color: '#ffd700' },
+    'draft_150': { category: 'drafting', title: 'Information Hub', desc: 'Sent 150 Status Updates.', icon: 'fa-network-wired', color: '#ffd700' },
+    'draft_200': { category: 'drafting', title: 'Ops Architect', desc: 'Sent 200 Status Updates.', icon: 'fa-microchip', color: '#ffd700' },
+    'draft_300': { category: 'drafting', title: 'System Pulse', desc: 'Sent 300 Status Updates.', icon: 'fa-heartbeat', color: '#ff003c' },
+    'draft_400': { category: 'drafting', title: 'Core Processor', desc: 'Sent 400 Status Updates.', icon: 'fa-brain', color: '#ff003c' },
+    'draft_500': { category: 'drafting', title: 'The Oracle', desc: 'Drafted 500 Status Updates.', icon: 'fa-eye', color: '#9d00ff' },
+
+    // ---- MONTHLY PERFECT ----
+    'monthly_perfect': { category: 'monthly', title: 'Flawless Month', desc: 'Attended every single day in a calendar month.', icon: 'fa-calendar-check', color: '#0aff78' },
+
+    // ---- INFAMOUS (LATE LOGINS) ----
+    'late_5': { category: 'late', title: 'Lazy Master (Initiate)', desc: 'Logged in late 5 times.', icon: 'fa-bed', color: '#ff003c' },
+    'late_10': { category: 'late', title: 'Lazy Master (Expert)', desc: 'Logged in late 10 times.', icon: 'fa-bed-pulse', color: '#ff003c' },
+    'late_20': { category: 'late', title: 'Lazy Master (Veteran)', desc: 'Logged in late 20 times.', icon: 'fa-couch', color: '#ff003c' },
+    'late_50': { category: 'late', title: 'Ultimate Lazy Master', desc: 'Logged in late 50 times.', icon: 'fa-ghost', color: '#ff003c' },
+
+    // ---- SECURITY ----
+    'passcode_change': { category: 'security', title: 'Rule Breaker', desc: 'Changed your initial secure passcode.', icon: 'fa-user-secret', color: '#3cff7d' }
+};
+
+class AchievementsEngine {
+
+    static async checkAll(userId) {
+        if (!userId) return null;
+
+        try {
+            const member = await DataManager.getMemberById(userId);
+            if (!member) return null;
+
+            const earnedIds = member.achievements || [];
+            let newUnlocks = [];
+
+            // --- GATHER STATS ---
+            let attendanceObj = {};
+            if (Array.isArray(member.attendance)) {
+                member.attendance.forEach(d => { if (typeof d === 'string') attendanceObj[d] = { status: 'present' }; });
+            } else if (member.attendance && typeof member.attendance === 'object') {
+                attendanceObj = member.attendance;
+            }
+
+            const attendances = Object.values(attendanceObj);
+            const attendanceDates = Object.keys(attendanceObj).sort();
+            const lateLogins = attendances.filter(a => a.status === 'late').length;
+
+            // 1. Longest Streak Calculation
+            let currentStreak = 0;
+            let maxStreak = 0;
+            if (attendanceDates.length > 0) {
+                let prev = new Date(attendanceDates[0]);
+                currentStreak = 1;
+                maxStreak = 1;
+                for (let i = 1; i < attendanceDates.length; i++) {
+                    let curr = new Date(attendanceDates[i]);
+                    let diff = (curr - prev) / (1000 * 60 * 60 * 24);
+                    if (diff === 1) {
+                        currentStreak++;
+                    } else if (diff > 1) {
+                        currentStreak = 1;
+                    }
+                    if (currentStreak > maxStreak) maxStreak = currentStreak;
+                    prev = curr;
+                }
+            }
+
+            // 2. Monthly Perfection Check
+            const now = new Date();
+            const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const pmYear = prevMonthDate.getFullYear();
+            const pmMonth = prevMonthDate.getMonth();
+            const daysInPrevMonth = new Date(pmYear, pmMonth + 1, 0).getDate();
+
+            let perfectCount = 0;
+            for (let d = 1; d <= daysInPrevMonth; d++) {
+                const dayStr = `${pmYear}-${String(pmMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                if (attendanceObj[dayStr]) perfectCount++;
+            }
+            const isPrevMonthPerfect = perfectCount === daysInPrevMonth;
+
+            // 3. Drafting Count
+            const statusFeedRaw = await db.ref('chats/statusFeed').once('value');
+            let drafts = 0;
+            if (statusFeedRaw.exists()) {
+                const statuses = Object.values(statusFeedRaw.val());
+                drafts = statuses.filter(s => s.senderId === userId).length;
+            }
+
+            // 4. Tenure Math
+            const joinedAt = member.joinDate ? new Date(member.joinDate) : new Date(member.timestamp || Date.now());
+            const yearsActive = (Date.now() - joinedAt.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+
+            // --- EVALUATE UNLOCKS ---
+            const tryUnlock = (id, condition) => {
+                if (condition && !earnedIds.includes(id)) {
+                    earnedIds.push(id);
+                    newUnlocks.push(id);
+                }
+            };
+
+            tryUnlock('streak_25', maxStreak >= 25);
+            tryUnlock('streak_50', maxStreak >= 50);
+            tryUnlock('streak_100', maxStreak >= 100);
+            tryUnlock('streak_200', maxStreak >= 200);
+
+            tryUnlock('tenure_1yr', yearsActive >= 1);
+            tryUnlock('tenure_2yr', yearsActive >= 2);
+
+            tryUnlock('draft_1', drafts >= 1);
+            tryUnlock('draft_10', drafts >= 10);
+            tryUnlock('draft_20', drafts >= 20);
+            tryUnlock('draft_50', drafts >= 50);
+            tryUnlock('draft_75', drafts >= 75);
+            tryUnlock('draft_100', drafts >= 100);
+            tryUnlock('draft_150', drafts >= 150);
+            tryUnlock('draft_200', drafts >= 200);
+            tryUnlock('draft_300', drafts >= 300);
+            tryUnlock('draft_400', drafts >= 400);
+            tryUnlock('draft_500', drafts >= 500);
+
+            tryUnlock('late_5', lateLogins >= 5);
+            tryUnlock('late_10', lateLogins >= 10);
+            tryUnlock('late_20', lateLogins >= 20);
+            tryUnlock('late_50', lateLogins >= 50);
+
+            tryUnlock('monthly_perfect', isPrevMonthPerfect);
+            tryUnlock('passcode_change', member.passcodeChanged === true);
+
+            // --- PERSIST STATS & UNLOCKS ---
+            const stats = {
+                streak: maxStreak,
+                vocalistCount: drafts,
+                lateCount: lateLogins,
+                tenure: yearsActive,
+                achievements: earnedIds
+            };
+
+            // Use DataManager to persist to the main 'members' node
+            await DataManager.updateMember(userId, stats);
+
+            // --- DISPATCH UNLOCKS (with persistent guard) ---
+            if (newUnlocks.length > 0) {
+                const storageKey = `cc_milestone_notified_${userId}`;
+                const notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+                newUnlocks.forEach(id => {
+                    // Only pop if NOT already notified
+                    if (!notified.includes(id)) {
+                        const def = ACHIEVEMENT_DEFINITIONS[id];
+                        // Dispatch with userId and achievementId for listener filtering
+                        window.dispatchEvent(new CustomEvent('cc_achievement_unlocked', {
+                            detail: {
+                                userId: userId,
+                                achievementId: id,
+                                ...def
+                            }
+                        }));
+                        notified.push(id);
+                    }
+                });
+
+                localStorage.setItem(storageKey, JSON.stringify(notified));
+            }
+
+            return stats;
+
+        } catch (e) {
+            console.error("Achievement Engine Failed:", e);
+            return null;
+        }
+    }
+}
+
+window.ACHIEVEMENT_DEFINITIONS = ACHIEVEMENT_DEFINITIONS;
+window.AchievementsEngine = AchievementsEngine;

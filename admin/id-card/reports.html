@@ -321,6 +321,10 @@
                     style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem;">
                     <i class="fas fa-tower-broadcast"></i> GLOBAL BROADCAST
                 </button>
+                <button class="btn-primary" onclick="broadcastFeatureUnlock()"
+                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: var(--accent-primary); color: #000; font-family: 'Orbitron'; cursor: pointer; border: none;">
+                    <i class="fas fa-bullhorn"></i> ANNOUNCE ACHIEVEMENTS
+                </button>
                 <button id="seed-btn" onclick="seedDatabase()"
                     style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: transparent; border: 1px solid rgba(0,243,255,0.4); color: var(--accent-primary); font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;"
                     onmouseover="this.style.background='rgba(0,243,255,0.1)'"
@@ -717,6 +721,26 @@
 
                 await window.DataManager.sendBroadcast(adminName, message.trim());
                 showToast('🚀 GLOBAL BROADCAST TRANSMITTED', 'success', 3500);
+            } catch (e) {
+                console.error('Broadcast failed:', e);
+                showToast('Broadcast failed: ' + e.message, 'error', 4000);
+            }
+        }
+
+        /* ─── FEATURE UNLOCK BROADCAST ─────────────────────────────────────────────── */
+        async function broadcastFeatureUnlock() {
+            const confirmed = await tacticalConfirm(
+                "Broadcast the new Achievements feature unlock to all members? Sender will be 'On time today'.",
+                "FEATURE ANNOUNCEMENT"
+            );
+            if (!confirmed) return;
+
+            try {
+                const message = "The new Achievements feature is unlocked. Live after 7:00 PM today!";
+                const senderName = "On time today";
+
+                await window.DataManager.sendBroadcast(senderName, message);
+                showToast('🚀 FEATURE ANNOUNCEMENT TRANSMITTED', 'success', 3500);
             } catch (e) {
                 console.error('Broadcast failed:', e);
                 showToast('Broadcast failed: ' + e.message, 'error', 4000);

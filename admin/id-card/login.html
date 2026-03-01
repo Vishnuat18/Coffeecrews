@@ -444,13 +444,8 @@
                     timestamp: Date.now()
                 }));
 
-                // --- NEW: TACTICAL ATTENDANCE LOGGING ---
-                const attendanceMarked = await DataManager.markAttendance(currentMember.id);
-                if (attendanceMarked) {
-                    showToast(`Agent ${currentMember.name.toUpperCase()} clocked in.`, "success");
-                } else {
-                    showToast(`Agent ${currentMember.name.toUpperCase()} logged in.`, "success");
-                }
+                // --- REMOVED: TACTICAL ATTENDANCE LOGGING (Now manual only per user request) ---
+                showToast(`Agent ${currentMember.name.toUpperCase()} logged in.`, "success");
 
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
