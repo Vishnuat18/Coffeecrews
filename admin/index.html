@@ -749,35 +749,40 @@
             </div>
         </section>
 
-        <!-- Attendance Tracker -->
+        <!-- Attendance Tracker: PRESENT -->
         <section id="attendance-report" class="animate-up mb-5" style="animation-delay: 0.15s;">
             <div class="glass p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="section-label">Roll Call</span>
-                        <h3 class="orbitron m-0" style="font-size: 1rem;">Daily Attendance Tracker</h3>
+                        <span class="section-label text-success">Roll Call [ON TIME]</span>
+                        <h3 class="orbitron m-0" style="font-size: 1rem;"><i
+                                class="fas fa-check-circle text-success"></i> PRESENT (08:00 - 10:00)</h3>
                     </div>
-                    <div id="attendance-date" class="opacity-50 small orbitron">2026-02-21</div>
+                    <div class="opacity-50 small orbitron attendance-date-display">2026-02-21</div>
                 </div>
 
-                <!-- Present Agents -->
-                <div class="mb-4">
-                    <h4 class="orbitron text-success mb-3" style="font-size: 0.8rem;"><i
-                            class="fas fa-check-circle"></i> PRESENT (08:00 - 10:00)</h4>
-                    <div id="attendance-list" class="d-flex flex-wrap gap-2">
-                        <!-- Injected via JS -->
-                        <span class="opacity-30 small">No agents clocked in yet today.</span>
+                <div id="attendance-list" class="d-flex flex-wrap gap-2">
+                    <!-- Injected via JS -->
+                    <span class="opacity-30 small">No agents clocked in yet today.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendance Tracker: LATE LOGINS -->
+        <section id="late-logins-report" class="animate-up mb-5" style="animation-delay: 0.15s;">
+            <div class="glass p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="section-label text-warning">Roll Call [DELAYED]</span>
+                        <h3 class="orbitron m-0 text-warning" style="font-size: 1rem;"><i
+                                class="fas fa-clock text-warning"></i> LATE LOGINS (After 10:00)</h3>
                     </div>
+                    <div class="opacity-50 small orbitron attendance-date-display">2026-02-21</div>
                 </div>
 
-                <!-- Late Logins -->
-                <div>
-                    <h4 class="orbitron text-warning mb-3" style="font-size: 0.8rem;"><i class="fas fa-clock"></i> LATE
-                        LOGINS (After 10:00)</h4>
-                    <div id="late-list" class="d-flex flex-wrap gap-2">
-                        <!-- Injected via JS -->
-                        <span class="opacity-30 small">No late logins.</span>
-                    </div>
+                <div id="late-list" class="d-flex flex-wrap gap-2">
+                    <!-- Injected via JS -->
+                    <span class="opacity-30 small">No late logins.</span>
                 </div>
             </div>
         </section>
@@ -1094,9 +1099,13 @@
         function renderAttendanceUI(list) {
             const presentContainer = document.getElementById('attendance-list');
             const lateContainer = document.getElementById('late-list');
-            document.getElementById('attendance-date').textContent = new Date().toISOString().split('T')[0];
 
-            const presentList = list.filter(entry => entry.status === 'present');
+            // Update all date displays
+            const dateStr = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('.attendance-date-display').forEach(el => el.textContent = dateStr);
+
+            // Treat legacy entries (without a status field) as 'present'
+            const presentList = list.filter(entry => entry.status === 'present' || !entry.status);
             const lateList = list.filter(entry => entry.status === 'late');
 
             if (presentList.length === 0) {
