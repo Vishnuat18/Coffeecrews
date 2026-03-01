@@ -469,7 +469,8 @@ class DataManager {
     static async getMemberById(id) {
         if (!id) return null;
         const members = await this.getAllMembers();
-        return members.find(m => m.id.toLowerCase() === id.toLowerCase());
+        const searchId = id.toString().toLowerCase();
+        return members.find(m => m.id.toString().toLowerCase() === searchId);
     }
 
     static async saveAllMembers(members) {
@@ -492,12 +493,13 @@ class DataManager {
 
         // Match initial members to existing data (or create new)
         INITIAL_MEMBERS.forEach(source => {
-            const existing = current[source.id] || {};
+            const safeId = source.id.toString().toLowerCase();
+            const existing = current[safeId] || {};
             const patch = {};
             BASE_FIELDS.forEach(f => { if (source[f] !== undefined) patch[f] = source[f]; });
 
             // Merge existing dynamic data with source base data
-            updates[source.id] = { ...existing, ...patch };
+            updates[safeId] = { ...existing, ...patch, id: safeId };
             updatedCount++;
         });
 
@@ -508,16 +510,17 @@ class DataManager {
     static async updateMember(id, updatedData) {
         if (!id) return false;
 
-        // Target specific ID directly in Firebase
-        await db.ref(`members/${id}`).update(updatedData);
+        const safeId = id.toString().toLowerCase();
+        // Target specific ID directly in Firebase (enforce lowercase)
+        await db.ref(`members/${safeId}`).update(updatedData);
 
         // --- REACTIVE ACHIEVEMENT CHECK (for passcode changes etc) ---
         // Prevent recursion if this update was triggered BY the achievement engine
         if (window.AchievementsEngine && !updatedData._skipAchievementCheck) {
-            window.AchievementsEngine.checkAll(id);
+            window.AchievementsEngine.checkAll(safeId);
         }
 
-        window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
+        window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id: safeId } }));
         return true;
     }
 
@@ -555,7 +558,9 @@ class DataManager {
     }
 
     static getThreadId(id1, id2) {
-        return [id1, id2].sort().join('_').toLowerCase();
+        const s1 = id1.toString().toLowerCase();
+        const s2 = id2.toString().toLowerCase();
+        return [s1, s2].sort().join('_');
     }
 
     static async getMessages(threadId) {
@@ -775,7 +780,8 @@ class DataManager {
 
     static async markAttendance(userId) {
         try {
-            const member = await this.getMemberById(userId);
+            const safeId = userId.toString().toLowerCase();
+            const member = await this.getMemberById(safeId);
             if (!member) return false;
 
             const now = new Date();
@@ -801,7 +807,7 @@ class DataManager {
                 timestamp: Date.now(),
                 time: time
             };
-            await db.ref(`attendance/${today}/${userId}`).set(log);
+            await db.ref(`attendance/${today}/${safeId}`).set(log);
 
             // 2. Update Member's Personal Node (for Streaks & Milestones)
             let attendance = {};
@@ -818,15 +824,15 @@ class DataManager {
 
             if (!attendance[today]) {
                 attendance[today] = { status, time, timestamp: Date.now() };
-                await db.ref(`members/${userId}`).update({ attendance });
+                await db.ref(`members/${safeId}`).update({ attendance });
 
                 // --- REACTIVE ACHIEVEMENT CHECK ---
                 if (window.AchievementsEngine) {
-                    window.AchievementsEngine.checkAll(userId);
+                    window.AchievementsEngine.checkAll(safeId);
                 }
             }
 
-            window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id: userId } }));
+            window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id: safeId } }));
             return true;
         } catch (e) {
             console.error("Failed to mark attendance:", e);
@@ -906,7 +912,13 @@ class DataManager {
         await this.savePasscodeRequests(requests);
 
         // 2. Mark flag on member record (Unlocks "Rule Breaker" achievement)
-        await db.ref(`members/${memberId}/passcodeChanged`).set(true);
+        const safeId = memberId.toString().toLowerCase();
+        await db.ref(`members/${safeId}/passcodeChanged`).set(true);
+
+        // Trigger achievement check instantly after submission
+        if (window.AchievementsEngine) {
+            window.AchievementsEngine.checkAll(safeId);
+        }
 
         return { success: true, message: "Passcode change request submitted to HQ." };
     }
@@ -1306,9 +1318,10 @@ class AchievementsEngine {
 
     static async checkAll(userId) {
         if (!userId) return null;
+        const safeId = userId.toString().toLowerCase();
 
         try {
-            const member = await DataManager.getMemberById(userId);
+            const member = await DataManager.getMemberById(safeId);
             if (!member) return null;
 
             const earnedIds = member.achievements || [];
@@ -1384,16 +1397,16 @@ class AchievementsEngine {
                 const statusFeedRaw = await db.ref('chats/statusFeed').once('value');
                 if (statusFeedRaw.exists()) {
                     const statuses = Object.values(statusFeedRaw.val());
-                    drafts += statuses.filter(s => s.senderId === userId).length;
+                    drafts += statuses.filter(s => s.senderId && s.senderId.toString().toLowerCase() === safeId).length;
                 }
 
                 // Count messages sent to HQ (Private Threads)
-                const threadId = DataManager.getThreadId(userId, 'HQ');
+                const threadId = DataManager.getThreadId(safeId, 'HQ');
                 const hqThreadRaw = await db.ref(`chats/threads/${threadId}`).once('value');
                 if (hqThreadRaw.exists()) {
                     const messages = Object.values(hqThreadRaw.val());
                     // Only count messages SENT by the user, not HQ responses
-                    drafts += messages.filter(m => m.senderId === userId).length;
+                    drafts += messages.filter(m => m.senderId && m.senderId.toString().toLowerCase() === safeId).length;
                 }
             } catch (err) {
                 console.warn("Drafting count partial failure:", err);
@@ -1452,11 +1465,11 @@ class AchievementsEngine {
             };
 
             // Use DataManager to persist to the main 'members' node
-            await DataManager.updateMember(userId, stats);
+            await DataManager.updateMember(safeId, stats);
 
             // --- DISPATCH UNLOCKS (with persistent guard) ---
             if (newUnlocks.length > 0) {
-                const storageKey = `cc_milestone_notified_${userId}`;
+                const storageKey = `cc_milestone_notified_${safeId}`;
                 const notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
                 newUnlocks.forEach(id => {
@@ -1466,7 +1479,7 @@ class AchievementsEngine {
                         // Dispatch with userId and achievementId for listener filtering
                         window.dispatchEvent(new CustomEvent('cc_achievement_unlocked', {
                             detail: {
-                                userId: userId,
+                                userId: safeId,
                                 achievementId: id,
                                 ...def
                             }
