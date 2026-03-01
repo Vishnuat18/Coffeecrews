@@ -780,7 +780,13 @@ class DataManager {
         const member = await this.getMemberById(id);
         if (!member) return false;
 
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const hour = now.getHours();
+
+        // Enforce 8 AM to 10 AM rule
+        if (hour < 8 || hour > 10) return false;
+
+        const today = now.toISOString().split('T')[0];
         const log = {
             memberId: id,
             memberName: member.name,
