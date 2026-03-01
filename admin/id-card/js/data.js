@@ -1263,39 +1263,39 @@ window.EmailNotifier = EmailNotifier;
  */
 const ACHIEVEMENT_DEFINITIONS = {
     // ---- ATTENDANCE STREAKS ----
-    'streak_25': { category: 'streak', title: 'Relentless Base', desc: 'Maintain a 25-day continuous attendance streak.', icon: 'fa-fire', color: '#ff6600' },
-    'streak_50': { category: 'streak', title: 'Unbroken Rhythm', desc: 'Maintain a 50-day continuous attendance streak.', icon: 'fa-bolt', color: '#ff9900' },
-    'streak_100': { category: 'streak', title: 'The Century Mark', desc: 'Maintain a 100-day continuous attendance streak.', icon: 'fa-medal', color: '#ffd700' },
-    'streak_200': { category: 'streak', title: 'Iron Will', desc: 'Maintain a 200-day continuous attendance streak.', icon: 'fa-dumbbell', color: '#ffb300' },
+    'streak_25': { category: 'streak', title: 'Relentless Base', desc: 'Maintain a 25-day continuous attendance streak.', icon: 'fa-fire', color: '#ff6600', target: 25, statKey: 'streak' },
+    'streak_50': { category: 'streak', title: 'Unbroken Rhythm', desc: 'Maintain a 50-day continuous attendance streak.', icon: 'fa-bolt', color: '#ff9900', target: 50, statKey: 'streak' },
+    'streak_100': { category: 'streak', title: 'The Century Mark', desc: 'Maintain a 100-day continuous attendance streak.', icon: 'fa-medal', color: '#ffd700', target: 100, statKey: 'streak' },
+    'streak_200': { category: 'streak', title: 'Iron Will', desc: 'Maintain a 200-day continuous attendance streak.', icon: 'fa-dumbbell', color: '#ffb300', target: 200, statKey: 'streak' },
 
     // ---- TENURE (LOYALTY) ----
-    'tenure_1yr': { category: 'tenure', title: 'Veteran Bean', desc: 'Active CoffeeCrews member for 1 Year.', icon: 'fa-award', color: '#ff003c' },
-    'tenure_2yr': { category: 'tenure', title: 'Caffeine Elder', desc: 'Active CoffeeCrews member for 2 Years.', icon: 'fa-crown', color: '#ff003c' },
+    'tenure_1yr': { category: 'tenure', title: 'Veteran Bean', desc: 'Active CoffeeCrews member for 1 Year.', icon: 'fa-award', color: '#ff003c', target: 1, statKey: 'tenure' },
+    'tenure_2yr': { category: 'tenure', title: 'Caffeine Elder', desc: 'Active CoffeeCrews member for 2 Years.', icon: 'fa-crown', color: '#ff003c', target: 2, statKey: 'tenure' },
 
     // ---- DRAFTING (MESSAGES) ----
-    'draft_1': { category: 'drafting', title: 'Breaking the Ice', desc: 'Drafted your first Status Feed update.', icon: 'fa-comment-dots', color: '#3cff7d' },
-    'draft_10': { category: 'drafting', title: 'Chatterbox', desc: 'Sent 10 updates to the Status Feed.', icon: 'fa-bullhorn', color: '#3cff7d' },
-    'draft_20': { category: 'drafting', title: 'Active Reporter', desc: 'Sent 20 updates to the Status Feed.', icon: 'fa-paper-plane', color: '#3cff7d' },
-    'draft_50': { category: 'drafting', title: 'Vocal Operator', desc: 'Sent 50 Status Updates.', icon: 'fa-walkie-talkie', color: '#00f3ff' },
-    'draft_75': { category: 'drafting', title: 'Signal Master', desc: 'Sent 75 Status Updates.', icon: 'fa-broadcast-tower', color: '#00f3ff' },
-    'draft_100': { category: 'drafting', title: 'Keyboard Warrior', desc: 'Drafted 100 Status Updates.', icon: 'fa-keyboard', color: '#ffd700' },
-    'draft_150': { category: 'drafting', title: 'Information Hub', desc: 'Sent 150 Status Updates.', icon: 'fa-network-wired', color: '#ffd700' },
-    'draft_200': { category: 'drafting', title: 'Ops Architect', desc: 'Sent 200 Status Updates.', icon: 'fa-microchip', color: '#ffd700' },
-    'draft_300': { category: 'drafting', title: 'System Pulse', desc: 'Sent 300 Status Updates.', icon: 'fa-heartbeat', color: '#ff003c' },
-    'draft_400': { category: 'drafting', title: 'Core Processor', desc: 'Sent 400 Status Updates.', icon: 'fa-brain', color: '#ff003c' },
-    'draft_500': { category: 'drafting', title: 'The Oracle', desc: 'Drafted 500 Status Updates.', icon: 'fa-eye', color: '#9d00ff' },
+    'draft_1': { category: 'drafting', title: 'Breaking the Ice', desc: 'Drafted your first Status Feed update.', icon: 'fa-comment-dots', color: '#3cff7d', target: 1, statKey: 'vocalistCount' },
+    'draft_10': { category: 'drafting', title: 'Chatterbox', desc: 'Sent 10 updates to the Status Feed.', icon: 'fa-bullhorn', color: '#3cff7d', target: 10, statKey: 'vocalistCount' },
+    'draft_20': { category: 'drafting', title: 'Active Reporter', desc: 'Sent 20 updates to the Status Feed.', icon: 'fa-paper-plane', color: '#3cff7d', target: 20, statKey: 'vocalistCount' },
+    'draft_50': { category: 'drafting', title: 'Vocal Operator', desc: 'Sent 50 Status Updates.', icon: 'fa-walkie-talkie', color: '#00f3ff', target: 50, statKey: 'vocalistCount' },
+    'draft_75': { category: 'drafting', title: 'Signal Master', desc: 'Sent 75 Status Updates.', icon: 'fa-broadcast-tower', color: '#00f3ff', target: 75, statKey: 'vocalistCount' },
+    'draft_100': { category: 'drafting', title: 'Keyboard Warrior', desc: 'Drafted 100 Status Updates.', icon: 'fa-keyboard', color: '#ffd700', target: 100, statKey: 'vocalistCount' },
+    'draft_150': { category: 'drafting', title: 'Information Hub', desc: 'Sent 150 Status Updates.', icon: 'fa-network-wired', color: '#ffd700', target: 150, statKey: 'vocalistCount' },
+    'draft_200': { category: 'drafting', title: 'Ops Architect', desc: 'Sent 200 Status Updates.', icon: 'fa-microchip', color: '#ffd700', target: 200, statKey: 'vocalistCount' },
+    'draft_300': { category: 'drafting', title: 'System Pulse', desc: 'Sent 300 Status Updates.', icon: 'fa-heartbeat', color: '#ff003c', target: 300, statKey: 'vocalistCount' },
+    'draft_400': { category: 'drafting', title: 'Core Processor', desc: 'Sent 400 Status Updates.', icon: 'fa-brain', color: '#ff003c', target: 400, statKey: 'vocalistCount' },
+    'draft_500': { category: 'drafting', title: 'The Oracle', desc: 'Drafted 500 Status Updates.', icon: 'fa-eye', color: '#9d00ff', target: 500, statKey: 'vocalistCount' },
 
     // ---- MONTHLY PERFECT ----
-    'monthly_perfect': { category: 'monthly', title: 'Flawless Month', desc: 'Attended every single day in a calendar month.', icon: 'fa-calendar-check', color: '#0aff78' },
+    'monthly_perfect': { category: 'monthly', title: 'Flawless Month', desc: 'Attended every single day in a calendar month.', icon: 'fa-calendar-check', color: '#0aff78', target: 1, statKey: 'monthly' },
 
     // ---- INFAMOUS (LATE LOGINS) ----
-    'late_5': { category: 'late', title: 'Lazy Master (Initiate)', desc: 'Logged in late 5 times.', icon: 'fa-bed', color: '#ff003c' },
-    'late_10': { category: 'late', title: 'Lazy Master (Expert)', desc: 'Logged in late 10 times.', icon: 'fa-bed-pulse', color: '#ff003c' },
-    'late_20': { category: 'late', title: 'Lazy Master (Veteran)', desc: 'Logged in late 20 times.', icon: 'fa-couch', color: '#ff003c' },
-    'late_50': { category: 'late', title: 'Ultimate Lazy Master', desc: 'Logged in late 50 times.', icon: 'fa-ghost', color: '#ff003c' },
+    'late_5': { category: 'late', title: 'Lazy Master (Initiate)', desc: 'Logged in late 5 times.', icon: 'fa-bed', color: '#ff003c', target: 5, statKey: 'lateCount' },
+    'late_10': { category: 'late', title: 'Lazy Master (Expert)', desc: 'Logged in late 10 times.', icon: 'fa-bed-pulse', color: '#ff003c', target: 10, statKey: 'lateCount' },
+    'late_20': { category: 'late', title: 'Lazy Master (Veteran)', desc: 'Logged in late 20 times.', icon: 'fa-couch', color: '#ff003c', target: 20, statKey: 'lateCount' },
+    'late_50': { category: 'late', title: 'Ultimate Lazy Master', desc: 'Logged in late 50 times.', icon: 'fa-ghost', color: '#ff003c', target: 50, statKey: 'lateCount' },
 
     // ---- SECURITY ----
-    'passcode_change': { category: 'security', title: 'Rule Breaker', desc: 'Changed your initial secure passcode.', icon: 'fa-user-secret', color: '#3cff7d' }
+    'passcode_change': { category: 'security', title: 'Rule Breaker', desc: 'Changed your initial secure passcode.', icon: 'fa-user-secret', color: '#3cff7d', target: 1, statKey: 'passcode' }
 };
 
 class AchievementsEngine {

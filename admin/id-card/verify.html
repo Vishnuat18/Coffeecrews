@@ -3414,8 +3414,8 @@
             if (!grid) return;
 
             // Run an immediate sync if unlocked
-            const isUnlocked = await window.DataManager.checkMilestonesUnlockStatus();
-            if (window.AchievementsEngine && isUnlocked) {
+            const isUnlockedGate = await window.DataManager.checkMilestonesUnlockStatus();
+            if (window.AchievementsEngine && isUnlockedGate) {
                 await window.AchievementsEngine.checkAll(activeMember.id);
             }
 
@@ -3423,11 +3423,12 @@
             const memberData = await window.DataManager.getMemberById(activeMember.id);
             const userEarned = memberData.achievements || [];
 
-            document.getElementById('achievement-count-label').innerHTML = `< span style = "color: var(--accent-gold); font-weight: bold;" > ${userEarned.length} / 15 UNLOCKED</span > `;
+            document.getElementById('achievement-count-label').innerHTML = `<span style="color: var(--accent-gold); font-weight: bold;">${userEarned.length} / 15 UNLOCKED</span>`;
 
             // Active button states
             document.querySelectorAll('#section-achievements .sub-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`filter - btn - ${filter}`).classList.add('active');
+            const filterBtn = document.getElementById(`filter-btn-${filter}`);
+            if (filterBtn) filterBtn.classList.add('active');
 
             grid.innerHTML = '';
 
@@ -3446,35 +3447,63 @@
                 const def = defs[k];
                 const isUnlocked = userEarned.includes(k);
 
+                // --- PROGRESS MATH ---
+                let currentVal = 0;
+                if (def.statKey === 'streak') currentVal = memberData.streak || 0;
+                else if (def.statKey === 'vocalistCount') currentVal = memberData.vocalistCount || 0;
+                else if (def.statKey === 'lateCount') currentVal = memberData.lateCount || 0;
+                else if (def.statKey === 'tenure') currentVal = memberData.tenure || 0;
+                else if (def.statKey === 'monthly') currentVal = memberData.achievements?.includes('monthly_perfect') ? 1 : 0;
+                else if (def.statKey === 'passcode') currentVal = memberData.passcodeChanged ? 1 : 0;
+
+                const target = def.target || 1;
+                const progressPercent = Math.min(100, Math.floor((currentVal / target) * 100));
+                const progressLabel = def.statKey === 'tenure'
+                    ? `${currentVal.toFixed(1)} / ${target} YRS`
+                    : `${currentVal} / ${target}`;
+
                 // Color overrides
-                const cssFilter = isUnlocked ? '' : 'filter: grayscale(100%); opacity: 0.4;';
-                const ringColor = isUnlocked ? def.color : 'rgba(255,255,255,0.1)';
+                const cssFilter = isUnlocked ? '' : 'filter: grayscale(100%); opacity: 0.6;';
+                const ringColor = isUnlocked ? def.color : 'rgba(255,255,255,0.2)';
 
                 const card = document.createElement('div');
-                card.className = `glass achievement - card ${isUnlocked ? 'unlocked animate-up' : ''}`;
+                card.className = `glass achievement-card ${isUnlocked ? 'unlocked animate-up' : ''}`;
                 card.style.cssText = `
                     padding: 20px;
-            border - radius: 20px;
-            display: flex;
-            align - items: center;
-            gap: 20px;
-            border: 1px solid ${ringColor};
-            background: linear - gradient(135deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.5));
-            transition: 0.3s transform;
+                    border-radius: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                    border: 1px solid ${ringColor};
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.5));
+                    transition: 0.3s transform;
                     ${isUnlocked ? 'box-shadow: 0 0 20px ' + def.color + '33;' : ''}
-            `;
+                `;
 
                 // Sub-HTML for card
                 card.innerHTML = `
-                < div style = "width: 60px; height: 60px; border-radius: 50%; background: ${ringColor}22; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: ${ringColor}; ${cssFilter}" >
-                    <i class="fas ${def.icon}"></i>
-                    </div >
-                <div style="flex: 1; ${cssFilter}">
-                    <h4 style="font-family: 'Orbitron'; font-size: 1rem; margin: 0; color: ${isUnlocked ? '#fff' : 'rgba(255,255,255,0.5)'};">${def.title}</h4>
-                    <p style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin: 5px 0 0 0;">${def.desc}</p>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: ${ringColor}22; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: ${ringColor}; ${cssFilter}">
+                        <i class="fas ${def.icon}"></i>
+                    </div>
+                    <div style="flex: 1; ${cssFilter}">
+                        <h4 style="font-family: 'Orbitron'; font-size: 0.9rem; margin: 0; color: ${isUnlocked ? '#fff' : 'rgba(255,255,255,0.5)'};">${def.title}</h4>
+                        <p style="font-size: 0.7rem; color: rgba(255,255,255,0.6); margin: 3px 0 0 0;">${def.desc}</p>
+                    </div>
+                    ${isUnlocked ? `<button title="Share to Status Drafter" onclick="shareAchievement('${k}')" style="background:none; border:none; color: var(--accent-primary); font-size: 1.1rem; cursor: pointer; padding: 5px; transition: 0.2s;"><i class="fas fa-share-nodes"></i></button>` : `<div style="opacity: 0.3; font-size: 1rem;"><i class="fas fa-lock"></i></div>`}
                 </div>
-                    ${isUnlocked ? `<button title="Share to Status Drafter" onclick="shareAchievement('${k}')" style="background:none; border:none; color: var(--accent-primary); font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.2s;"><i class="fas fa-share-nodes"></i></button>` : `<div style="opacity: 0.2; font-size: 1.2rem;"><i class="fas fa-lock"></i></div>`}
-            `;
+                
+                <!-- PROGRESS BAR -->
+                <div style="width: 100%; margin-top: 5px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.6rem; margin-bottom: 5px; font-family: 'Orbitron'; opacity: 0.7;">
+                        <span>PROGRESS</span>
+                        <span style="color: ${isUnlocked ? 'var(--accent-primary)' : '#fff'};">${isUnlocked ? 'COMPLETED' : progressLabel}</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                        <div style="width: ${progressPercent}%; height: 100%; background: ${isUnlocked ? def.color : 'rgba(255,255,255,0.3)'}; transition: width 1s ease-out;"></div>
+                    </div>
+                </div>
+                `;
 
                 grid.appendChild(card);
             });
