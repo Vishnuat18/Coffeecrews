@@ -331,6 +331,12 @@
                     onmouseout="this.style.background='transparent'">
                     <i class="fas fa-database"></i> SEED DB
                 </button>
+                <button id="repair-att-btn" onclick="repairPastAttendance()"
+                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: transparent; border: 1px solid rgba(255,0,60,0.6); color: #ff003c; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;"
+                    onmouseover="this.style.background='rgba(255,0,60,0.1)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-wrench"></i> REPAIR ATTENDANCE DATA
+                </button>
                 <div id="pending-indicator" style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ff003c;">
                     <i class="fas fa-circle-exclamation"></i> <span id="pending-count">0</span> PENDING
                 </div>
@@ -744,6 +750,51 @@
             } catch (e) {
                 console.error('Broadcast failed:', e);
                 showToast('Broadcast failed: ' + e.message, 'error', 4000);
+            }
+        }
+
+        /* ─── REPAIR ATTENDANCE DATA ─────────────────────────────────────────────── */
+        async function repairPastAttendance() {
+            const confirmed = await tacticalConfirm(
+                "Scan all members' attendance records and rewrite any 'late' status to 'present'? This fixes early clock-in penalties.",
+                "REPAIR DATABASE"
+            );
+            if (!confirmed) return;
+
+            try {
+                showToast('Scanning and repairing database...', 'info', 3000);
+                const snapshot = await firebase.database().ref('members').once('value');
+                const members = snapshot.val();
+                let repairCount = 0;
+
+                for (let uid in members) {
+                    let member = members[uid];
+                    let needsUpdate = false;
+                    let attendanceObj = member.attendance;
+
+                    if (attendanceObj && typeof attendanceObj === 'object' && !Array.isArray(attendanceObj)) {
+                        for (let dateKey in attendanceObj) {
+                            if (attendanceObj[dateKey].status === 'late') {
+                                attendanceObj[dateKey].status = 'present';
+                                needsUpdate = true;
+                                repairCount++;
+                            }
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        await firebase.database().ref(`members/${uid}/attendance`).set(attendanceObj);
+                        // Force recalculation of achievements to immediately scrub Lazy Master labels
+                        if (window.AchievementsEngine) {
+                            await window.AchievementsEngine.checkAll(uid);
+                        }
+                    }
+                }
+
+                showToast(`✅ Repair complete! Fixed ${repairCount} false 'late' entries.`, 'success', 5000);
+            } catch (e) {
+                console.error('Repair failed:', e);
+                showToast('Repair failed: ' + e.message, 'error', 4000);
             }
         }
 

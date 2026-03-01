@@ -783,11 +783,9 @@ class DataManager {
             const today = now.toISOString().split('T')[0];
             const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // Determine status based on clock-in time (threshold 09:30 AM)
-            const hour = now.getHours();
-            const mins = now.getMinutes();
-            const isLate = (hour > 9) || (hour === 9 && mins > 30);
-            const status = isLate ? 'late' : 'present';
+            // Determine status based on clock-in time
+            // Cutoff is strictly before 10 AM, enforced by UI, so if this hits, they are present.
+            const status = 'present';
 
             // 1. Update Global Daily Node (for Mission Log daily view)
             const log = {

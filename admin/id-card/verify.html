@@ -15,6 +15,15 @@
     <link rel="stylesheet" href="/admin/id-card/css/mobile.css">
     <link rel="stylesheet" href="/admin/id-card/css/workspace-refinements.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FEATURE UNLOCK CHECK -->
+    <script>
+        // Set to 7:00 PM on March 1, 2026 IST
+        window.FEATURE_MILESTONES_UNLOCK_TIME = new Date("2026-03-01T19:00:00+05:30").getTime();
+        window.isMilestonesUnlocked = function () {
+            return new Date().getTime() >= window.FEATURE_MILESTONES_UNLOCK_TIME;
+        };
+    </script>
     <style>
         .view-profile-btn {
             background: rgba(0, 243, 255, 0.1);
@@ -1450,7 +1459,8 @@
             <button id="h-nav-analytics" class="header-nav-btn" onclick="switchTab('analytics')" style="display:none;">
                 <i class="fas fa-chart-pie"></i> ANALYTICS
             </button>
-            <button id="h-nav-milestones" class="header-nav-btn" onclick="location.href='milestones.html'">
+            <button id="h-nav-milestones" class="header-nav-btn" onclick="location.href='milestones.html'"
+                style="display:none;">
                 <i class="fas fa-medal"></i> MILESTONES
             </button>
             <a href="../index.html" id="cockpit-btn" style="display:none; text-decoration:none;">
@@ -1471,7 +1481,8 @@
             <div id="m-menu-analytics" class="menu-item" onclick="switchTab('analytics'); toggleMobileMenu();">
                 <i class="fas fa-chart-line"></i> ANALYTICS
             </div>
-            <div id="m-menu-achievements" class="menu-item" onclick="location.href='milestones.html';">
+            <div id="m-menu-achievements" class="menu-item" onclick="location.href='milestones.html';"
+                style="display:none;">
                 <i class="fas fa-trophy"></i> MILESTONES
             </div>
             <a href="../index.html" id="m-cockpit-btn" class="menu-item" style="display:none; text-decoration:none;">
@@ -3330,8 +3341,8 @@
             }
             // Tab reset removed to allow persistent navigation
 
-            // Gamification Engine Start
-            if (window.AchievementsEngine) {
+            // Gamification Engine Start (Time-gated)
+            if (window.AchievementsEngine && window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
                 setTimeout(() => window.AchievementsEngine.checkAll(activeMember.id), 2000);
             }
         }
@@ -3398,8 +3409,8 @@
             const grid = document.getElementById('achievements-grid');
             if (!grid) return;
 
-            // Run an immediate sync
-            if (window.AchievementsEngine) {
+            // Run an immediate sync if unlocked
+            if (window.AchievementsEngine && window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
                 await window.AchievementsEngine.checkAll(activeMember.id);
             }
 
@@ -3987,8 +3998,8 @@
             const now = new Date();
             const hour = now.getHours();
 
-            // Strict Window: 08:00 – 10:59 (inclusive of 10 AM)
-            const isInWindow = hour >= 8 && hour <= 10;
+            // Strict Window: 08:00 – 09:59 (Strictly before 10 AM)
+            const isInWindow = hour >= 8 && hour < 10;
 
             if (!isInWindow) {
                 await tacticalAlert(
@@ -4020,8 +4031,8 @@
                 (Array.isArray(activeMember.attendance) && activeMember.attendance.includes(todayStr)) ||
                 (!Array.isArray(activeMember.attendance) && activeMember.attendance[todayStr])
             );
-            // Time window restriction removed per user request
-            const inWindow = true;
+            // Time window restriction: strictly before 10 AM (08:00 - 09:59)
+            const inWindow = hour >= 8 && hour < 10;
 
             if (alreadyMarked) {
                 btn.textContent = '✅ ATTENDANCE MARKED';

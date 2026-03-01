@@ -13,6 +13,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/workspace-refinements.css">
+
+    <!-- EARLY ACCESS GATE -->
+    <script>
+        const FEATURE_MILESTONES_UNLOCK_TIME = new Date("2026-03-01T19:00:00+05:30").getTime();
+        if (new Date().getTime() < FEATURE_MILESTONES_UNLOCK_TIME) {
+            window.location.replace("verify.html");
+        }
+    </script>
     <style>
         :root {
             --accent-gold: #ffd700;
