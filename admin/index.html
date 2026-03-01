@@ -606,9 +606,22 @@
             COFFEECREWS // HQ
         </a>
         <div class="nav-links">
-            <a href="/index.html" class="nav-link"><i class="fas fa-home"></i> MAIN SITE</a>
-            <a href="/admin/index.html" class="nav-link active"><i class="fas fa-th-large"></i> COCKPIT</a>
-            <a href="/admin/id-card/reports.html" class="nav-link"><i class="fas fa-tower-broadcast"></i> BROADCAST</a>
+            <a href="#personnel-command" class="nav-link"><i class="fas fa-users"></i> PERSONNEL</a>
+            <div class="dropdown">
+                <a href="#" class="nav-link dropdown-toggle" id="reportsDropdown" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fas fa-chart-bar"></i> REPORTS
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark glass" aria-labelledby="reportsDropdown">
+                    <li><a class="dropdown-item nav-link" href="#attendance-report"><i
+                                class="fas fa-calendar-check"></i> Attendance</a></li>
+                    <li><a class="dropdown-item nav-link" href="#status-feed"><i class="fas fa-stream"></i> Status
+                            Drafter</a></li>
+                </ul>
+            </div>
+            <a href="#admin-group-chat-section" class="nav-link"><i class="fas fa-comments"></i> ADMIN CHAT PANEL</a>
+            <a href="#security-operations" class="nav-link"><i class="fas fa-shield-alt"></i> SECURITY OPERATIONS</a>
+            <a href="#recruitment-pipeline" class="nav-link"><i class="fas fa-user-plus"></i> RECRUITMENT PIPELINE</a>
             <button onclick="handleLogout()" class="nav-link"
                 style="background:none; border:none; color:var(--accent-red);">
                 <i class="fas fa-power-off"></i> LOGOUT
@@ -737,7 +750,7 @@
         </section>
 
         <!-- Attendance Tracker -->
-        <section class="animate-up mb-5" style="animation-delay: 0.15s;">
+        <section id="attendance-report" class="animate-up mb-5" style="animation-delay: 0.15s;">
             <div class="glass p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
@@ -746,9 +759,42 @@
                     </div>
                     <div id="attendance-date" class="opacity-50 small orbitron">2026-02-21</div>
                 </div>
-                <div id="attendance-list" class="d-flex flex-wrap gap-2">
-                    <!-- Injected via JS -->
-                    <span class="opacity-30 small">No agents clocked in yet today.</span>
+
+                <!-- Present Agents -->
+                <div class="mb-4">
+                    <h4 class="orbitron text-success mb-3" style="font-size: 0.8rem;"><i
+                            class="fas fa-check-circle"></i> PRESENT (08:00 - 10:00)</h4>
+                    <div id="attendance-list" class="d-flex flex-wrap gap-2">
+                        <!-- Injected via JS -->
+                        <span class="opacity-30 small">No agents clocked in yet today.</span>
+                    </div>
+                </div>
+
+                <!-- Late Logins -->
+                <div>
+                    <h4 class="orbitron text-warning mb-3" style="font-size: 0.8rem;"><i class="fas fa-clock"></i> LATE
+                        LOGINS (After 10:00)</h4>
+                    <div id="late-list" class="d-flex flex-wrap gap-2">
+                        <!-- Injected via JS -->
+                        <span class="opacity-30 small">No late logins.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status Feed -->
+        <section id="status-feed" class="animate-up mb-5" style="animation-delay: 0.2s;">
+            <div class="glass p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="section-label">Mission Updates</span>
+                        <h3 class="orbitron m-0" style="font-size: 1rem;">Status Drafter Feed</h3>
+                    </div>
+                </div>
+                <div id="admin-status-feed-list"
+                    style="display:flex;flex-direction:column;gap:15px;max-height: 400px;overflow-y:auto;padding-right:5px;">
+                    <div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;"><i
+                            class="fas fa-spinner fa-spin"></i> Loading...</div>
                 </div>
             </div>
         </section>
@@ -788,7 +834,7 @@
         </section> -->
 
         <!-- Personnel Search -->
-        <section class="animate-up" style="animation-delay: 0.3s;">
+        <section id="personnel-command" class="animate-up" style="animation-delay: 0.3s;">
             <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
                 <div>
                     <span class="section-label">Deployment</span>
@@ -805,7 +851,7 @@
         </section>
 
         <!-- Recruitment Pipeline -->
-        <section class="animate-up" style="animation-delay: 0.4s; margin-bottom: 5rem;">
+        <section id="recruitment-pipeline" class="animate-up" style="animation-delay: 0.4s; margin-bottom: 5rem;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <span class="section-label">Incoming Talent</span>
@@ -836,7 +882,7 @@
         </section>
 
         <!-- Security Operations -->
-        <section class="animate-up" style="animation-delay: 0.5s; margin-bottom: 5rem;">
+        <section id="security-operations" class="animate-up" style="animation-delay: 0.5s; margin-bottom: 5rem;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <span class="section-label">Sentinel Protocol</span>
@@ -928,6 +974,11 @@
                 renderAttendanceUI(list);
                 document.getElementById('stat-attendance').textContent = list.length;
                 updateSyncTime();
+            });
+
+            // 3.5 Status Feed
+            DataManager.subscribeToStatusFeed((feed) => {
+                renderStatusFeedUI(feed);
             });
 
             // 4. Security Requests
@@ -1041,19 +1092,62 @@
         }
 
         function renderAttendanceUI(list) {
-            const container = document.getElementById('attendance-list');
+            const presentContainer = document.getElementById('attendance-list');
+            const lateContainer = document.getElementById('late-list');
             document.getElementById('attendance-date').textContent = new Date().toISOString().split('T')[0];
 
-            if (list.length === 0) {
-                container.innerHTML = '<span class="opacity-30 small italic">Waiting for agents...</span>';
+            const presentList = list.filter(entry => entry.status === 'present');
+            const lateList = list.filter(entry => entry.status === 'late');
+
+            if (presentList.length === 0) {
+                presentContainer.innerHTML = '<span class="opacity-30 small italic">Waiting for agents...</span>';
+            } else {
+                presentContainer.innerHTML = presentList.map(entry => `
+                    <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: #3cff7d; background: rgba(60, 255, 125, 0.05);">
+                        <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
+                        <span class="small fw-bold" style="color: #3cff7d">${entry.memberName}</span>
+                        <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
+                    </div>
+                `).join('');
+            }
+
+            if (lateList.length === 0) {
+                lateContainer.innerHTML = '<span class="opacity-30 small italic">No late logins.</span>';
+            } else {
+                lateContainer.innerHTML = lateList.map(entry => `
+                    <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
+                        <div style="width: 8px; height: 8px; background: var(--accent-gold); border-radius: 50%; box-shadow: 0 0 10px var(--accent-gold);"></div>
+                        <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
+                        <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderStatusFeedUI(feed) {
+            const container = document.getElementById('admin-status-feed-list');
+            if (!container) return;
+
+            if (feed.length === 0) {
+                container.innerHTML = '<div style="opacity:0.3;text-align:center;font-size:0.7rem;padding:20px;">NO MISSION UPDATES YET.</div>';
                 return;
             }
 
-            container.innerHTML = list.map(entry => `
-                <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: var(--accent-gold); background: rgba(255, 215, 0, 0.05);">
-                    <div style="width: 8px; height: 8px; background: #3cff7d; border-radius: 50%; box-shadow: 0 0 10px #3cff7d;"></div>
-                    <span class="small fw-bold" style="color: var(--accent-gold)">${entry.memberName}</span>
-                    <span class="opacity-40" style="font-size: 0.6rem;">${entry.time}</span>
+            container.innerHTML = feed.map(item => `
+                <div class="glass p-3" style="border-radius: 12px; background: rgba(255,255,255,0.02); display: flex; gap: 15px;">
+                    <img src="${item.senderImage || '/assets/favicon.png'}" alt="${item.senderName}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <div>
+                                <strong style="color: var(--accent-primary); font-size: 0.8rem;">${item.senderName}</strong>
+                                <span class="ms-2" style="font-size: 0.6rem; opacity: 0.5;">${item.time}</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.8rem; line-height: 1.5; color: #fff; margin-bottom: 8px;">
+                            ${item.text || ''}
+                        </div>
+                        ${item.image ? `<img src="${item.image}" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;" alt="Status Image">` : ''}
+                    </div>
                 </div>
             `).join('');
         }

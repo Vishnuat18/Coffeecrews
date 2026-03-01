@@ -784,12 +784,16 @@ class DataManager {
         const hour = now.getHours();
 
         // Enforce 8 AM to 10 AM rule
-        if (hour < 8 || hour > 10) return false;
+        let attendanceStatus = 'late';
+        if (hour >= 8 && hour <= 10) {
+            attendanceStatus = 'present';
+        }
 
         const today = now.toISOString().split('T')[0];
         const log = {
             memberId: id,
             memberName: member.name,
+            status: attendanceStatus,
             timestamp: Date.now(),
             time: new Date().toLocaleTimeString()
         };
@@ -797,14 +801,16 @@ class DataManager {
         // 1. Log to global attendance node
         await db.ref(`attendance/${today}/${id}`).set(log);
 
-        // 2. Update member's own attendance array for UI sync
-        const currentAttendance = member.attendance || [];
-        if (!currentAttendance.includes(today)) {
-            currentAttendance.push(today);
-            const members = await this.getAllMembers();
-            const index = members.findIndex(m => m.id === id);
-            if (index !== -1) {
-                await db.ref(`members/${index}/attendance`).set(currentAttendance);
+        // 2. Update member's own attendance array for UI sync ONLY if present
+        if (attendanceStatus === 'present') {
+            const currentAttendance = member.attendance || [];
+            if (!currentAttendance.includes(today)) {
+                currentAttendance.push(today);
+                const members = await this.getAllMembers();
+                const index = members.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    await db.ref(`members/${index}/attendance`).set(currentAttendance);
+                }
             }
         }
 
