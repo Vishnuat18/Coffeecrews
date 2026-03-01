@@ -321,21 +321,17 @@
                     style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem;">
                     <i class="fas fa-tower-broadcast"></i> GLOBAL BROADCAST
                 </button>
-                <button class="btn-primary" onclick="broadcastFeatureUnlock()"
-                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: var(--accent-primary); color: #000; font-family: 'Orbitron'; cursor: pointer; border: none;">
-                    <i class="fas fa-bullhorn"></i> ANNOUNCE ACHIEVEMENTS
+                <button class="btn-primary" onclick="launchAchievementsManual()" id="launch-achievements-btn"
+                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: transparent; border: 1px solid #00f3ff; color: #00f3ff; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;"
+                    onmouseover="this.style.background='rgba(0,243,255,0.1)'"
+                    onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-rocket"></i> LAUNCH ACHIEVEMENTS
                 </button>
                 <button id="seed-btn" onclick="seedDatabase()"
                     style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: transparent; border: 1px solid rgba(0,243,255,0.4); color: var(--accent-primary); font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;"
                     onmouseover="this.style.background='rgba(0,243,255,0.1)'"
                     onmouseout="this.style.background='transparent'">
                     <i class="fas fa-database"></i> SEED DB
-                </button>
-                <button id="repair-att-btn" onclick="repairPastAttendance()"
-                    style="border-radius: 30px; padding: 10px 25px; font-size: 0.7rem; background: transparent; border: 1px solid rgba(255,0,60,0.6); color: #ff003c; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;"
-                    onmouseover="this.style.background='rgba(255,0,60,0.1)'"
-                    onmouseout="this.style.background='transparent'">
-                    <i class="fas fa-wrench"></i> REPAIR ATTENDANCE DATA
                 </button>
                 <div id="pending-indicator" style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ff003c;">
                     <i class="fas fa-circle-exclamation"></i> <span id="pending-count">0</span> PENDING
@@ -750,6 +746,39 @@
             } catch (e) {
                 console.error('Broadcast failed:', e);
                 showToast('Broadcast failed: ' + e.message, 'error', 4000);
+            }
+        }
+
+        /* ─── LAUNCH ACHIEVEMENTS ─────────────────────────────────────────────── */
+        async function launchAchievementsManual() {
+            const confirmed = await tacticalConfirm(
+                "Are you sure you want to manually launch the Achievements feature for the entire crew right now? This overrides the time-gate.",
+                "INITIATE LAUNCH"
+            );
+            if (!confirmed) return;
+
+            const btn = document.getElementById('launch-achievements-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> LAUNCHING...';
+            btn.disabled = true;
+
+            try {
+                const success = await window.DataManager.unlockMilestones();
+                if (success) {
+                    showToast('Achievements module unlocked successfully.', 'success', 4000);
+                    btn.innerHTML = '<i class="fas fa-check"></i> LAUNCHED';
+                    btn.style.background = 'var(--accent-primary)';
+                    btn.style.color = '#000';
+                } else {
+                    showToast('Launch failed. Check console.', 'error', 4000);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error("Launch error:", e);
+                showToast('Launch error: ' + e.message, 'error', 4000);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
             }
         }
 

@@ -15,12 +15,7 @@
     <link rel="stylesheet" href="css/workspace-refinements.css">
 
     <!-- EARLY ACCESS GATE -->
-    <script>
-        const FEATURE_MILESTONES_UNLOCK_TIME = new Date("2026-03-01T19:00:00+05:30").getTime();
-        if (new Date().getTime() < FEATURE_MILESTONES_UNLOCK_TIME) {
-            window.location.replace("verify.html");
-        }
-    </script>
+    <!-- Handled in init() via DataManager -->
     <style>
         :root {
             --accent-gold: #ffd700;
@@ -602,6 +597,12 @@
             // Wait for DataManager to be ready (from data.js)
             if (!window.DataManager) {
                 setTimeout(init, 100);
+                return;
+            }
+
+            const isUnlocked = await window.DataManager.checkMilestonesUnlockStatus();
+            if (!isUnlocked) {
+                window.location.replace("verify.html");
                 return;
             }
 

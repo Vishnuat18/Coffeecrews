@@ -17,13 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- FEATURE UNLOCK CHECK -->
-    <script>
-        // Set to 7:00 PM on March 1, 2026 IST
-        window.FEATURE_MILESTONES_UNLOCK_TIME = new Date("2026-03-01T19:00:00+05:30").getTime();
-        window.isMilestonesUnlocked = function () {
-            return new Date().getTime() >= window.FEATURE_MILESTONES_UNLOCK_TIME;
-        };
-    </script>
+    <!-- Replaced with async Database flag check via DataManager -->
     <style>
         .view-profile-btn {
             background: rgba(0, 243, 255, 0.1);
@@ -2349,7 +2343,7 @@
                 return;
             }
             console.log("Initializing Workspace...");
-            renderWorkspace();
+            await renderWorkspace();
 
             document.getElementById('p-dept').innerText = activeMember.dept || '---';
 
@@ -2360,7 +2354,8 @@
             }
 
             // Gamification Visibility (Time Gate)
-            if (window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
+            const isUnlocked = await window.DataManager.checkMilestonesUnlockStatus();
+            if (isUnlocked) {
                 const hMilestones = document.getElementById('h-nav-milestones');
                 const mMilestones = document.getElementById('m-menu-achievements');
                 if (hMilestones) hMilestones.style.display = 'flex';
@@ -3308,7 +3303,7 @@
 
         // --- OTHER WORKSPACE LOGIC ---
 
-        function renderWorkspace() {
+        async function renderWorkspace() {
             if (!activeMember) return;
             const pName = document.getElementById('p-name');
             if (pName) pName.innerText = activeMember.name;
@@ -3350,7 +3345,8 @@
             // Tab reset removed to allow persistent navigation
 
             // Gamification Engine Start (Time-gated)
-            if (window.AchievementsEngine && window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
+            const isUnlocked = await window.DataManager.checkMilestonesUnlockStatus();
+            if (window.AchievementsEngine && isUnlocked) {
                 setTimeout(() => window.AchievementsEngine.checkAll(activeMember.id), 2000);
             }
         }
@@ -3418,7 +3414,8 @@
             if (!grid) return;
 
             // Run an immediate sync if unlocked
-            if (window.AchievementsEngine && window.isMilestonesUnlocked && window.isMilestonesUnlocked()) {
+            const isUnlocked = await window.DataManager.checkMilestonesUnlockStatus();
+            if (window.AchievementsEngine && isUnlocked) {
                 await window.AchievementsEngine.checkAll(activeMember.id);
             }
 
