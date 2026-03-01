@@ -593,12 +593,48 @@
         let currentFilter = 'all';
         let userAchievements = [];
 
+        async function refreshData() {
+            if (!currentUser) return;
+            const session = JSON.parse(sessionStorage.getItem('cc_session') || localStorage.getItem('cc_session') || '{}');
+            currentUser = await window.DataManager.getMemberById(session.id);
+            userAchievements = currentUser.achievements || [];
+
+            // Update Header Stats
+            const streak = currentUser.streak || 0;
+            const drafts = currentUser.vocalistCount || 0;
+            const lates = currentUser.lateCount || 0;
+            const tenure = currentUser.tenure || 0;
+
+            document.getElementById('stat-max-streak').textContent = streak;
+            document.getElementById('stat-drafts').textContent = drafts;
+            document.getElementById('stat-lates').textContent = lates;
+            document.getElementById('stat-tenure').textContent = tenure.toFixed(1) + ' YR';
+
+            const totalMilestones = Object.keys(window.ACHIEVEMENT_DEFINITIONS).length;
+            const unlockedCount = userAchievements.length;
+            const overallPct = (unlockedCount / totalMilestones) * 100;
+            document.getElementById('overall-progress-fill').style.width = overallPct + '%';
+
+            renderMilestones();
+        }
+
         async function init() {
             // Wait for DataManager to be ready (from data.js)
             if (!window.DataManager) {
                 setTimeout(init, 100);
                 return;
             }
+
+            // ADD LIVE LISTENERS FOR REACTIVITY
+            window.addEventListener('cc_achievement_unlocked', () => {
+                refreshData();
+            });
+
+            window.addEventListener('coffeecrews_data_update', (e) => {
+                if (currentUser && e.detail && e.detail.id === currentUser.id) {
+                    refreshData();
+                }
+            });
 
             const isUnlocked = await window.DataManager.checkMilestonesUnlockStatus();
             if (!isUnlocked) {
@@ -679,42 +715,37 @@
             renderMilestones();
         }
 
-        const getProgressValue = (cat) => {
+        const getProgressValue = (statKey) => {
             if (!currentUser) return 0;
-            switch (cat) {
+            switch (statKey) {
                 case 'streak': return currentUser.streak || 0;
-                case 'vocalist': return currentUser.vocalistCount || 0;
-                case 'late': return currentUser.lateCount || 0;
+                case 'vocalistCount': return currentUser.vocalistCount || 0;
+                case 'lateCount': return currentUser.lateCount || 0;
                 case 'tenure':
                     const joinDate = new Date(currentUser.timestamp || Date.now());
                     return (new Date() - joinDate) / (1000 * 60 * 60 * 24 * 365.25);
-                case 'security': return currentUser.passcodeChanged ? 1 : 0;
+                case 'passcode': return currentUser.passcodeChanged ? 1 : 0;
                 case 'monthly': return (userAchievements || []).includes('monthly_perfect') ? 1 : 0;
                 default: return 0;
             }
         };
 
         const getProgressStats = (item) => {
-            const cat = item.category;
-            const rawVal = getProgressValue(cat);
             const isUnlocked = userAchievements.includes(item.id);
+            const target = item.target || 1;
+            const rawVal = getProgressValue(item.statKey);
 
-            let progress = 0;
-            let target = 1;
+            let progress = Math.min((rawVal / target) * 100, 100);
             let text = "";
 
-            if (['streak', 'vocalist', 'late'].includes(cat)) {
-                target = parseInt(item.id.split('_').pop()) || 1;
-                progress = Math.min((rawVal / target) * 100, 100);
-                text = `${Math.floor(rawVal)} / ${target}`;
-            } else if (cat === 'tenure') {
-                target = item.id === 'tenure_1yr' ? 1 : 2;
-                progress = Math.min((rawVal / target) * 100, 100);
+            if (item.statKey === 'tenure') {
                 text = `${rawVal.toFixed(1)} / ${target} YR`;
-            } else {
-                progress = isUnlocked ? 100 : 0;
+            } else if (item.statKey === 'passcode' || item.statKey === 'monthly') {
                 text = isUnlocked ? "COMPLETED" : "LOCKED";
+            } else {
+                text = `${Math.floor(rawVal)} / ${target}`;
             }
+
             return { progress, text };
         };
 

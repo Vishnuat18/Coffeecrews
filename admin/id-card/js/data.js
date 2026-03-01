@@ -522,6 +522,12 @@ class DataManager {
         if (index !== -1) {
             const newMemberData = { ...members[index], ...updatedData };
             await db.ref(`members/${index}`).update(updatedData);
+
+            // --- REACTIVE ACHIEVEMENT CHECK (for passcode changes etc) ---
+            if (window.AchievementsEngine) {
+                window.AchievementsEngine.checkAll(id);
+            }
+
             window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
             return true;
         }
@@ -723,6 +729,12 @@ class DataManager {
         };
         await db.ref('chats/statusFeed').push(item);
         window.dispatchEvent(new CustomEvent('cc_chat_sync'));
+
+        // --- REACTIVE ACHIEVEMENT CHECK ---
+        if (window.AchievementsEngine) {
+            window.AchievementsEngine.checkAll(senderId);
+        }
+
         return item;
     }
 
@@ -813,6 +825,11 @@ class DataManager {
             if (!attendance[today]) {
                 attendance[today] = { status, time, timestamp: Date.now() };
                 await db.ref(`members/${userId}`).update({ attendance });
+
+                // --- REACTIVE ACHIEVEMENT CHECK ---
+                if (window.AchievementsEngine) {
+                    window.AchievementsEngine.checkAll(userId);
+                }
             }
 
             window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id: userId } }));

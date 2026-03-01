@@ -3408,8 +3408,17 @@
             if (tab === 'achievements') renderAchievements('all');
         }
 
+        // --- INSTANT ACHIEVEMENT REACTIVITY ---
+        window.addEventListener('cc_achievement_unlocked', (e) => {
+            // If we are currently on the achievements tab, re-render to show the new unlock
+            if (typeof currentTab !== 'undefined' && currentTab === 'achievements') {
+                renderAchievements(window.lastAchievementFilter || 'all');
+            }
+        });
+
         // --- ACHIEVEMENTS RENDERER ---
         async function renderAchievements(filter = 'all') {
+            window.lastAchievementFilter = filter;
             const grid = document.getElementById('achievements-grid');
             if (!grid) return;
 
