@@ -327,8 +327,13 @@
                     onmouseout="this.style.background='transparent'">
                     <i class="fas fa-database"></i> SEED DB
                 </button>
-                <div id="pending-indicator" style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ff003c;">
+                <div id="pending-indicator"
+                    style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ff003c; display: flex; align-items: center; gap: 5px;">
                     <i class="fas fa-circle-exclamation"></i> <span id="pending-count">0</span> PENDING
+                </div>
+                <div id="late-indicator"
+                    style="font-family: 'Orbitron'; font-size: 0.7rem; color: #ffa500; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-clock"></i> <span id="late-count">0</span> LATE TODAY
                 </div>
                 <button onclick="handleLogout()"
                     style="background:transparent; border:none; color:#ff003c; cursor:pointer; font-family:'Orbitron'; font-size:0.7rem;">
@@ -416,6 +421,8 @@
         async function renderReportsUI(members, threads) {
             const feed = document.getElementById('reports-feed');
             let pending = 0;
+            let lateToday = 0;
+            const todayStr = new Date().toISOString().split('T')[0];
             feed.innerHTML = '';
 
             const crewOnly = members.filter(m => m.access !== 'admin');
@@ -484,10 +491,16 @@
                         </button>
                     </div>
                 `;
+                // Track late logins for today
+                if (m.attendance && !Array.isArray(m.attendance) && m.attendance[todayStr]?.status === 'late') {
+                    lateToday++;
+                }
+
                 feed.appendChild(strip);
             });
 
             document.getElementById('pending-count').textContent = pending;
+            document.getElementById('late-count').textContent = lateToday;
             gsap.from('.report-strip', { opacity: 0, y: 15, stagger: 0.08, duration: 0.5, ease: "power2.out" });
         }
 

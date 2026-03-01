@@ -3523,13 +3523,14 @@
         window.shareAchievement = function (key) {
             const def = window.ACHIEVEMENT_DEFINITIONS[key];
             if (!def) return;
-            const text = `🏆 Automatically Shared: I just unlocked the ** ${def.title}** Milestone!(${def.desc})`;
+            const text = `🏆 Automatically Shared: I just unlocked the **${def.title}** Milestone! (${def.desc})`;
 
-            tacticalConfirm(`Share "${def.title}" to Mission Updates ? `, "BROADCAST ACHIEVEMENT").then(res => {
+            tacticalConfirm(`Share "${def.title}" to Mission Updates?`, "BROADCAST ACHIEVEMENT").then(res => {
                 if (res) {
                     window.DataManager.commitStatus(activeMember.id, activeMember.name, text, activeMember.image)
                         .then(() => {
                             showToast("Broadcast sent!", "success");
+                            // Switch tab - the global listener will handle any data updates
                             switchTab('status');
                         })
                         .catch(err => {
@@ -4005,17 +4006,30 @@
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 // Resilient check: Handle both Array (legacy) and Object (new)
-                const isMarked = activeMember && activeMember.attendance && (
-                    (Array.isArray(activeMember.attendance) && activeMember.attendance.includes(dateStr)) ||
-                    (!Array.isArray(activeMember.attendance) && activeMember.attendance[dateStr])
+                const attendanceEntry = activeMember && activeMember.attendance && (
+                    (Array.isArray(activeMember.attendance) ? (activeMember.attendance.includes(dateStr) ? { status: 'present' } : null) : activeMember.attendance[dateStr])
                 );
+                const isMarked = !!attendanceEntry;
+                const attendanceStatus = attendanceEntry ? (attendanceEntry.status || 'present') : null;
+
                 const isToday = dateStr === todayStr;
                 const isFuture = dateStr > todayStr;
 
                 let bg = 'rgba(255,0,60,0.15)';
                 let border = '1px solid rgba(255,0,60,0.3)';
                 let textColor = 'rgba(255,80,80,0.7)';
-                if (isMarked) { bg = 'rgba(10,255,10,0.18)'; border = '1px solid #0aff0a'; textColor = '#0aff0a'; }
+
+                if (isMarked) {
+                    if (attendanceStatus === 'late') {
+                        bg = 'rgba(255, 165, 0, 0.18)';
+                        border = '1px solid #ffa500';
+                        textColor = '#ffa500';
+                    } else {
+                        bg = 'rgba(10,255,10,0.18)';
+                        border = '1px solid #0aff0a';
+                        textColor = '#0aff0a';
+                    }
+                }
                 if (isFuture) { bg = 'rgba(0,243,255,0.04)'; border = '1px solid rgba(0,243,255,0.1)'; textColor = 'rgba(255,255,255,0.25)'; }
 
                 const todayRing = isToday ? `box-shadow: 0 0 0 2px var(--accent-primary);` : '';
@@ -4027,7 +4041,7 @@
             font-family: 'Orbitron'; font-size: 0.65rem;${textColor !== '' ? `color:${textColor};` : ''}
                         ${todayRing}${todayWeight} cursor: pointer; transition:transform 0.15s;"
             onclick="showDailyAttendance('${dateStr}')"
-            title="${dateStr}${isMarked ? ' ✅ Present' : isFuture ? '' : ' ❌ Absent'}"
+            title="${dateStr}${isMarked ? (attendanceStatus === 'late' ? ' ⚠️ Late' : ' ✅ Present') : isFuture ? '' : ' ❌ Absent'}"
                 >
                 <span>${d}</span>
                         ${isToday ? '<div style="width:4px;height:4px;background:var(--accent-primary);border-radius:50%;margin-top:2px;"></div>' : ''}

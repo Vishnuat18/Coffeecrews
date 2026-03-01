@@ -480,58 +480,45 @@ class DataManager {
     // Preserves dynamic fields: attendance, achievements, driveLinks, etc.
     static async seedMembersToFirebase() {
         const snapshot = await db.ref('members').once('value');
-        const current = snapshot.val();
+        const current = snapshot.val() || {};
 
-        if (!current) {
-            // DB is empty — do a full write
-            await db.ref('members').set(INITIAL_MEMBERS);
-            return { seeded: INITIAL_MEMBERS.length, updated: 0, msg: 'Full seed completed.' };
-        }
-
-        const currentArr = Array.isArray(current) ? current : Object.values(current);
         let updatedCount = 0;
 
         // Fields that come from INITIAL_MEMBERS (base config)
         const BASE_FIELDS = ['id', 'ccCode', 'passcode', 'name', 'role', 'bloodGroup',
             'access', 'description', 'image', 'accent', 'contact'];
 
-        const merged = currentArr.map(existing => {
-            const source = INITIAL_MEMBERS.find(m => m.id === existing.id);
-            if (!source) return existing; // unknown member, leave as-is
+        const updates = {};
+
+        // Match initial members to existing data (or create new)
+        INITIAL_MEMBERS.forEach(source => {
+            const existing = current[source.id] || {};
             const patch = {};
             BASE_FIELDS.forEach(f => { if (source[f] !== undefined) patch[f] = source[f]; });
+
+            // Merge existing dynamic data with source base data
+            updates[source.id] = { ...existing, ...patch };
             updatedCount++;
-            return { ...existing, ...patch };
         });
 
-        // Also add any INITIAL_MEMBERS not yet in Firebase (new members)
-        INITIAL_MEMBERS.forEach(m => {
-            if (!merged.find(e => e.id === m.id)) {
-                merged.push(m);
-                updatedCount++;
-            }
-        });
-
-        await db.ref('members').set(merged);
-        return { seeded: 0, updated: updatedCount, msg: `Patched ${updatedCount} member(s).` };
+        await db.ref('members').update(updates);
+        return { seeded: 0, updated: updatedCount, msg: `Patched ${updatedCount} member(s) and standardized storage.` };
     }
 
     static async updateMember(id, updatedData) {
-        const members = await this.getAllMembers();
-        const index = members.findIndex(m => m.id === id);
-        if (index !== -1) {
-            const newMemberData = { ...members[index], ...updatedData };
-            await db.ref(`members/${index}`).update(updatedData);
+        if (!id) return false;
 
-            // --- REACTIVE ACHIEVEMENT CHECK (for passcode changes etc) ---
-            if (window.AchievementsEngine) {
-                window.AchievementsEngine.checkAll(id);
-            }
+        // Target specific ID directly in Firebase
+        await db.ref(`members/${id}`).update(updatedData);
 
-            window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
-            return true;
+        // --- REACTIVE ACHIEVEMENT CHECK (for passcode changes etc) ---
+        // Prevent recursion if this update was triggered BY the achievement engine
+        if (window.AchievementsEngine && !updatedData._skipAchievementCheck) {
+            window.AchievementsEngine.checkAll(id);
         }
-        return false;
+
+        window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id } }));
+        return true;
     }
 
     static async blockMember(id, days) {
@@ -795,9 +782,16 @@ class DataManager {
             const today = now.toISOString().split('T')[0];
             const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // Determine status based on clock-in time
-            // Cutoff is strictly before 10 AM, enforced by UI, so if this hits, they are present.
-            const status = 'present';
+            // 2. Identify Status
+            let status = 'present';
+            const timeStr = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0'); // Ensure HH:MM format
+            const [hh, mm] = timeStr.split(':').map(Number);
+            const totalMinutes = hh * 60 + mm;
+
+            if (totalMinutes >= 570 && totalMinutes <= 600) { // 09:30 - 10:00
+                status = 'late';
+            }
+
 
             // 1. Update Global Daily Node (for Mission Log daily view)
             const log = {
@@ -895,48 +889,40 @@ class DataManager {
 
     static async submitPasscodeRequest(memberId, memberName, currentPass, newPass) {
         const member = await this.getMemberById(memberId);
-        const validPass = member.passcode || member.ccCode; // Fallback for legacy
-        if (!member || validPass !== currentPass) {
-            return { success: false, message: "Verification failed: Current CC Code is incorrect." };
-        }
+        if (!member) return { success: false, message: "Member not found." };
 
-        const newRequest = {
-            id: Date.now(),
+        // 1. Log request to local storage/db
+        const requests = await this.getPasscodeRequests();
+        const newReq = {
+            id: 'REQ-' + Math.floor(Math.random() * 90000 + 10000),
             memberId,
             memberName,
             currentPass,
             newPass,
             status: 'pending',
-            timestamp: Date.now(),
-            date: new Date().toLocaleDateString()
+            date: new Date().toLocaleString()
         };
+        requests.push(newReq);
+        await this.savePasscodeRequests(requests);
 
-        await db.ref('requests').push(newRequest);
-        await db.ref(`crew/${memberId}/passcodeChanged`).set(true);
-        window.dispatchEvent(new CustomEvent('cc_security_update'));
+        // 2. Mark flag on member record (Unlocks "Rule Breaker" achievement)
+        await db.ref(`members/${memberId}/passcodeChanged`).set(true);
+
         return { success: true, message: "Passcode change request submitted to HQ." };
     }
 
     static async approvePasscodeRequest(requestId) {
-        const snapshot = await db.ref('requests').once('value');
-        const requests = snapshot.val() || {};
+        const requests = await this.getPasscodeRequests();
+        const req = requests.find(r => r.id === requestId);
 
-        let foundKey = null;
-        let req = null;
+        if (req) {
+            // Update the member using the direct ID-keyed update (corrected persist path)
+            const success = await this.updateMember(req.memberId, { passcode: req.newPass });
 
-        for (const [key, value] of Object.entries(requests)) {
-            if (value.id === requestId) {
-                foundKey = key;
-                req = value;
-                break;
-            }
-        }
-
-        if (foundKey && req.status === 'pending') {
-            const updated = await this.updateMember(req.memberId, { passcode: req.newPass });
-            if (updated) {
-                await db.ref(`requests/${foundKey}`).update({ status: 'approved' });
-                window.dispatchEvent(new CustomEvent('cc_security_update'));
+            if (success) {
+                req.status = 'approved';
+                await this.savePasscodeRequests(requests);
+                window.dispatchEvent(new CustomEvent('coffeecrews_security_update'));
                 return { success: true, message: "Request approved. Passcode updated." };
             }
         }
@@ -1303,7 +1289,8 @@ const ACHIEVEMENT_DEFINITIONS = {
     'draft_500': { category: 'drafting', title: 'The Oracle', desc: 'Drafted 500 Status Updates.', icon: 'fa-eye', color: '#9d00ff', target: 500, statKey: 'vocalistCount' },
 
     // ---- MONTHLY PERFECT ----
-    'monthly_perfect': { category: 'monthly', title: 'Flawless Month', desc: 'Attended every single day in a calendar month.', icon: 'fa-calendar-check', color: '#0aff78', target: 1, statKey: 'monthly' },
+    'monthly_perfect': { category: 'monthly', title: 'Flawless Month', desc: 'Attended every single day in a previous calendar month.', icon: 'fa-calendar-check', color: '#0aff78', target: 1, statKey: 'monthly' },
+    'march_2026_perfect': { category: 'monthly', title: 'Flawless March', desc: 'Attended every single day in March 2026.', icon: 'fa-clover', color: '#00ffcc', target: 31, statKey: 'march2026' },
 
     // ---- INFAMOUS (LATE LOGINS) ----
     'late_5': { category: 'late', title: 'Lazy Master (Initiate)', desc: 'Logged in late 5 times.', icon: 'fa-bed', color: '#ff003c', target: 5, statKey: 'lateCount' },
@@ -1373,6 +1360,23 @@ class AchievementsEngine {
             }
             const isPrevMonthPerfect = perfectCount === daysInPrevMonth;
 
+            // 2b. Current Month (March 2026) Perfection Check
+            let march2026Count = 0;
+            const isMarch2026 = now.getFullYear() === 2026 && now.getMonth() === 2; // March is 2
+            if (isMarch2026) {
+                for (let d = 1; d <= now.getDate(); d++) {
+                    const dayStr = `2026-03-${String(d).padStart(2, '0')}`;
+                    if (attendanceObj[dayStr]) march2026Count++;
+                }
+            } else if (now.getFullYear() > 2026 || (now.getFullYear() === 2026 && now.getMonth() > 2)) {
+                // If past March, check if it was perfect
+                for (let d = 1; d <= 31; d++) {
+                    const dayStr = `2026-03-${String(d).padStart(2, '0')}`;
+                    if (attendanceObj[dayStr]) march2026Count++;
+                }
+            }
+            const isMarchPerfect = march2026Count === 31;
+
             // 3. Drafting Count (Sync with Analytics - Status Feed + HQ Transmissions)
             let drafts = 0;
             try {
@@ -1433,6 +1437,7 @@ class AchievementsEngine {
             tryUnlock('late_50', lateLogins >= 50);
 
             tryUnlock('monthly_perfect', isPrevMonthPerfect);
+            tryUnlock('march_2026_perfect', isMarchPerfect);
             tryUnlock('passcode_change', member.passcodeChanged === true);
 
             // --- PERSIST STATS & UNLOCKS ---
@@ -1441,7 +1446,9 @@ class AchievementsEngine {
                 vocalistCount: drafts,
                 lateCount: lateLogins,
                 tenure: yearsActive,
-                achievements: earnedIds
+                march2026: march2026Count,
+                achievements: earnedIds,
+                _skipAchievementCheck: true // CRITICAL: Stop infinite recursion
             };
 
             // Use DataManager to persist to the main 'members' node

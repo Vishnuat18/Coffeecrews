@@ -726,6 +726,7 @@
                     return (new Date() - joinDate) / (1000 * 60 * 60 * 24 * 365.25);
                 case 'passcode': return currentUser.passcodeChanged ? 1 : 0;
                 case 'monthly': return (userAchievements || []).includes('monthly_perfect') ? 1 : 0;
+                case 'march2026': return currentUser.march2026 || 0;
                 default: return 0;
             }
         };
@@ -742,6 +743,8 @@
                 text = `${rawVal.toFixed(1)} / ${target} YR`;
             } else if (item.statKey === 'passcode' || item.statKey === 'monthly') {
                 text = isUnlocked ? "COMPLETED" : "LOCKED";
+            } else if (item.statKey === 'march2026') {
+                text = isUnlocked ? "COMPLETED" : `${Math.floor(rawVal)} / ${target} DAYS`;
             } else {
                 text = `${Math.floor(rawVal)} / ${target}`;
             }

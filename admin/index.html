@@ -1354,8 +1354,8 @@ x`<html lang="en">
                         <td class="small opacity-50">${req.date}</td>
                         <td class="text-end text-nowrap">
                             ${req.status === 'pending' ? `
-                                <button onclick="approveRequest(${req.id})" class="btn btn-sm btn-outline-success rounded-pill px-3 me-2">Approve</button>
-                                <button onclick="rejectRequest(${req.id})" class="btn btn-sm btn-outline-danger rounded-pill px-3">Reject</button>
+                                <button onclick="approveRequest('${req.id}')" class="btn btn-sm btn-outline-success rounded-pill px-3 me-2">Approve</button>
+                                <button onclick="rejectRequest('${req.id}')" class="btn btn-sm btn-outline-danger rounded-pill px-3">Reject</button>
                             ` : `<span class="badge bg-secondary opacity-50" style="font-size: 0.6rem;">PROCESSED</span>`}
                         </td>
                     </tr>
