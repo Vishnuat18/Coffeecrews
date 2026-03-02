@@ -896,6 +896,7 @@ class DataManager {
     static async submitPasscodeRequest(memberId, memberName, currentPass, newPass) {
         const member = await this.getMemberById(memberId);
         if (!member) return { success: false, message: "Member not found." };
+        if (member.passcode !== currentPass) return { success: false, message: "Current passcode is incorrect." };
 
         // 1. Log request to local storage/db
         const requests = await this.getPasscodeRequests();
