@@ -458,25 +458,9 @@ class DataManager {
                 return INITIAL_MEMBERS;
             }
 
-            // Convert object to array, deduplicating by ID in case of mixed array/object structure
-            const arr = Array.isArray(data) ? data : Object.values(data);
-            const map = new Map();
-            // We iterate so that string keys (e.g. data["vishnu"]) overwrite numeric keys (e.g. data[0]) if they exist
-            if (!Array.isArray(data)) {
-                Object.keys(data).forEach(key => {
-                    const m = data[key];
-                    if (m && m.id) {
-                        // if key is string, it takes precedence over numeric keys
-                        if (isNaN(key)) map.set(m.id.toLowerCase(), m);
-                        else if (!map.has(m.id.toLowerCase())) map.set(m.id.toLowerCase(), m);
-                    }
-                });
-            } else {
-                arr.forEach(m => {
-                    if (m && m.id) map.set(m.id.toLowerCase(), m);
-                });
-            }
-            return Array.from(map.values());
+            // Return as array, ensuring consistency
+            const members = Array.isArray(data) ? data : Object.values(data);
+            return members.filter(m => m && m.id);
         } catch (e) {
             console.error("Firebase access failed:", e);
             return INITIAL_MEMBERS;
@@ -485,13 +469,13 @@ class DataManager {
 
     static async getMemberById(id) {
         if (!id) return null;
-        const members = await this.getAllMembers();
         const searchId = id.toString().toLowerCase();
-        return members.find(m => m.id.toString().toLowerCase() === searchId);
+        const snapshot = await db.ref(`members/${searchId}`).once('value');
+        return snapshot.val();
     }
 
     static async saveAllMembers(members) {
-        // Convert array to object keyed by ID
+        // Convert array to object keyed by ID to prevent numeric array indices
         const obj = {};
         members.forEach(m => {
             if (m && m.id) obj[m.id.toLowerCase()] = m;
@@ -508,7 +492,8 @@ class DataManager {
         let updatedCount = 0;
 
         // Fields that come from INITIAL_MEMBERS (base config)
-        const BASE_FIELDS = ['id', 'ccCode', 'passcode', 'name', 'role', 'bloodGroup',
+        // NOTE: 'passcode' removed from BASE_FIELDS to prevent resetting user changes
+        const BASE_FIELDS = ['id', 'ccCode', 'name', 'role', 'bloodGroup',
             'access', 'description', 'image', 'accent', 'contact'];
 
         const updates = {};
@@ -520,12 +505,15 @@ class DataManager {
             const patch = {};
             BASE_FIELDS.forEach(f => { if (source[f] !== undefined) patch[f] = source[f]; });
 
-            // Merge existing dynamic data with source base data
-            updates[safeId] = { ...existing, ...patch, id: safeId };
+            // Merge existing dynamic data (achievements, streaks, customized passcodes) with source base data
+            // Maintain existing passcode if it exists
+            const passcode = existing.passcode || source.passcode;
+            updates[safeId] = { ...existing, ...patch, id: safeId, passcode };
             updatedCount++;
         });
 
-        await db.ref('members').update(updates);
+        // Use .set() to replace the entire collection with the standardized keyed object (removes numeric indices)
+        await db.ref('members').set(updates);
         return { seeded: 0, updated: updatedCount, msg: `Patched ${updatedCount} member(s) and standardized storage.` };
     }
 
