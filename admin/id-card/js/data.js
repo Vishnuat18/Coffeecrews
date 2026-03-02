@@ -458,8 +458,25 @@ class DataManager {
                 return INITIAL_MEMBERS;
             }
 
-            // Convert object to array if needed
-            return Array.isArray(data) ? data : Object.values(data);
+            // Convert object to array, deduplicating by ID in case of mixed array/object structure
+            const arr = Array.isArray(data) ? data : Object.values(data);
+            const map = new Map();
+            // We iterate so that string keys (e.g. data["vishnu"]) overwrite numeric keys (e.g. data[0]) if they exist
+            if (!Array.isArray(data)) {
+                Object.keys(data).forEach(key => {
+                    const m = data[key];
+                    if (m && m.id) {
+                        // if key is string, it takes precedence over numeric keys
+                        if (isNaN(key)) map.set(m.id.toLowerCase(), m);
+                        else if (!map.has(m.id.toLowerCase())) map.set(m.id.toLowerCase(), m);
+                    }
+                });
+            } else {
+                arr.forEach(m => {
+                    if (m && m.id) map.set(m.id.toLowerCase(), m);
+                });
+            }
+            return Array.from(map.values());
         } catch (e) {
             console.error("Firebase access failed:", e);
             return INITIAL_MEMBERS;
@@ -474,7 +491,12 @@ class DataManager {
     }
 
     static async saveAllMembers(members) {
-        await db.ref('members').set(members);
+        // Convert array to object keyed by ID
+        const obj = {};
+        members.forEach(m => {
+            if (m && m.id) obj[m.id.toLowerCase()] = m;
+        });
+        await db.ref('members').set(obj);
     }
 
     // Non-destructive seed: patches base fields from INITIAL_MEMBERS into Firebase
@@ -1316,6 +1338,14 @@ const ACHIEVEMENT_DEFINITIONS = {
 };
 
 class AchievementsEngine {
+
+    static async checkAllMembers() {
+        const members = await DataManager.getAllMembers();
+        const promises = members.map(m => this.checkAll(m.id));
+        await Promise.allSettled(promises);
+        console.log("Achievements synced for all members.");
+        return true;
+    }
 
     static async checkAll(userId) {
         if (!userId) return null;

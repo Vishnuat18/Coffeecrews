@@ -1384,8 +1384,12 @@ x`<html lang="en">
         }
 
         async function openGlobalConfig() {
+            showToast("Syncing achievements for all personnel...", "info");
+            if (window.AchievementsEngine) {
+                await window.AchievementsEngine.checkAllMembers();
+            }
             const members = await DataManager.getAllMembers();
-            await tacticalAlert(`Global Configuration: ${members.length} personnel records active.`, "SYSTEM DATA");
+            await tacticalAlert(`Global Configuration: ${members.length} personnel records active and synced.`, "SYSTEM DATA");
         }
 
         // ─── ADMIN GROUP CHAT FUNCTIONS ───────────────────────────────────────
