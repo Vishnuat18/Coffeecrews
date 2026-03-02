@@ -470,8 +470,21 @@ class DataManager {
     static async getMemberById(id) {
         if (!id) return null;
         const searchId = id.toString().toLowerCase();
+
+        // Try direct keyed access first
         const snapshot = await db.ref(`members/${searchId}`).once('value');
-        return snapshot.val();
+        const keyedData = snapshot.val();
+
+        // If it's a complete record, return it
+        if (keyedData && keyedData.name) return keyedData;
+
+        // Fallback: search in all members (handles array structure or partial records)
+        const all = await this.getAllMembers();
+        const found = all.find(m => m && m.id && m.id.toString().toLowerCase() === searchId);
+
+        // If we found a full record elsewhere but have partial keyed data, merge them
+        if (found && keyedData) return { ...found, ...keyedData };
+        return found || keyedData;
     }
 
     static async saveAllMembers(members) {
@@ -487,9 +500,24 @@ class DataManager {
     // Preserves dynamic fields: attendance, achievements, driveLinks, etc.
     static async seedMembersToFirebase() {
         const snapshot = await db.ref('members').once('value');
-        const current = snapshot.val() || {};
+        const data = snapshot.val() || {};
 
         let updatedCount = 0;
+
+        // Canonicalize current data to an object keyed by ID
+        const current = {};
+        if (Array.isArray(data)) {
+            data.forEach(m => { if (m && m.id) current[m.id.toLowerCase()] = m; });
+        } else {
+            Object.keys(data).forEach(key => {
+                const m = data[key];
+                // Record might be indexed by numeric key or string ID
+                const id = (m && m.id) ? m.id.toLowerCase() : (isNaN(key) ? key.toLowerCase() : null);
+                if (id) {
+                    current[id] = { ...(current[id] || {}), ...m };
+                }
+            });
+        }
 
         // Fields that come from INITIAL_MEMBERS (base config)
         // NOTE: 'passcode' removed from BASE_FIELDS to prevent resetting user changes
@@ -514,7 +542,7 @@ class DataManager {
 
         // Use .set() to replace the entire collection with the standardized keyed object (removes numeric indices)
         await db.ref('members').set(updates);
-        return { seeded: 0, updated: updatedCount, msg: `Patched ${updatedCount} member(s) and standardized storage.` };
+        return { seeded: 0, updated: updatedCount, msg: `Standardized ${updatedCount} personnel records.` };
     }
 
     static async updateMember(id, updatedData) {
