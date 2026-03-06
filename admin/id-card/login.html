@@ -398,14 +398,22 @@
 
             // Normalize code (check if they entered CC-XXXX or just XXXX)
             const cleanCode = codeInput.toUpperCase().replace('CC-', '');
-            const validPass = currentMember.passcode || currentMember.ccCode;
+
+            // Always re-fetch fresh member data from Firebase to get the latest passcode
+            let freshMember = null;
+            try {
+                freshMember = await DataManager.getMemberById(currentMember.id);
+            } catch (e) { /* ignore, fall back to cached */ }
+            const memberToCheck = freshMember || currentMember;
+
+            const validPass = memberToCheck.passcode || memberToCheck.ccCode;
 
             if (cleanCode === validPass) {
                 // CHECK IF BLOCKED (admins are immune to suspension)
                 const dualAccessIds = ['vishnu', 'prasanna', 'dharani'];
-                const isAdmin = dualAccessIds.includes(currentMember.id) || currentMember.access === 'admin';
-                if (!isAdmin && currentMember.blockedUntil && currentMember.blockedUntil > Date.now()) {
-                    const remainingMs = currentMember.blockedUntil - Date.now();
+                const isAdmin = dualAccessIds.includes(memberToCheck.id) || memberToCheck.access === 'admin';
+                if (!isAdmin && memberToCheck.blockedUntil && memberToCheck.blockedUntil > Date.now()) {
+                    const remainingMs = memberToCheck.blockedUntil - Date.now();
                     const days = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
                     const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
 
@@ -434,18 +442,18 @@
                 // Set session
                 const role = isAdmin ? 'admin' : 'crew';
 
-                console.log("Auth Success for:", currentMember.id, "Role assigned:", role);
+                console.log("Auth Success for:", memberToCheck.id, "Role assigned:", role);
 
                 // --- CHANGED: Use sessionStorage for tab-specific lifecycle ---
                 sessionStorage.setItem('cc_session', JSON.stringify({
-                    id: currentMember.id,
+                    id: memberToCheck.id,
                     role: role,
-                    name: currentMember.name,
+                    name: memberToCheck.name,
                     timestamp: Date.now()
                 }));
 
                 // --- REMOVED: TACTICAL ATTENDANCE LOGGING (Now manual only per user request) ---
-                showToast(`Agent ${currentMember.name.toUpperCase()} logged in.`, "success");
+                showToast(`Agent ${memberToCheck.name.toUpperCase()} logged in.`, "success");
 
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
