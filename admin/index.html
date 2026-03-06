@@ -1142,6 +1142,7 @@ x`<html lang="en">
 
         function filterMembers(query = '') {
             const filtered = cachedMembers.filter(m =>
+                m && m.id && m.name && m.role &&
                 (m.name.toLowerCase().includes(query) ||
                     m.id.toLowerCase().includes(query) ||
                     m.role.toLowerCase().includes(query)) &&
@@ -1222,7 +1223,11 @@ x`<html lang="en">
 
             // Calculate Absentees
             const presentIds = list.map(e => e.memberId);
-            const absentList = cachedMembers.filter(m => m.access !== 'admin' && !presentIds.includes(m.id));
+            const absentList = cachedMembers.filter(m =>
+                m && m.id && m.name && m.name !== 'undefined' &&
+                m.access !== 'admin' &&
+                !presentIds.includes(m.id)
+            );
 
             if (presentList.length === 0) {
                 presentContainer.innerHTML = '<span class="opacity-30 small italic">Waiting for agents...</span>';

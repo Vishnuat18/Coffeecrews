@@ -923,35 +923,46 @@ class DataManager {
     static async getPasscodeRequests() {
         const snapshot = await db.ref('requests').once('value');
         const val = snapshot.val();
-        return val ? Object.values(val).reverse() : [];
+        if (!val) return [];
+        // Handle both array (legacy) and object (keyed) formats
+        const arr = Array.isArray(val) ? val : Object.values(val);
+        return arr.filter(r => r && r.id).reverse();
     }
 
     static async savePasscodeRequests(requests) {
-        await db.ref('requests').set(requests);
+        // Save as an object keyed by request id to avoid Firebase array corruption
+        const obj = {};
+        requests.forEach(r => { if (r && r.id) obj[r.id] = r; });
+        await db.ref('requests').set(obj);
         window.dispatchEvent(new CustomEvent('cc_security_update'));
     }
 
     static async submitPasscodeRequest(memberId, memberName, currentPass, newPass) {
         const member = await this.getMemberById(memberId);
         if (!member) return { success: false, message: "Member not found." };
-        if (member.passcode !== currentPass) return { success: false, message: "Current passcode is incorrect." };
 
-        // 1. Log request to local storage/db
-        const requests = await this.getPasscodeRequests();
+        const storedPass = member.passcode || member.ccCode;
+        if (storedPass !== currentPass) return { success: false, message: "Current passcode is incorrect." };
+
+        const safeId = memberId.toString().toLowerCase();
+
+        // 1. Immediately update the passcode in Firebase so login works right away
+        await db.ref(`members/${safeId}/passcode`).set(newPass);
+
+        // 2. Log the request for HQ records
+        const reqId = 'REQ-' + Math.floor(Math.random() * 90000 + 10000);
         const newReq = {
-            id: 'REQ-' + Math.floor(Math.random() * 90000 + 10000),
+            id: reqId,
             memberId,
             memberName,
             currentPass,
             newPass,
-            status: 'pending',
+            status: 'approved',  // Auto-approved since passcode is already changed
             date: new Date().toLocaleString()
         };
-        requests.push(newReq);
-        await this.savePasscodeRequests(requests);
+        await db.ref(`requests/${reqId}`).set(newReq);
 
-        // 2. Mark flag on member record (Unlocks "Rule Breaker" achievement)
-        const safeId = memberId.toString().toLowerCase();
+        // 3. Mark flag on member record (Unlocks "Rule Breaker" achievement)
         await db.ref(`members/${safeId}/passcodeChanged`).set(true);
 
         // Trigger achievement check instantly after submission
@@ -959,7 +970,7 @@ class DataManager {
             window.AchievementsEngine.checkAll(safeId);
         }
 
-        return { success: true, message: "Passcode change request submitted to HQ." };
+        return { success: true, message: "Passcode updated successfully! You can now login with your new code." };
     }
 
     static async approvePasscodeRequest(requestId) {
@@ -1038,7 +1049,9 @@ class DataManager {
         const listener = (snapshot) => {
             const data = snapshot.val();
             const list = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-            callback(list);
+            // Filter out any null/invalid entries (e.g. Firebase array remnants without name/id)
+            const valid = list.filter(m => m && m.id && m.name && m.name !== 'undefined');
+            callback(valid);
         };
         ref.on('value', listener);
         return () => ref.off('value', listener);
