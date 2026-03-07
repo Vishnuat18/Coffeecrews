@@ -1076,6 +1076,10 @@ x`<html lang="en">
                 renderMembersUI(members);
                 updateStatsUI(members);
                 updateSyncTime();
+                // Re-render attendance with latest members to fix race condition
+                if (lastAttendanceList.length > 0 || cachedMembers.length > 0) {
+                    renderAttendanceUI(lastAttendanceList);
+                }
             });
 
             // 2. Applications
@@ -1087,6 +1091,7 @@ x`<html lang="en">
 
             // 3. Attendance
             DataManager.subscribeToDailyAttendance((list) => {
+                lastAttendanceList = list; // Cache for race-condition fix
                 renderAttendanceUI(list);
                 document.getElementById('stat-attendance').textContent = list.length;
                 updateSyncTime();
@@ -1125,8 +1130,9 @@ x`<html lang="en">
             gsap.from("#commander-profile", { opacity: 0, x: -20, duration: 0.8, ease: "power2.out" });
         }
 
-        // Global cache for filtering
+        // Global cache for filtering and absent calculation
         let cachedMembers = [];
+        let lastAttendanceList = []; // Cache for race-condition fix
 
         function updateStatsUI(members) {
             const totalCrew = members.filter(m => m.access !== 'admin').length;
@@ -1221,12 +1227,13 @@ x`<html lang="en">
             const presentList = list.filter(entry => entry.status === 'present' || !entry.status);
             const lateList = list.filter(entry => entry.status === 'late');
 
-            // Calculate Absentees
-            const presentIds = list.map(e => e.memberId);
+            // Normalize all present IDs to lowercase to avoid case-mismatch misses
+            const presentIds = list.map(e => (e.memberId || '').toString().toLowerCase());
+
+            // Absent = any member not in today's attendance log (include ALL members, check by lowercase id)
             const absentList = cachedMembers.filter(m =>
                 m && m.id && m.name && m.name !== 'undefined' &&
-                m.access !== 'admin' &&
-                !presentIds.includes(m.id)
+                !presentIds.includes(m.id.toString().toLowerCase())
             );
 
             if (presentList.length === 0) {
@@ -1254,13 +1261,18 @@ x`<html lang="en">
             }
 
             if (absentList.length === 0) {
-                absentContainer.innerHTML = '<span class="opacity-30 small italic">All crew members accounted for.</span>';
+                // If members haven't loaded yet, show a loading state instead of false "all accounted for"
+                if (cachedMembers.length === 0) {
+                    absentContainer.innerHTML = '<span class="opacity-30 small italic"><i class="fas fa-spinner fa-spin me-2"></i>Loading member data...</span>';
+                } else {
+                    absentContainer.innerHTML = '<span class="opacity-30 small italic">All crew members accounted for.</span>';
+                }
             } else {
                 absentContainer.innerHTML = absentList.map(member => `
                     <div class="glass px-3 py-2 d-flex align-items-center gap-2" style="border-radius: 50px; border-color: #ff003c; background: rgba(255, 0, 60, 0.05);">
                         <div style="width: 8px; height: 8px; background: #ff003c; border-radius: 50%; box-shadow: 0 0 10px #ff003c;"></div>
                         <span class="small fw-bold" style="color: #ff003c">${member.name}</span>
-                        <span class="opacity-40" style="font-size: 0.6rem;">UNREACHABLE</span>
+                        <span class="opacity-40" style="font-size: 0.6rem;">NO CLOCK-IN</span>
                     </div>
                 `).join('');
             }
