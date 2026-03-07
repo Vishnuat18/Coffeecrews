@@ -1854,6 +1854,12 @@
                             style="background: rgba(10,255,10,0.1); border: 1px solid #0aff0a; color: #0aff0a; border-radius: 30px; padding: 10px 20px; font-family:'Orbitron'; font-size: 0.6rem;">
                             <i class="fas fa-calendar-check"></i> MARK TODAY PRESENT
                         </button>
+                        <button id="btn-force-attendance" onclick="forceMarkTodayAttendance()" class="btn-primary"
+                            style="display:none; background: rgba(255,200,0,0.12); border: 1px solid #ffd700; color: #ffd700; border-radius: 30px; padding: 10px 20px; font-family:'Orbitron'; font-size: 0.6rem;"
+                            title="Admin Override: Force mark as PRESENT regardless of time">
+                            <i class="fas fa-bolt"></i> FORCE PRESENT
+                        </button>
+
                     </div>
                     <!-- Month navigator -->
                     <div
@@ -4076,6 +4082,25 @@
             }
         }
 
+        // ADMIN FORCE OVERRIDE: Marks Vishnu present at any time, bypassing all restrictions
+        async function forceMarkTodayAttendance() {
+            if (!activeMember || activeMember.id.toLowerCase() !== 'vishnu') {
+                showToast('FORCE OVERRIDE: Restricted to Vishnu only.', 'error');
+                return;
+            }
+            if (await tacticalConfirm("FORCE MARK VISHNU AS PRESENT TODAY?\nThis override bypasses all time restrictions.", "⚡ ADMIN FORCE OVERRIDE")) {
+                const ok = await window.DataManager.forceMarkAttendance('vishnu');
+                if (ok) {
+                    activeMember = await window.DataManager.getMemberById('vishnu');
+                    renderCalendar();
+                    updateAttendanceBtn();
+                    showToast('⚡ FORCE OVERRIDE: Vishnu marked PRESENT ✅', 'success');
+                } else {
+                    showToast('Force override failed. Check console.', 'error');
+                }
+            }
+        }
+
         // Updates the attendance button state based on current time and existing mark
         function updateAttendanceBtn() {
             const btn = document.getElementById('btn-attendance');
@@ -4102,10 +4127,26 @@
                 btn.style.opacity = '0.4';
                 btn.style.cursor = 'not-allowed';
             } else {
-                btn.innerHTML = '✓ MARK TODAY PRESENT';
+                btn.innerHTML = '<i class="fas fa-calendar-check"></i> MARK TODAY PRESENT';
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 btn.style.cursor = 'pointer';
+            }
+
+            // Show Force Present button only for Vishnu
+            const forceBtn = document.getElementById('btn-force-attendance');
+            if (forceBtn && activeMember && activeMember.id.toLowerCase() === 'vishnu') {
+                forceBtn.style.display = 'inline-flex';
+                // Update Force button label based on today's status
+                if (alreadyMarked) {
+                    forceBtn.innerHTML = '<i class="fas fa-bolt"></i> RE-FORCE PRESENT';
+                } else {
+                    forceBtn.innerHTML = '<i class="fas fa-bolt"></i> FORCE PRESENT';
+                }
+                forceBtn.disabled = false;
+                forceBtn.style.opacity = '1';
+            } else if (forceBtn) {
+                forceBtn.style.display = 'none';
             }
         }
 

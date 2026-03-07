@@ -878,6 +878,58 @@ class DataManager {
         }
     }
 
+    // FORCE OVERRIDE: Admin-only method — marks 'present' at any time, overwrites existing entry
+    static async forceMarkAttendance(userId) {
+        try {
+            const safeId = userId.toString().toLowerCase();
+            const member = await this.getMemberById(safeId);
+            if (!member) return false;
+
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const log = {
+                memberId: safeId,
+                memberName: member.name,
+                status: 'present',
+                timestamp: Date.now(),
+                time: time,
+                forcedByAdmin: true
+            };
+
+            // Always overwrite the global daily node
+            await db.ref(`attendance/${today}/${safeId}`).set(log);
+
+            // Always overwrite the member's personal attendance entry
+            let attendance = {};
+            if (Array.isArray(member.attendance)) {
+                member.attendance.forEach(d => {
+                    if (d && typeof d === 'string') {
+                        attendance[d] = { status: 'present', time: '09:00 AM', migrated: true };
+                    }
+                });
+            } else if (member.attendance && typeof member.attendance === 'object') {
+                attendance = { ...member.attendance };
+            }
+
+            // Force-overwrite today's entry
+            attendance[today] = { status: 'present', time, timestamp: Date.now(), forcedByAdmin: true };
+            await db.ref(`members/${safeId}/attendance`).set(attendance);
+
+            // Trigger achievement check
+            if (window.AchievementsEngine) {
+                window.AchievementsEngine.checkAll(safeId);
+            }
+
+            window.dispatchEvent(new CustomEvent('coffeecrews_data_update', { detail: { id: safeId } }));
+            return true;
+        } catch (e) {
+            console.error("Force attendance failed:", e);
+            return false;
+        }
+    }
+
     static async getDailyAttendance(date = null) {
         const today = date || new Date().toISOString().split('T')[0];
         const snapshot = await db.ref(`attendance/${today}`).once('value');
